@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+body {
+  cursor: default;
+}

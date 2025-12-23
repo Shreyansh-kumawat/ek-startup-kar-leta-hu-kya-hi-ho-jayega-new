@@ -1,0 +1,56 @@
+<svg width="260" height="260" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <defs>
+    <radialGradient id="globeGrad" cx="30%" cy="25%" r="70%">
+      <stop offset="0%" stop-color="#E0F4FF"/>
+      <stop offset="60%" stop-color="#74C0FC"/>
+      <stop offset="100%" stop-color="#1864AB"/>
+    </radialGradient>
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFB457"/>
+      <stop offset="50%" stop-color="#FF922B"/>
+      <stop offset="100%" stop-color="#F76707"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Soft outer glow -->
+  <circle cx="130" cy="130" r="118" fill="#E7F5FF" opacity="0.8"/>
+  <!-- Main globe -->
+  <circle cx="130" cy="130" r="100" fill="url(#globeGrad)"/>
+
+  <!-- Longitude lines -->
+  <g stroke="#D0EBFF" stroke-width="1.5" opacity="0.9">
+    <ellipse cx="130" cy="130" rx="82" ry="100" fill="none"/>
+    <ellipse cx="130" cy="130" rx="40" ry="100" fill="none"/>
+    <ellipse cx="130" cy="130" rx="15" ry="100" fill="none"/>
+  </g>
+
+  <!-- Latitude lines -->
+  <g stroke="#D0EBFF" stroke-width="1.5" opacity="0.9">
+    <ellipse cx="130" cy="130" rx="90" ry="60" fill="none"/>
+    <ellipse cx="130" cy="110" rx="75" ry="45" fill="none"/>
+    <ellipse cx="130" cy="150" rx="75" ry="45" fill="none"/>
+  </g>
+
+  <!-- Orbiting orange ring -->
+  <g transform="rotate(-20 130 130)">
+    <ellipse cx="130" cy="130" rx="120" ry="40"
+             fill="none" stroke="url(#ringGrad)" stroke-width="10"
+             stroke-linecap="round"/>
+    <!-- Small highlight on ring -->
+    <ellipse cx="80" cy="120" rx="10" ry="4"
+             fill="#FFE8CC" opacity="0.9"/>
+  </g>
+
+  <!-- Top highlight -->
+  <ellipse cx="110" cy="95" rx="45" ry="24"
+           fill="#FFFFFF" opacity="0.55"/>
+
+  <!-- Subtle shadow at bottom -->
+  <ellipse cx="130" cy="205" rx="60" ry="16"
+           fill="#1864AB" opacity="0.25"/>
+
+  <!-- Small orange marker (like a location pin dot) -->
+  <circle cx="175" cy="105" r="6" fill="#FF922B" stroke="#FFF4E6" stroke-width="2"/>
+
+</svg>
