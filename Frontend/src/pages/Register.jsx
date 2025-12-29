@@ -12,6 +12,10 @@ import { useNotification } from '../hooks/useNotification';
 const Register = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+   useEffect(() => {
+    document.title = "Register | 3Digree";
+  }, []);
   
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -168,13 +172,10 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <div className="mb-6">
-            <h1 className="text-4xl font-bold text-blue-600 mb-2">3Digree-TBS</h1>  
-            <p className="text-gray-600">Template Booking System</p>
-          </div>
+ 
           
           <h2 className="text-3xl font-extrabold text-gray-900">
-            Create your account
+            Create Your Account
           </h2>
           
           <p className="mt-2 text-sm text-gray-600">
@@ -182,9 +183,9 @@ const Register = () => {
             <Link 
               to="/login"
               state={{ from: location.state?.from, returnToTemplate: location.state?.returnToTemplate }}
-              className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              className="font-bold text-md text-blue-600 hover:text-blue-500 transition-colors"
             >
-              sign in to your existing account
+              Login
             </Link>
           </p>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../features/auth/useAuth';
@@ -9,146 +9,6 @@ import Input from '../components/Input';
 import Card from '../components/Card';
 import { useNotification } from '../hooks/useNotification';
 
-
-// AI Video Tutorial Component for Login Page (Video 10)
-const AIVideoTutorialLogin = memo(() => {
-  // ✅ CHECK FOR VIDEO 10 TICKET
-  const hasVideo10Ticket = sessionStorage.getItem('video10Ticket') === 'active';
-  
-  const [isVisible, setIsVisible] = useState(hasVideo10Ticket);
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const animationFrameRef = useRef(null);
-  const frameSkipCounter = useRef(0);
-
-  // ✅ USE TICKET ON MOUNT
-  useEffect(() => {
-    if (hasVideo10Ticket) {
-      sessionStorage.removeItem('video10Ticket');
-      console.log('🎫 Video 10 ticket used!');
-    }
-  }, [hasVideo10Ticket]);
-
-
-  const handleVideoEnd = () => {
-    // Video 10 ends → Hide video and cross button completely
-    setIsVisible(false);
-    console.log('🎥 Video 10 ended - Hiding for privacy');
-  };
-
-
-  const processFrame = useCallback(() => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    
-    if (!video || !canvas || video.paused || video.ended) return;
-
-
-    frameSkipCounter.current++;
-    if (frameSkipCounter.current % 2 !== 0) {
-      animationFrameRef.current = requestAnimationFrame(processFrame);
-      return;
-    }
-
-
-    const ctx = canvas.getContext('2d', { 
-      willReadFrequently: true,
-      alpha: true 
-    });
-
-
-    const scale = 0.5;
-    canvas.width = video.videoWidth * scale;
-    canvas.height = video.videoHeight * scale;
-
-
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = new Uint32Array(imageData.data.buffer);
-
-
-    const topLimit = Math.floor(canvas.height * 1);
-    const leftLimit = Math.floor(canvas.width * 0.4);
-
-
-    for (let y = 0; y < canvas.height; y++) {
-      for (let x = 0; x < canvas.width; x++) {
-        const inGreenArea = y < topLimit || x < leftLimit;
-        
-        if (inGreenArea) {
-          const i = y * canvas.width + x;
-          const pixel = data[i];
-          
-          const r = pixel & 0xff;
-          const g = (pixel >> 8) & 0xff;
-          const b = (pixel >> 16) & 0xff;
-          
-          if (g > 100 && g > r * 1.5 && g > b * 1.5) {
-            data[i] = pixel & 0x00ffffff;
-          }
-        }
-      }
-    }
-
-
-    ctx.putImageData(imageData, 0, 0);
-    animationFrameRef.current = requestAnimationFrame(processFrame);
-  }, []);
-
-
-  useEffect(() => {
-    if (videoRef.current && isVisible) {
-      const video = videoRef.current;
-      
-      frameSkipCounter.current = 0;
-      video.load();
-      video.play().then(() => {
-        processFrame();
-      }).catch(err => {
-        console.log('Video 10 play failed:', err);
-      });
-
-
-      return () => {
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
-        }
-      };
-    }
-  }, [isVisible, processFrame]);
-
-
-  if (!isVisible) return null;
-
-
-  return (
-    <div className="fixed bottom-4 right-4 z-50" style={{ width: "15vw", minWidth: "200px" }}>
-      <div className="relative bg-transparent rounded-lg overflow-hidden">
-        <video
-          ref={videoRef}
-          onEnded={handleVideoEnd}
-          className="hidden"
-          crossOrigin="anonymous"
-        >
-          <source src="/tutorials/10.mp4" type="video/mp4" />
-        </video>
-
-
-        <canvas
-          ref={canvasRef}
-          className="w-full h-auto rounded-lg"
-        />
-      </div>
-    </div>
-  );
-});
-
-
-AIVideoTutorialLogin.displayName = 'AIVideoTutorialLogin';
-
-
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -156,22 +16,14 @@ const Login = () => {
   const { showError, showSuccess } = useNotification();
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+   useEffect(() => {
+      document.title = "Login | 3Digree";
+    }, []);
   
   // Check if user came from TemplateDetails (after clicking "Get This Website" without login)
   const from = location.state?.from?.pathname || '/';
   const returnToTemplate = location.state?.returnToTemplate || false;
-  
-  
- // ✅ SHOW VIDEO 10 ONLY IF TICKET EXISTS AND USER WANTS TUTORIAL
-const [showVideo10] = useState(() => {
-  const hasTicket = sessionStorage.getItem('video10Ticket') === 'active';
-  const userWantsTutorial = localStorage.getItem('showAITutorial') !== 'false'; // ✅ CHECK USER PREFERENCE
-  
-  console.log('🎫 Checking video 10 ticket:', hasTicket, 'User wants tutorial:', userWantsTutorial);
-  
-  return hasTicket && returnToTemplate && userWantsTutorial; // ✅ ALL CONDITIONS
-});
-
   
   const {
     values,
@@ -192,18 +44,30 @@ const [showVideo10] = useState(() => {
     }
   );
   
+  // ✅ FIXED: Google Login with proper token saving
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (codeResponse) => {
       try {
         const result = await googleLogin(codeResponse.code);
         
         if (result.success) {
+          // ✅ CRITICAL FIX: Save token to localStorage
+          if (result.token) {
+            localStorage.setItem('token', result.token);
+          }
+          
+          // Save user data
+          if (result.user) {
+            localStorage.setItem('user', JSON.stringify(result.user));
+          }
+          
           showSuccess(`Welcome back, ${result.user.name}!`);
           
-          // After successful login from template details, create video 11 ticket
+          // Navigate based on where user came from
           if (returnToTemplate && from !== '/login') {
-            sessionStorage.setItem('video11Ticket', 'active');
-            console.log('🎫 Video 11 ticket created after login!');
+            navigate(from, { replace: true });
+          } else {
+            navigate('/dashboard', { replace: true });
           }
         } else {
           showError(result.error || 'Google login failed');
@@ -242,12 +106,15 @@ const [showVideo10] = useState(() => {
       const result = await login(formData);
       
       if (result?.success) {
+        // ✅ Token already saved in auth context, but ensure it's there
+        if (result.token) {
+          localStorage.setItem('token', result.token);
+        }
+        
         showSuccess(`Welcome back, ${result.user?.name || 'User'}!`);
         
-        // After successful login from template details, create video 11 ticket
+        // Navigate based on where user came from
         if (returnToTemplate && from !== '/login') {
-          sessionStorage.setItem('video11Ticket', 'active');
-          console.log('🎫 Video 11 ticket created after login!');
           navigate(from, { replace: true });
         } else {
           navigate('/dashboard', { replace: true });
@@ -261,7 +128,6 @@ const [showVideo10] = useState(() => {
     }
   };
 
-
   const handleDemoLogin = async (userType) => {
     const demoCredentials = {
       user: {
@@ -274,7 +140,6 @@ const [showVideo10] = useState(() => {
       }
     };
 
-
     try {
       setFieldValue('email', demoCredentials[userType].email);
       setFieldValue('password', demoCredentials[userType].password);
@@ -282,12 +147,15 @@ const [showVideo10] = useState(() => {
       const result = await login(demoCredentials[userType]);
       
       if (result?.success) {
+        // ✅ Ensure token is saved
+        if (result.token) {
+          localStorage.setItem('token', result.token);
+        }
+        
         showSuccess(`Demo ${userType} login successful!`);
         
-        // After successful login from template details, create video 11 ticket
+        // Navigate based on where user came from
         if (returnToTemplate && from !== '/login') {
-          sessionStorage.setItem('video11Ticket', 'active');
-          console.log('🎫 Video 11 ticket created after demo login!');
           navigate(from, { replace: true });
         } else {
           navigate('/dashboard', { replace: true });
@@ -303,16 +171,9 @@ const [showVideo10] = useState(() => {
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      {/* Show video 10 ONLY if ticket exists */}
-      {showVideo10 && <AIVideoTutorialLogin />}
-      
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <div className="mb-6">
-            <h1 className="text-4xl font-bold text-blue-600 mb-2">3Degree-TBS</h1>
-            <p className="text-gray-600">Template Booking System</p>
-          </div>
-          
+         
           <h2 className="text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
@@ -322,9 +183,9 @@ const [showVideo10] = useState(() => {
             <Link 
               to="/register" 
               state={{ from: location.state?.from, returnToTemplate: location.state?.returnToTemplate }}
-              className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              className="font-bold textmd text-blue-600 hover:text-blue-500 transition-colors"
             >
-              create a new account
+              Create New Account
             </Link>
           </p>
         </div>
@@ -353,7 +214,6 @@ const [showVideo10] = useState(() => {
             <span className="text-sm font-medium text-gray-700">Continue with Google</span>
           </button>
 
-
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
@@ -362,7 +222,6 @@ const [showVideo10] = useState(() => {
               <span className="px-2 bg-white text-gray-500">Or sign in with email</span>
             </div>
           </div>
-
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <Input
@@ -410,30 +269,28 @@ const [showVideo10] = useState(() => {
               </button>
             </div>
             
-          <div className="flex items-center justify-between">
-  <div className="flex items-center">
-    <input
-      id="remember-me"
-      name="remember-me"
-      type="checkbox"
-      checked={rememberMe}
-      onChange={(e) => setRememberMe(e.target.checked)}
-      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-    />
-    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-      Remember me
-    </label>
-  </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                  Remember me
+                </label>
+              </div>
 
-  {/* ✅ NEW: Forgot Password Link */}
-  <Link 
-    to="/forgot-password" 
-    className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
-  >
-    Forgot Password?
-  </Link>
-</div>
-
+              <Link 
+                to="/forgot-password" 
+                className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              >
+                Forgot Password?
+              </Link>
+            </div>
             
             <Button
               type="submit"
@@ -448,7 +305,6 @@ const [showVideo10] = useState(() => {
           </form>
         </Card>
 
-
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -458,25 +314,8 @@ const [showVideo10] = useState(() => {
           </div>
         </div>
       </div>
-
-
-      {/* CSS for fade-in animation */}
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.5s ease-in;
-        }
-      `}</style>
     </div>
   );
 };
-
 
 export default Login;

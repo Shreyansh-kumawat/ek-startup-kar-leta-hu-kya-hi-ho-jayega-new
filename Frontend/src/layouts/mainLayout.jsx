@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useNotification } from '../hooks/useNotification';
 import Notification from '../components/Notification';
+import Footer from '../pages/Footer';
 
 const MainLayout = () => {
   const { notifications, removeNotification } = useNotification();
@@ -14,6 +15,8 @@ const MainLayout = () => {
       <main className="flex-grow">
         <Outlet />
       </main>
+
+      <Footer />
       
       
       {/* Notifications */}

@@ -4,7 +4,7 @@ const templateSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true, // ✅ This already creates index, so removed duplicate index below
+    unique: true,
     trim: true
   },
   price: {
@@ -13,16 +13,11 @@ const templateSchema = new mongoose.Schema({
     min: 0
   },
   previewImage: {
-    type: String, // Single compressed image URL
+    type: String,
     default: ''
   },
-  // templateLink: {
-  //   type: String, // External link to hosted template
-  //   required: false,
-  //   default: ''
-  // },
   liveDemo: {
-    type: String, // Live demo URL
+    type: String,
     required: true,
   },
   description: {
@@ -31,10 +26,9 @@ const templateSchema = new mongoose.Schema({
     trim: true
   },
   backend: {
-  type: Boolean,
-  default: false
-},
-
+    type: Boolean,
+    default: false
+  },
   
   // CUSTOMIZABLE SECTIONS
   whatsIncluded: {
@@ -82,7 +76,6 @@ const templateSchema = new mongoose.Schema({
     }]
   },
 
-  // Basic fields
   isActive: {
     type: Boolean,
     default: true,
@@ -102,8 +95,16 @@ const templateSchema = new mongoose.Schema({
   }
 });
 
-// ✅ FIXED: Removed duplicate name index (already created by unique: true)
-// templateSchema.index({ name: 1 }); // ← REMOVED this line
+// ✅ VIRTUAL FIELD: displayId (last 6 chars)
+templateSchema.virtual('displayId').get(function() {
+  const last6 = this._id.toString().slice(-6);
+  return `#3di-${last6}`;
+});
+
+// ✅ ENABLE VIRTUALS IN JSON/OBJECT OUTPUT
+templateSchema.set('toJSON', { virtuals: true });
+templateSchema.set('toObject', { virtuals: true });
+
 templateSchema.index({ isActive: 1 });
 templateSchema.index({ createdAt: -1 });
 

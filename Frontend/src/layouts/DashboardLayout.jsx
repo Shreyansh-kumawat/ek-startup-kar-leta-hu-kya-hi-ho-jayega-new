@@ -14,12 +14,14 @@ const DashboardLayout = () => {
   const getPageTitle = () => {
     const path = location.pathname;
     if (path.includes('admin')) return 'Admin Panel';
-    if (path.includes('dashboard')) return 'Dashboard';
-    if (path.includes('projects')) return 'My Projects';
-    if (path.includes('meetings')) return 'Meetings';
-    if (path.includes('orders')) return 'Orders';
+    if (path.includes('bookings')) return 'My Bookings';
+    if (path.includes('meetings')) return 'My Meetings';
+    if (path.includes('account')) return 'My Account';
     return 'Dashboard';
   };
+
+  // ✅ NEW: Get credits safely
+  const credits = user?.credits ?? 0;
 
   // Function to close sidebar
   const closeSidebar = () => {
@@ -62,7 +64,7 @@ const DashboardLayout = () => {
           }
         }}
       >
-        {/* Header - Enhanced responsive design */}
+        {/* Header - Enhanced responsive design with CREDITS */}
         <header className="bg-white shadow-sm border-b border-gray-200 px-4 sm:px-6 py-4 sm:py-5">
           <div className="flex items-center justify-between">
             {/* Title section - Responsive margins and text */}
@@ -75,10 +77,24 @@ const DashboardLayout = () => {
               </p>
             </div>
             
-            {/* User info - Responsive sizing */}
+            {/* ✅ NEW: CREDITS DISPLAY + User info */}
             <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+              {/* Credits Badge */}
+              <div className="flex items-center space-x-1 sm:space-x-2">
+                <div className={`px-2 sm:px-3 py-1.5 rounded-full flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium border ${
+                  credits > 0 
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
+                    : 'bg-gray-50 border-gray-200 text-gray-700'
+                }`}>
+                  <span className="text-xs">🎫</span>
+                  <span className="font-semibold">{credits}</span>
+                  <span className="hidden sm:inline">Credits</span>
+                </div>
+              </div>
+
+              {/* User avatar */}
               <div className="flex items-center space-x-2">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-medium">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-medium">
                   {(user?.name || user?.username || 'U').charAt(0).toUpperCase()}
                 </div>
                 <span className="text-xs sm:text-sm text-gray-700 capitalize hidden sm:inline truncate">

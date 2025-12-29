@@ -1,3 +1,5 @@
+//Backend\controllers\templateBookingController.js
+
 const mongoose = require('mongoose');
 const TemplateBooking = require('../models/TemplateBooking');
 const Template = require('../models/Template');
@@ -30,8 +32,8 @@ const PREDEFINED_MEET_LINKS = [
 let razorpay;
 try {
   razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
+    key_id: process.env.RAZORPAY_KEY_ID_TEST,
+    key_secret: process.env.RAZORPAY_KEY_SECRET_TEST
   });
   // console.log('✅ Razorpay initialized successfully');
 } catch (error) {
@@ -241,7 +243,7 @@ exports.verifyPayment = async (req, res) => {
     // Verify signature
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET_TEST)
       .update(body.toString())
       .digest('hex');
 

@@ -39,6 +39,13 @@ const userSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   authProvider: { type: String, enum: ['local', 'google'], default: 'local' },
   
+  // ✅ NEW: Credits for B2B plans
+  credits: {
+    type: Number,
+    default: 0, // default: no credits
+    min: 0
+  },
+  
   // ✅ NEW: Password Reset Fields
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo, memo, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/useAuth";
 import Button from "../components/Button";
 import Card from "../components/Card";
+import Lenis from 'lenis';
 
 // Memoized Typewriter Component
 const TypewriterEffect = memo(({ texts, speed = 100, delay = 2000 }) => {
@@ -121,8 +122,7 @@ const FAQItem = memo(({ question, answer }) => {
 FAQItem.displayName = 'FAQItem';
 
 // Advanced Pricing Card Component
-
-const PricingCard = memo(({ title, price, websites, bestFor, features, popular, gradient, badge }) => {
+const PricingCard = memo(({ title, price, websites, bestFor, features, popular, gradient, badge, onGetPlan }) => {
   const pricePerWebsite = Math.round(price / parseInt(websites));
   
   return (
@@ -131,19 +131,7 @@ const PricingCard = memo(({ title, price, websites, bestFor, features, popular, 
         ? 'border-[#6498fe] shadow-2xl scale-105 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50' 
         : 'border-gray-200 hover:border-[#6498fe] bg-white'
     }`}>
-      {/* Animated background gradient on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#6498fe] via-purple-600 to-pink-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
-      
-      {/* Badge Image - Top Left */}
-      {/* <div className="absolute top-4 left-4 z-20">
-        <img 
-          src={badge} 
-          alt={`${title} badge`} 
-          className="w-12 h-12 object-contain group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 drop-shadow-lg"
-        />
-      </div> */}
-
-      
       
       <div className="relative z-10 text-center mb-8">
         <h3 className="text-3xl font-extrabold text-gray-900 mb-4 group-hover:text-[#6498fe] transition-colors duration-300">
@@ -163,7 +151,6 @@ const PricingCard = memo(({ title, price, websites, bestFor, features, popular, 
         <p className="text-sm text-gray-500 italic px-4">{bestFor}</p>
       </div>
 
-
       <div className="relative z-10 space-y-4 mb-10">
         {features.map((feature, index) => (
           <div key={index} className="flex items-start gap-3 group/item">
@@ -177,9 +164,9 @@ const PricingCard = memo(({ title, price, websites, bestFor, features, popular, 
         ))}
       </div>
 
-
-      <a href="tel:+917728846516" className="block relative z-10">
+      <div className="block relative z-10">
         <Button
+          onClick={() => onGetPlan(title, price)}
           className={`w-full font-bold py-5 rounded-xl transition-all duration-300 text-lg relative overflow-hidden group/btn cursor-pointer ${
             popular
               ? 'bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white shadow-xl hover:shadow-2xl'
@@ -192,7 +179,7 @@ const PricingCard = memo(({ title, price, websites, bestFor, features, popular, 
           </span>
           <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
         </Button>
-      </a>
+      </div>
     </Card>
   );
 });
@@ -203,10 +190,62 @@ PricingCard.displayName = 'PricingCard';
 
 const Home = () => {
   const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
   
   // Scroll animation state for stats
   const [isStatsVisible, setIsStatsVisible] = useState(false);
   const statsRef = useRef(null);
+
+  // Initialize Lenis Smooth Scroll
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smooth: true,
+      smoothTouch: false,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
+  // Handle Smooth Scroll to Pricing
+  const scrollToPricing = (e) => {
+    e.preventDefault();
+    const pricingSection = document.getElementById('pricing');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
+  // Handle Get Plan Click
+  const handleGetPlan = (planTitle, planPrice) => {
+    // Save token to localStorage
+    const planToken = {
+      plan: planTitle,
+      price: planPrice,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('selectedPlan', JSON.stringify(planToken));
+
+    // Check if user is authenticated
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    } else {
+      navigate('/login');
+    }
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -284,14 +323,14 @@ const Home = () => {
     bestFor: "Solo freelancers with steady clients",
     features: [
       "50+ professional templates",
-      "3-day delivery guarantee",
+      "3-day delivery",
       "Fully white-label",
       "Standard customization",
       "Email support"
     ],
     popular: false,
     gradient: "from-blue-600 to-blue-700",
-    badge: "/silver.png" // Added
+    badge: "/silver.png"
   },
   {
     title: "Growth",
@@ -307,7 +346,7 @@ const Home = () => {
     ],
     popular: true,
     gradient: "from-[#6498fe] to-purple-600",
-    badge: "/gold.png" // Added
+    badge: "/gold.png"
   },
   {
     title: "Scale",
@@ -323,7 +362,7 @@ const Home = () => {
     ],
     popular: false,
     gradient: "from-purple-600 to-pink-600",
-    badge: "/diamond.png" // Added
+    badge: "/diamond.png"
   }
 ], []);
 
@@ -349,10 +388,6 @@ const Home = () => {
       answer: "Absolutely! Your clients will only see your brand. We stay completely invisible in the background as your delivery infrastructure."
     }
   ], []);
-
-
-
-
 
   const displayName = useMemo(() =>
     user?.name || user?.username,
@@ -394,32 +429,27 @@ const Home = () => {
               <span className="text-[#6498fe] font-bold">50+ battle-tested templates</span> and a backend dev team so you can stay focused on clients and sales.
             </p>
 
-           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
-  
-  <a href="#pricing">
-    <button
-      className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-12 py-6 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 text-lg relative overflow-hidden group cursor-pointer inline-flex items-center justify-center"
-      style={{ borderRadius: "16px" }}
-    >
-      <span className="relative z-10 flex items-center gap-3">
-        <span>View Pricing Plans</span>
-        <span className="group-hover:rotate-90 transition-transform duration-300">💎</span>
-      </span>
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-    </button>
-  </a>
-
-  <a href="tel:+917728846516">
-    <button
-      className="w-full sm:w-auto bg-white/95 backdrop-blur-sm border-2 border-gray-200 text-gray-900 hover:border-[#6498fe] hover:bg-white font-bold px-12 py-6 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 text-lg cursor-pointer inline-flex items-center justify-center gap-2"
-      style={{ borderRadius: "16px" }}
-    >
-      <span className="text-red-500">📞</span>
-      <span>Book a 15-min Call</span>
-    </button>
-  </a>
+ 
+    <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
+  <button
+    onClick={scrollToPricing}
+    className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-12 py-6 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 text-lg relative overflow-hidden group cursor-pointer inline-flex items-center justify-center"
+    style={{ borderRadius: "16px" }}
+  >
+    <span className="relative z-10 flex items-center gap-3">
+     
+      <span>View Pricing Plans</span>
+      
+      
+      <span className="group-hover:rotate-90 transition-transform duration-300">💎</span>
+    </span>
+    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+  </button>
   
 </div>
+ 
+
+
 
 
             {isAuthenticated && displayName && (
@@ -480,12 +510,15 @@ const Home = () => {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <a href="#pricing" className="flex flex-col items-center gap-2 text-gray-400 hover:text-[#6498fe] transition-colors duration-300">
+          <button 
+            onClick={scrollToPricing}
+            className="flex flex-col items-center gap-2 text-gray-400 hover:text-[#6498fe] transition-colors duration-300"
+          >
             <span className="text-xs font-semibold">See Pricing</span>
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
-          </a>
+          </button>
         </div>
       </section>
 
@@ -514,21 +547,16 @@ const Home = () => {
 
           <div className="grid md:grid-cols-3 gap-10 mb-24 max-w-6xl mx-auto">
             {pricingPlans.map((plan) => (
-              <PricingCard key={plan.title} {...plan} />
+              <PricingCard key={plan.title} {...plan} onGetPlan={handleGetPlan} />
             ))}
           </div>
 
-
-
-
-        <div className="max-w-5xl mx-auto">
+          <div className="max-w-5xl mx-auto">
   <Card className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-2 border-blue-200 shadow-xl p-8 sm:p-10 relative overflow-hidden hover:shadow-2xl transition-all duration-500">
-    {/* Subtle decorative elements */}
     <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#6498fe] to-purple-600 opacity-5 rounded-full blur-3xl"></div>
     <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-purple-600 to-pink-600 opacity-5 rounded-full blur-3xl"></div>
     
     <div className="relative z-10">
-      {/* Header Section */}
       <div className="flex items-center gap-4 mb-6">
         <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-[#6498fe] to-purple-600 rounded-xl flex items-center justify-center text-2xl shadow-lg">
           💡
@@ -543,7 +571,6 @@ const Home = () => {
         </div>
       </div>
       
-      {/* Pricing Box */}
       <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-gray-200 mb-6 shadow-md hover:shadow-lg transition-all duration-300">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
@@ -558,7 +585,6 @@ const Home = () => {
           </div>
         </div>
         
-        {/* Features Grid */}
         <div className="grid sm:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
           {[
             { text: "Standard website", icon: "./svg/globe.svg" },
@@ -577,27 +603,20 @@ const Home = () => {
         </div>
       </div>
 
-      {/* CTA Button */}
       <div className="text-center">
-        <a href="tel:+917728846516">
-          <button
-            className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group cursor-pointer rounded-xl inline-flex items-center justify-center hover:scale-105"
-          >
-            <span className="relative z-10 flex items-center justify-center gap-2">
-              {/* <span>📞</span> */}
-              <span>Get Plan</span>
-              {/* <span>Book a 15-min Call</span> */}
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          </button>
-        </a>
+        <button
+          onClick={() => handleGetPlan('Single Website', 3500)}
+          className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group cursor-pointer rounded-xl inline-flex items-center justify-center hover:scale-105"
+        >
+          <span className="relative z-10 flex items-center justify-center gap-2">
+            <span>Get Plan</span>
+          </span>
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </button>
       </div>
     </div>
   </Card>
 </div>
-
-
-
 
         </div>
       </section>
@@ -672,7 +691,6 @@ const Home = () => {
     </div>
   </div>
 </div>
-
 
         </div>
       </section>
@@ -820,8 +838,6 @@ const Home = () => {
   </button>
 </a>
 
-
-            
           </div>
 
           <div className="flex items-center justify-center gap-12 flex-wrap opacity-90">
@@ -849,7 +865,7 @@ const Home = () => {
       </section>
 
       {/* Footer */}
-<footer className="bg-gradient-to-r from-blue-600 to-purple-600 ">
+{/* <footer className="bg-gradient-to-r from-blue-600 to-purple-600 ">
 
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <div className="flex flex-col md:flex-row items-center justify-between gap-10">
@@ -909,11 +925,10 @@ const Home = () => {
       </div>
     </div>
   </div>
-</footer>
-
+</footer> */}
 
       {/* Decorative Border Bottom */}
-      <div className="h-1.5 bg-gradient-to-r from-[#4884fc] via-blue-600 to-purple-600" aria-hidden="true"></div>
+      {/* <div className="h-1.5 bg-gradient-to-r from-[#4884fc] via-blue-600 to-purple-600" aria-hidden="true"></div> */}
 
       <style>{`
         @keyframes slideUpScale {

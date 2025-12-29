@@ -1,7 +1,6 @@
 import apiClient from "../../services/apiClient";
 
 // Get all templates (support pagination, filtering, sorting)
-//naya code
 export const getAllTemplates = async (params = {}) => {
   try {
     // params: { page, limit, search, category, priceMin, priceMax, sortBy }
@@ -18,11 +17,20 @@ export const getAllTemplates = async (params = {}) => {
   }
 };
 
-
 // Get template by ID
 export const getTemplateById = async (id) => {
   try {
     const response = await apiClient.get(`/templates/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// ✅ NEW: Get template by Website ID / Public ID / Slug
+export const getByWebsiteId = async (websiteId) => {
+  try {
+    const response = await apiClient.get(`/templates/by-website-id/${websiteId}`);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
@@ -34,14 +42,12 @@ export const createTemplate = async (templateData) => {
   try {
     const formData = new FormData();
 
-  // Append basic fields to form data
-if (templateData.name) formData.append('name', templateData.name);
-if (templateData.description)formData.append('description', templateData.description);
-formData.append('price', templateData.price ?? 0);
-// formData.append('templateLink', templateData.templateLink || ''); // ✅ FIX: Default to empty string
-formData.append('liveDemo', templateData.liveDemo);
-formData.append('backend', String(!!templateData.backend)); // NEW: Backend field
-
+    // Append basic fields to form data
+    if (templateData.name) formData.append('name', templateData.name);
+    if (templateData.description) formData.append('description', templateData.description);
+    formData.append('price', templateData.price ?? 0);
+    formData.append('liveDemo', templateData.liveDemo);
+    formData.append('backend', String(!!templateData.backend)); // NEW: Backend field
     
     // Append image file if any
     if (templateData.previewImage && templateData.previewImage instanceof File) {
@@ -86,15 +92,14 @@ formData.append('backend', String(!!templateData.backend)); // NEW: Backend fiel
 export const updateTemplate = async (id, templateData) => {
   try {
     const formData = new FormData();
-   if (templateData.name) formData.append('name', templateData.name);
-if (templateData.description) formData.append('description', templateData.description);
-formData.append('price', templateData.price ?? 0);
-// formData.append('templateLink', templateData.templateLink || ''); // ✅ FIX: Default to empty string
-formData.append('liveDemo', templateData.liveDemo);
+    if (templateData.name) formData.append('name', templateData.name);
+    if (templateData.description) formData.append('description', templateData.description);
+    formData.append('price', templateData.price ?? 0);
+    formData.append('liveDemo', templateData.liveDemo);
 
-if (typeof templateData.backend !== 'undefined') {
-  formData.append('backend', String(!!templateData.backend)); // NEW: Backend field
-}
+    if (typeof templateData.backend !== 'undefined') {
+      formData.append('backend', String(!!templateData.backend)); // NEW: Backend field
+    }
 
     if (templateData.previewImage && templateData.previewImage instanceof File) {
       formData.append("previewImage", templateData.previewImage);
@@ -204,4 +209,17 @@ export const getAdminTemplates = async (params = {}) => {
   } catch (error) {
     throw error.response?.data || error.message;
   }
+};
+
+// ✅ DEFAULT EXPORT - Backward compatibility
+export default {
+  getAllTemplates,
+  getTemplateById,
+  getByWebsiteId,
+  createTemplate,
+  updateTemplate,
+  deleteTemplate,
+  toggleTemplateStatus,
+  searchTemplates,
+  getAdminTemplates
 };

@@ -1,16 +1,16 @@
 // src/pages/Templates.jsx
-// COMPLETE WORKING VERSION with Tutorial Tracking
+// COMPLETE VERSION without Tutorial
 
-import React, { useState, useEffect, useCallback, useMemo, memo, useRef } from "react";
+import React, { useState, useEffect, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllTemplates } from "../features/template/api";
-import { recordTutorialInteraction, updateVideoProgress } from "../features/auth/api";
-import { useAuth } from "../features/auth/useAuth";
 import TemplateGrid from "../features/template/TemplateGrid";
 import Button from "../components/Button";
 import Loader from "../components/Loader";
 
+
 const PAGE_SIZE = 10000;
+
 
 // Memoized Error Component
 const ErrorDisplay = memo(({ error, onRetry }) => (
@@ -30,6 +30,7 @@ const ErrorDisplay = memo(({ error, onRetry }) => (
 
 ErrorDisplay.displayName = "ErrorDisplay";
 
+
 // Memoized Loading Component
 const LoadingDisplay = memo(() => (
   <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100">
@@ -42,363 +43,6 @@ const LoadingDisplay = memo(() => (
 
 LoadingDisplay.displayName = "LoadingDisplay";
 
-// ✅ HELPER FUNCTION: Clear ALL video tutorial tickets
-const clearAllTutorialTickets = () => {
-  sessionStorage.removeItem('aiTutorialTicket');
-  sessionStorage.removeItem('templateDetailsTicket');
-  sessionStorage.removeItem('video10Ticket');
-  sessionStorage.removeItem('video11Ticket');
-  sessionStorage.removeItem('video12Ticket');
-  sessionStorage.removeItem('video13Ticket');
-  sessionStorage.removeItem('video14Ticket');
-  console.log('🎫 All tutorial tickets cleared');
-};
-
-// ✅ UPDATED: AI Video Tutorial Component with Backend Tracking
-const AIVideoTutorial = memo(({ onTutorialStateChange }) => {
-  const { user } = useAuth();
-  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-  
-  // ✅ FIXED: Always start with true, check storage in useEffect
-  const [showTutorial, setShowTutorial] = useState(true);
-  const hasCheckedStorage = useRef(false);
-  
-  const [tutorialStarted, setTutorialStarted] = useState(false);
-  const [currentVideo, setCurrentVideo] = useState(1);
-  const [showQuestion, setShowQuestion] = useState(false);
-  const [questionType, setQuestionType] = useState(null);
-  const [showFinalText, setShowFinalText] = useState(false);
-  
-  const [interactionId, setInteractionId] = useState(null);
-  const [watchedVideos, setWatchedVideos] = useState(new Set());
-  
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const animationFrameRef = useRef(null);
-  const frameSkipCounter = useRef(0);
-  const hasTriggeredBlink = useRef(false);
-
-  // ✅ FIXED: Check storage only once on mount
-  useEffect(() => {
-    if (!hasCheckedStorage.current) {
-      const declined = sessionStorage.getItem('tutorialDeclined');
-      
-      if (declined === 'true') {
-        console.log('🚫 Tutorial was declined in this session, hiding popup');
-        setShowTutorial(false);
-        onTutorialStateChange(false);
-      } else {
-        console.log('✅ Tutorial popup will be shown');
-        setShowTutorial(true);
-      }
-      
-      hasCheckedStorage.current = true;
-    }
-  }, [onTutorialStateChange]);
-
-  // Screen width detection with resize listener
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      setScreenWidth(width);
-      
-      if (width < 700 && tutorialStarted) {
-        setShowTutorial(false);
-        setTutorialStarted(false);
-        clearAllTutorialTickets();
-        onTutorialStateChange(false);
-        console.log('🚫 Tutorial closed: Screen width < 700px');
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, [tutorialStarted, onTutorialStateChange]);
-
-  useEffect(() => {
-    if (screenWidth < 700) {
-      setShowTutorial(false);
-      onTutorialStateChange(false);
-    }
-  }, [screenWidth, onTutorialStateChange]);
-
-  // Record tutorial interaction with backend
-  const recordInteraction = async (action) => {
-    if (!user) {
-      console.log('⚠️ User not logged in, skipping tutorial tracking');
-      return null;
-    }
-
-    try {
-      const sessionId = Date.now().toString();
-      const response = await recordTutorialInteraction(action, sessionId);
-      
-      if (response.success && response.data?.interactionId) {
-        console.log(`✅ Tutorial interaction recorded: ${action.toUpperCase()}`, response.data.interactionId);
-        return response.data.interactionId;
-      }
-    } catch (error) {
-      console.error('❌ Failed to record tutorial interaction:', error);
-    }
-    return null;
-  };
-
-  // Track video progress with backend
-  const trackVideoProgress = async (videoNum) => {
-    if (!user || !interactionId || watchedVideos.has(videoNum)) {
-      return;
-    }
-
-    try {
-      await updateVideoProgress(interactionId, videoNum);
-      setWatchedVideos(prev => new Set([...prev, videoNum]));
-      console.log(`✅ Video ${videoNum}/15 tracked`);
-    } catch (error) {
-      console.error(`❌ Failed to track video ${videoNum}:`, error);
-    }
-  };
-
-  const handleVideoEnd = () => {
-    trackVideoProgress(currentVideo);
-
-    if (currentVideo === 1) {
-      setQuestionType("shortIntro");
-      setShowQuestion(true);
-    } else if (currentVideo === 2 || currentVideo === 3) {
-      setCurrentVideo(4);
-      setShowQuestion(false);
-    } else if (currentVideo === 4) {
-      setCurrentVideo(5);
-      setShowQuestion(false);
-    } else if (currentVideo === 5) {
-      setQuestionType("donePreview");
-      setShowQuestion(true);
-    } else if (currentVideo === 6 || currentVideo === 7) {
-      setShowFinalText(true);
-      sessionStorage.setItem('templateDetailsTicket', 'active');
-      console.log('🎫 TemplateDetails ticket refreshed!');
-    }
-  };
-
-  const handleAnswer = (answer) => {
-    setShowQuestion(false);
-    if (questionType === "shortIntro") {
-      setCurrentVideo(answer === "yes" ? 2 : 3);
-    } else if (questionType === "donePreview") {
-      setCurrentVideo(answer === "yes" ? 6 : 7);
-    }
-  };
-
-  const processFrame = useCallback(() => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    
-    if (!video || !canvas || video.paused || video.ended) return;
-
-    frameSkipCounter.current++;
-    if (frameSkipCounter.current % 2 !== 0) {
-      animationFrameRef.current = requestAnimationFrame(processFrame);
-      return;
-    }
-
-    const ctx = canvas.getContext('2d', { 
-      willReadFrequently: true,
-      alpha: true 
-    });
-
-    const scale = 0.5;
-    canvas.width = video.videoWidth * scale;
-    canvas.height = video.videoHeight * scale;
-
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = new Uint32Array(imageData.data.buffer);
-
-    const topLimit = Math.floor(canvas.height * 1);
-    const leftLimit = Math.floor(canvas.width * 0.4);
-
-    for (let y = 0; y < canvas.height; y++) {
-      for (let x = 0; x < canvas.width; x++) {
-        const inGreenArea = y < topLimit || x < leftLimit;
-        
-        if (inGreenArea) {
-          const i = y * canvas.width + x;
-          const pixel = data[i];
-          
-          const r = pixel & 0xff;
-          const g = (pixel >> 8) & 0xff;
-          const b = (pixel >> 16) & 0xff;
-          
-          if (g > 100 && g > r * 1.5 && g > b * 1.5) {
-            data[i] = pixel & 0x00ffffff;
-          }
-        }
-      }
-    }
-
-    ctx.putImageData(imageData, 0, 0);
-    animationFrameRef.current = requestAnimationFrame(processFrame);
-  }, []);
-
-  useEffect(() => {
-    if (videoRef.current && tutorialStarted) {
-      const video = videoRef.current;
-      
-      hasTriggeredBlink.current = false;
-      
-      const handleTimeUpdate = () => {
-        if (currentVideo === 4) {
-          if (!hasTriggeredBlink.current && video.currentTime >= 15.5 && video.currentTime < 16) {
-            console.log('🔥 BLINK EVENT TRIGGERED!');
-            const blinkEvent = new CustomEvent('blinkLiveButton');
-            window.dispatchEvent(blinkEvent);
-            hasTriggeredBlink.current = true;
-          }
-        }
-      };
-
-      video.addEventListener('timeupdate', handleTimeUpdate);
-      
-      frameSkipCounter.current = 0;
-      video.load();
-      video.play().then(() => {
-        processFrame();
-      }).catch(err => {
-        console.log('Video play failed:', err);
-      });
-
-      return () => {
-        video.removeEventListener('timeupdate', handleTimeUpdate);
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
-        }
-      };
-    }
-  }, [currentVideo, tutorialStarted, processFrame]);
-
-  if (screenWidth < 700) return null;
-  if (!showTutorial) return null;
-
-  // YES/NO Popup
-  if (!tutorialStarted) {
-    return (
-      <div className="fixed bottom-4 right-4 z-50 rounded-2xl overflow-hidden max-w-xs shadow-2xl">
-        <div className="flex items-center">
-          <img 
-            src="./live.png" 
-            alt="Live Tutorial" 
-            className="w-52 object-contain"
-          />
-        </div>
-        
-        <div className="h-1 bg-blue-700 rounded-t-full"></div>
-        
-        <div className="bg-white p-4 flex gap-3">
-          <button
-            onClick={async () => {
-              const id = await recordInteraction('yes');
-              setInteractionId(id);
-              
-              setTutorialStarted(true);
-              sessionStorage.setItem('aiTutorialTicket', 'active');
-              sessionStorage.setItem('templateDetailsTicket', 'active');
-              sessionStorage.removeItem('tutorialDeclined');
-              onTutorialStateChange(true);
-              console.log('🎫 Tutorial started with tracking!');
-            }}
-            className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-2.5 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md cursor-pointer"
-          >
-            Yes
-          </button>
-          <button
-            onClick={async () => {
-              await recordInteraction('no');
-              
-              setShowTutorial(false);
-              clearAllTutorialTickets();
-              sessionStorage.setItem('tutorialDeclined', 'true');
-              onTutorialStateChange(false);
-              console.log('🚫 Tutorial declined with tracking');
-            }}
-            className="flex-1 bg-gradient-to-r from-red-400 to-red-500 hover:from-red-500 hover:to-red-600 text-white font-bold py-2.5 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md cursor-pointer"
-          >
-            No
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="fixed bottom-4 right-4 z-50" style={{ width: "15vw", minWidth: "200px" }}>
-      <div className="relative bg-transparent rounded-lg overflow-hidden">
-        <video
-          ref={videoRef}
-          onEnded={handleVideoEnd}
-          className="hidden"
-          crossOrigin="anonymous"
-        >
-          <source src={`/tutorials/${currentVideo}.mp4`} type="video/mp4" />
-        </video>
-
-        <canvas
-          ref={canvasRef}
-          className="w-full h-auto rounded-lg"
-        />
-
-        {showQuestion && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 animate-fadeIn">
-            <p className="text-white bg-black h-fit w-fit px-3 py-2 rounded-lg text-sm font-semibold mb-4 text-center">
-              {questionType === "shortIntro" && "Want Short Intro?"}
-              {questionType === "donePreview" && "Done Preview?"}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => handleAnswer("yes")}
-                className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors text-sm"
-              >
-                Yes
-              </button>
-              <button
-                onClick={() => handleAnswer("no")}
-                className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors text-sm"
-              >
-                {questionType === "shortIntro" ? "No" : "Don't want"}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showFinalText && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black bg-opacity-70 animate-fadeIn">
-            <p className="text-white text-center font-bold text-base leading-relaxed">
-              Click on<br />Get This Website
-            </p>
-          </div>
-        )}
-
-        <button
-          onClick={() => {
-            setShowTutorial(false);
-            setTutorialStarted(false);
-            clearAllTutorialTickets();
-            sessionStorage.setItem('tutorialDeclined', 'true');
-            onTutorialStateChange(false);
-            console.log('🚫 Tutorial closed by user');
-          }}
-          className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold"
-        >
-          ×
-        </button>
-      </div>
-    </div>
-  );
-});
-
-AIVideoTutorial.displayName = "AIVideoTutorial";
 
 const Templates = () => {
   const navigate = useNavigate();
@@ -415,15 +59,6 @@ const Templates = () => {
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
-  const [isTutorialActive, setIsTutorialActive] = useState(false);
-
-  // ✅ ADDED: Clear tutorial declined flag on component mount
-  useEffect(() => {
-    // Clear declined flag when user navigates to Templates page
-    sessionStorage.removeItem('tutorialDeclined');
-    console.log('🧹 Tutorial declined flag cleared on page load');
-  }, []);
 
   const fetchTemplates = useCallback(async () => {
     setLoading(true);
@@ -490,8 +125,6 @@ const Templates = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
-      <AIVideoTutorial onTutorialStateChange={setIsTutorialActive} />
-
       <div
         className="h-2 md:h-3 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700"
         aria-hidden="true"
@@ -500,26 +133,24 @@ const Templates = () => {
       <section className="bg-gradient-to-br from-blue-50 via-white to-blue-50 py-6 md:py-12 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-3 md:mb-4 text-center bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent drop-shadow-md lg:drop-shadow-lg">
-            We Develop Websites
+            Browse Ready-Made Websites
           </h1>
           <p className="text-center text-blue-700 font-semibold text-sm sm:text-sm md:text-lg mb-6 md:mb-8 px-2 max-[640px]:hidden">
             <span className="sm:text-[12px] md:text-[13px]">Select Design</span> &nbsp;
             <span className="text-black sm:text-[12px] md:text-[13px]">→</span> &nbsp;
-            <span className="sm:text-[13px] md:text-[15px]">Book 10 Min Free Meeting </span> &nbsp;
+            <span className="sm:text-[13px] md:text-[15px]">Book with Credits</span> &nbsp;
             <span className="text-black sm:text-[13px] md:text-[15px]">→</span> &nbsp;
-            <span className="sm:text-[14px] md:text-[16px]">Go to sleep </span> &nbsp;
+            <span className="sm:text-[14px] md:text-[16px]">We Build</span> &nbsp;
             <span className="text-black sm:text-[14px] md:text-[16px]">→</span> &nbsp;
-            <span className="sm:text-[15px] md:text-[17px]">Wake Up</span> &nbsp;
-            <span className="text-black sm:text-[15px] md:text-[17px]">→</span> &nbsp;
-            <span className="sm:text-[17px] md:text-[19px]">Your website is ready</span>
+            <span className="sm:text-[15px] md:text-[17px]">Get Your Website</span>
           </p>
 
           <p className="text-center text-blue-700 font-semibold text-sm sm:text-sm md:text-lg mb-6 md:mb-8 px-2 min-[640px]:hidden flex flex-col">
             <span className="text-[12px]">Select Design</span>
             <span className="text-black">&darr;</span>
-            <span className="text-[13px]">Book Free Meeting</span>
+            <span className="text-[13px]">Book with Credits</span>
             <span className="text-black">&darr;</span>
-            <span className="text-[15px]">Your website is ready</span>
+            <span className="text-[15px]">Get Your Website</span>
           </p>
 
           <TemplateGrid
@@ -533,7 +164,7 @@ const Templates = () => {
             sortBy={sortBy}
             setSortBy={setSortBy}
             clearFilters={clearFilters}
-            isTutorialActive={isTutorialActive}
+            isTutorialActive={false}
           />
         </div>
       </section>
@@ -541,20 +172,18 @@ const Templates = () => {
       <section className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 py-12 sm:py-16 md:py-20 text-center text-white relative overflow-hidden shadow-xl md:shadow-2xl">
         <div className="relative z-10 px-4 sm:px-6 md:px-8">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4 drop-shadow-md md:drop-shadow-lg">
-            Ready to Get Started?
+            Ready to Get Your Website?
           </h2>
           <p className="mb-5 md:mb-6 max-w-xl mx-auto text-sm sm:text-base md:text-lg font-medium px-4">
-            Choose your template and get your website live in 24 hours!
+            Buy credits, select your template, and get your website delivered fast!
           </p>
-          <a
+          <button
+            onClick={() => navigate('/pricing')}
             className="inline-block bg-white text-blue-700 font-bold px-6 py-3 sm:px-8 sm:py-3.5 md:px-10 md:py-4 rounded-full shadow-xl md:shadow-2xl hover:shadow-blue-300/50 hover:scale-105 transform transition-all duration-300 border-2 md:border-4 border-blue-200 text-sm sm:text-base cursor-pointer"
-            href="https://3digree.com/3digree/contact.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Contact us to get started"
+            aria-label="Buy credits to get started"
           >
-            Contact Us
-          </a>
+            Buy Credits Now
+          </button>
         </div>
       </section>
 
@@ -608,20 +237,6 @@ const Templates = () => {
           </div>
         </div>
       </footer>
-
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.5s ease-in;
-        }
-      `}</style>
     </div>
   );
 };

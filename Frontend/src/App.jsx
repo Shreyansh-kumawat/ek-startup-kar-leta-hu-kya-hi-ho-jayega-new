@@ -3,14 +3,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './features/auth/useAuth';
 import Loader from './components/Loader';
 import ScrollToTop from './components/ScrollToTop';
-
-
-// import { inject } from '@vercel/analytics';
-
-
 import { ReactLenis } from 'lenis/react';
 import 'lenis/dist/lenis.css';
-// import { Analytics } from '@vercel/analytics';
 
 
 // Layouts
@@ -22,47 +16,44 @@ import DashboardLayout from './layouts/DashboardLayout';
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
-const ForgotPassword = lazy(() => import('./pages/ForgotPassword')); // ✅ NEW
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const Templates = lazy(() => import('./pages/Templates'));
 const TemplateDetails = lazy(() => import('./pages/TemplateDetails'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
+const Pricing = lazy(() => import('./pages/Pricing')); // ✅ NEW
+const NotFound = lazy(()=> import('./pages/NotFound'))
 
 
-// 🔥 NEW: Template Booking Pages
+// ✅ B2B Booking Pages
 const BookTemplate = lazy(() => import('./pages/BookTemplate'));
 const UserBookings = lazy(() => import('./pages/UserBookings'));
 const BookingDetails = lazy(() => import('./pages/BookingDetails'));
 
 
-// Protected Pages (Lazy loaded)
+// Protected User Pages
 const Dashboard = lazy(() => import('./pages/Dashboard'));
-const Account = lazy(() => import('./pages/Account')); // ✅ Account Page
-const OrderList = lazy(() => import('./features/order/OrderList'));
-const OrderDetails = lazy(() => import('./features/order/OrderDetails'));
+const Account = lazy(() => import('./pages/Account'));
 const MeetingList = lazy(() => import('./features/meeting/MeetingList'));
 const MeetingSchedule = lazy(() => import('./pages/MeetingSchedule'));
-const ProjectPage = lazy(() => import('./pages/ProjectPage'));
 
 
-// Admin Pages (Lazy loaded)
+// ❌ REMOVED B2C PAGES:
+// const OrderList = lazy(() => import('./features/order/OrderList'));
+// const OrderDetails = lazy(() => import('./features/order/OrderDetails'));
+// const ProjectPage = lazy(() => import('./pages/ProjectPage'));
+
+
+// Admin Pages
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const TemplateManager = lazy(() => import('./features/admin/TemplateManager'));
 const UserManager = lazy(() => import('./features/admin/UserManager'));
 const SecondaryAdminPanel = lazy(() => import('./features/admin/SecondaryAdminPanel'));
-
-
-// 🔥 NEW: Admin Template Booking Manager
 const AdminTemplateBookingManager = lazy(() => import('./features/admin/AdminTemplateBookingManager'));
-
-
-// ADDED: Admin-specific management pages
-const AdminOrderManager = lazy(() => import('./features/admin/AdminOrderManager'));
 const AdminMeetingManager = lazy(() => import('./features/admin/AdminMeetingManager'));
-const AdminProjectManager = lazy(() => import('./features/admin/AdminProjectManager'));
 
 
-// Placeholder component for missing pages
+// Placeholder component for under-construction pages
 const PlaceholderPage = ({ title, description }) => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="text-center p-8">
@@ -80,7 +71,7 @@ const PlaceholderPage = ({ title, description }) => (
 );
 
 
-// 🔥 UPDATED: Enhanced ProtectedRoute Component
+// Protected Route Component
 const ProtectedRoute = ({ children, requiredRole = null }) => {
   const { user, loading, isAuthenticated } = useAuth();
   
@@ -107,18 +98,13 @@ const ProtectedRoute = ({ children, requiredRole = null }) => {
 };
 
 
-// 🔥 UPDATED: Enhanced PublicRoute Component  
+// Public Route Component
 const PublicRoute = ({ children }) => {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { loading } = useAuth();
   
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-50">
-        {/* <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-sm">Loading...</p>
-        </div> */}
-      </div>
+      <div className="flex justify-center items-center h-screen bg-gray-50"></div>
     );
   }
   
@@ -127,7 +113,6 @@ const PublicRoute = ({ children }) => {
 
 
 function App() {
-  
   return (
     <ReactLenis root 
       options={{ 
@@ -149,7 +134,7 @@ function App() {
           </div>
         }>
           <Routes>
-            {/* Public Routes */}
+            {/* ========== PUBLIC ROUTES ========== */}
             <Route path="/" element={<MainLayout />}>
               <Route index element={
                 <PublicRoute>
@@ -160,6 +145,25 @@ function App() {
               <Route path="home" element={
                 <PublicRoute>
                   <Home />
+                </PublicRoute>
+              } />
+              
+              {/* <Route path="templates" element={
+                <PublicRoute>
+                  <Templates />
+                </PublicRoute>
+              } /> */}
+              
+              {/* <Route path="templates/:id" element={
+                <PublicRoute>
+                  <TemplateDetails />
+                </PublicRoute>
+              } /> */}
+              
+              {/* ✅ NEW: Pricing Page */}
+              <Route path="pricing" element={
+                <PublicRoute>
+                  <Pricing />
                 </PublicRoute>
               } />
               
@@ -175,13 +179,6 @@ function App() {
                   <Contact />
                 </PublicRoute>
               } />
-
-
-              <Route path="templates/:id" element={
-                <PublicRoute>
-                  <TemplateDetails />
-                </PublicRoute>
-              } />
               
               <Route path="login" element={
                 <PublicRoute>
@@ -195,7 +192,7 @@ function App() {
                 </PublicRoute>
               } />
 
-              {/* ✅ NEW: Forgot Password Route */}
+
               <Route path="forgot-password" element={
                 <PublicRoute>
                   <ForgotPassword />
@@ -204,7 +201,7 @@ function App() {
             </Route>
 
 
-            {/* Template Booking Routes */}
+            {/* ========== B2B BOOKING ROUTES ========== */}
             <Route path="/templates/:templateId/book" element={
               <ProtectedRoute>
                 <MainLayout />
@@ -214,7 +211,7 @@ function App() {
             </Route>
 
 
-            {/* Protected User Routes */}
+            {/* ========== PROTECTED USER ROUTES ========== */}
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <DashboardLayout />
@@ -222,25 +219,26 @@ function App() {
             }>
               <Route index element={<Dashboard />} />
               
-              {/* ✅ Account Page Route */}
               <Route path="account" element={<Account />} />
               
-              <Route path="orders" element={<OrderList />} />
-              <Route path="orders/:orderId" element={<OrderDetails />} />
+              {/* ✅ B2B Booking Routes */}
+              <Route path="bookings" element={<UserBookings />} />
+              <Route path="bookings/:bookingId" element={<BookingDetails />} />
               
+              {/* ✅ Meeting Routes */}
               <Route path="meetings" element={<MeetingList />} />
               <Route path="meetings/schedule" element={<MeetingSchedule />} />
               
+              {/* ❌ REMOVED B2C ROUTES:
+              <Route path="orders" element={<OrderList />} />
+              <Route path="orders/:orderId" element={<OrderDetails />} />
               <Route path="projects" element={<ProjectPage />} />
               <Route path="projects/:projectId" element={<ProjectPage />} />
-
-
-              <Route path="bookings" element={<UserBookings />} />
-              <Route path="bookings/:bookingId" element={<BookingDetails />} />
+              */}
             </Route>
 
 
-            {/* Admin Routes */}
+            {/* ========== ADMIN ROUTES ========== */}
             <Route path="/admin" element={
               <ProtectedRoute requiredRole="admin">
                 <DashboardLayout />
@@ -250,54 +248,34 @@ function App() {
               
               <Route path="users" element={<UserManager />} />
               <Route path="templates" element={<TemplateManager />} />
+              
+              {/* ✅ B2B Booking Management */}
               <Route path="bookings" element={<AdminTemplateBookingManager />} />
               
-              <Route path="orders" element={
-                <Suspense fallback={<Loader />}>
-                  <PlaceholderPage 
-                    title="Order Management" 
-                    description="Admin order management coming soon!" 
-                  />
-                </Suspense>
-              } />
-              
-              <Route path="meetings" element={
-                <Suspense fallback={<Loader />}>
-                  <AdminMeetingManager />
-                </Suspense>
-              } />
-              
-              <Route path="projects" element={
-                <Suspense fallback={<Loader />}>
-                  <PlaceholderPage 
-                    title="Project Management" 
-                    description="Admin project management coming soon!" 
-                  />
-                </Suspense>
-              } />
+              {/* ✅ Meeting Management */}
+              <Route path="meetings" element={<AdminMeetingManager />} />
               
               <Route path="secondary" element={<SecondaryAdminPanel />} />
+              
+              {/* ❌ REMOVED B2C ADMIN ROUTES:
+              <Route path="orders" element={<AdminOrderManager />} />
+              <Route path="projects" element={<AdminProjectManager />} />
+              */}
             </Route>
 
 
-            {/* Secondary Admin Routes */}
+            {/* ========== SECONDARY ADMIN ROUTES ========== */}
             <Route path="/secondary-admin" element={
               <ProtectedRoute requiredRole="secondaryAdmin">
                 <DashboardLayout />
               </ProtectedRoute>
             }>
               <Route index element={<SecondaryAdminPanel />} />
+              
+              {/* ✅ B2B Booking Management */}
               <Route path="bookings" element={<AdminTemplateBookingManager />} />
               
-              <Route path="orders" element={
-                <Suspense fallback={<Loader />}>
-                  <PlaceholderPage 
-                    title="Order Management" 
-                    description="Secondary admin order management coming soon!" 
-                  />
-                </Suspense>
-              } />
-              
+              {/* ✅ Meeting Management */}
               <Route path="meetings" element={
                 <Suspense fallback={<Loader />}>
                   <PlaceholderPage 
@@ -306,14 +284,18 @@ function App() {
                   />
                 </Suspense>
               } />
+              
+              {/* ❌ REMOVED B2C ROUTES:
+              <Route path="orders" element={...} />
+              <Route path="projects" element={...} />
+              */}
             </Route>
 
 
             {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
-        {/* <Analytics /> */}
       </div>
     </ReactLenis>
   );

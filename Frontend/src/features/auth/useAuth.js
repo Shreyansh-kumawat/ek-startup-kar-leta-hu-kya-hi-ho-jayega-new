@@ -3,10 +3,16 @@ import { useAuth as useAuthContext } from '../../context/AuthContext';
 // Re-export the useAuth hook for convenience
 export const useAuth = useAuthContext;
 
+// ✅ FIX: Export googleLogin explicitly
+export const useGoogleLogin = () => {
+  const { googleLogin } = useAuthContext();
+  return googleLogin;
+};
+
 // Additional auth-related hooks can be added here
 export const useAuthActions = () => {
-  const { login, register, logout } = useAuthContext();
-  return { login, register, logout };
+  const { login, register, logout, googleLogin } = useAuthContext(); // ⬅️ ADD googleLogin
+  return { login, register, logout, googleLogin };
 };
 
 export const useAuthState = () => {

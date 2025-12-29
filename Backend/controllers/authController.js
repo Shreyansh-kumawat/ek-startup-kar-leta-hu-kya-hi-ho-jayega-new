@@ -11,8 +11,8 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_SECRET,
   process.env.GOOGLE_REDIRECT_URI
 );
-
-// Register function
+ 
+// Register function - UPDATED (default 0 credits)
 const register = async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
@@ -32,7 +32,8 @@ const register = async (req, res) => {
       email: email.toLowerCase().trim(),
       password,
       phone: cleanedPhone,
-      role: 'user'
+      role: 'user',
+      credits: 0  // ✅ NEW: Default 0 credits for new users
     });
 
     await user.save();
@@ -48,7 +49,8 @@ const register = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        credits: user.credits || 0  // ✅ NEW: Include credits
       }
     });
   } catch (error) {
@@ -81,7 +83,6 @@ const register = async (req, res) => {
     });
   }
 };
-
 // Login function
 const login = async (req, res) => {
   try {
@@ -133,6 +134,7 @@ const login = async (req, res) => {
       console.error('❌ Failed to send login notification:', err.message);
     });
 
+    // ✅ UPDATED: Include credits in response
     res.status(200).json({ 
       success: true,
       message: 'Login successful',
@@ -143,7 +145,8 @@ const login = async (req, res) => {
           name: user.name,
           email: user.email, 
           phone: user.phone,
-          role: user.role
+          role: user.role,
+          credits: user.credits || 0  // ✅ NEW: Credits included
         }
       }
     });
@@ -156,7 +159,6 @@ const login = async (req, res) => {
     });
   }
 };
-
 // Google Login
 const googleLogin = async (req, res) => {
   try {
@@ -209,21 +211,22 @@ const googleLogin = async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    res.json({
-      success: true,
-      message: 'Google login successful',
-      data: {
-        token,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
-          profilePicture: user.profilePicture
-        }
-      }
-    });
+   // ✅ NEW (CORRECT):
+res.json({
+  success: true,
+  message: 'Google login successful',
+  token: token,  // ⬅️ DIRECT, not nested in data
+  user: {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    role: user.role,
+    profilePicture: user.profilePicture,
+    credits: user.credits || 0  // ⬅️ ADD THIS
+  }
+});
+
 
   } catch (error) {
     console.error('❌ Google OAuth Error:', error);
@@ -252,7 +255,7 @@ const logout = async (req, res) => {
   }
 };
 
-// Get Profile
+// Get Profile - UPDATED
 const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
@@ -263,10 +266,19 @@ const getProfile = async (req, res) => {
       });
     }
 
+    // ✅ UPDATED: Include credits
     res.status(200).json({ 
       success: true,
       message: 'Profile fetched successfully',
-      data: user 
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        credits: user.credits || 0,  // ✅ NEW: Credits included
+        profilePicture: user.profilePicture
+      } 
     });
   } catch (error) {
     console.error('Get profile error:', error);
@@ -503,6 +515,156 @@ const changePassword = async (req, res) => {
 };
 
 
+// ✅ ADMIN: ADD CREDITS TO USER (Manual)
+const addCreditsToUser = async (req, res) => {
+  try {
+    const { userId, credits, reason } = req.body;
+    const adminId = req.user.id;
+
+    console.log('💳 Admin adding credits:', { userId, credits, adminId });
+
+    // Validate input
+    if (!userId || !credits || credits <= 0) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Valid userId and credits (positive number) are required' 
+      });
+    }
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'User not found' 
+      });
+    }
+
+    // Add credits
+    const previousCredits = user.credits || 0;
+    user.credits = previousCredits + credits;
+    await user.save();
+
+    console.log(`✅ Credits added! ${previousCredits} → ${user.credits}`);
+
+    // Optional: Log this action (you can create a CreditLog model later)
+    // await CreditLog.create({ userId, credits, addedBy: adminId, reason });
+
+    res.status(200).json({ 
+      success: true,
+      message: `Successfully added ${credits} credits to user`,
+      data: {
+        userId: user._id,
+        userName: user.name,
+        previousCredits,
+        newCredits: user.credits,
+        creditsAdded: credits,
+        reason: reason || 'Manual adjustment by admin'
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Add credits error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error while adding credits', 
+      error: error.message 
+    });
+  }
+};
+
+// ✅ ADMIN: DEDUCT CREDITS FROM USER (Manual)
+const deductCreditsFromUser = async (req, res) => {
+  try {
+    const { userId, credits, reason } = req.body;
+    const adminId = req.user.id;
+
+    console.log('💸 Admin deducting credits:', { userId, credits, adminId });
+
+    if (!userId || !credits || credits <= 0) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Valid userId and credits (positive number) are required' 
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'User not found' 
+      });
+    }
+
+    const previousCredits = user.credits || 0;
+    
+    if (previousCredits < credits) {
+      return res.status(400).json({ 
+        success: false,
+        message: `Insufficient credits. User has ${previousCredits} credits, cannot deduct ${credits}` 
+      });
+    }
+
+    user.credits = previousCredits - credits;
+    await user.save();
+
+    console.log(`✅ Credits deducted! ${previousCredits} → ${user.credits}`);
+
+    res.status(200).json({ 
+      success: true,
+      message: `Successfully deducted ${credits} credits from user`,
+      data: {
+        userId: user._id,
+        userName: user.name,
+        previousCredits,
+        newCredits: user.credits,
+        creditsDeducted: credits,
+        reason: reason || 'Manual adjustment by admin'
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Deduct credits error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error while deducting credits', 
+      error: error.message 
+    });
+  }
+};
+
+// ✅ GET USER'S CREDIT BALANCE (for frontend)
+const getUserCredits = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findById(userId).select('credits');
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'User not found' 
+      });
+    }
+
+    res.status(200).json({ 
+      success: true,
+      data: {
+        credits: user.credits || 0
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Get credits error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error', 
+      error: error.message 
+    });
+  }
+};
+
+
+
 
 
 module.exports = {
@@ -514,5 +676,8 @@ module.exports = {
   forgotPassword,
   resetPassword,
   updateProfile,
-  changePassword
+  changePassword,
+  addCreditsToUser,        
+  deductCreditsFromUser,   
+  getUserCredits      
 };

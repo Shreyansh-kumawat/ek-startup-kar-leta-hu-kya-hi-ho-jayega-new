@@ -14,7 +14,10 @@ const authReducer = (state, action) => {
         ...state, 
         loading: false, 
         isAuthenticated: true, 
-        user: action.payload,
+        user: {
+          ...action.payload,
+          credits: action.payload.credits ?? 0
+        },
         error: null 
       };
     case 'LOGIN_ERROR':
@@ -30,7 +33,10 @@ const authReducer = (state, action) => {
         ...state,
         loading: false,
         isAuthenticated: true,
-        user: action.payload,
+        user: {
+          ...action.payload,
+          credits: action.payload.credits ?? 0
+        },
         error: null
       };
     case 'AUTH_CHECK_FAILED':
@@ -50,7 +56,22 @@ const authReducer = (state, action) => {
         error: null 
       };
     case 'UPDATE_USER':
-      return { ...state, user: { ...state.user, ...action.payload } };
+      return { 
+        ...state, 
+        user: { 
+          ...state.user, 
+          ...action.payload,
+          credits: action.payload.credits ?? state.user?.credits ?? 0
+        } 
+      };
+    case 'UPDATE_CREDITS':
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          credits: action.payload
+        }
+      };
     case 'CLEAR_ERROR':
       return { ...state, error: null };
     default:
@@ -168,19 +189,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // ✅ FIXED: Google Login - Handle FLAT response structure
   const googleLogin = async (code) => {
     try {
       dispatch({ type: 'LOGIN_START' });
       
       const response = await authAPI.googleLogin(code);
       
-      const { token, user } = response.data;
+      console.log('🔍 Google Login Response:', response); // Debug
       
+      // ✅ FIXED: Handle both flat and nested structures
+      const token = response.token || response.data?.token;
+      const user = response.user || response.data?.user;
+      
+      if (!token || !user) {
+        throw new Error('Invalid response structure from server');
+      }
+      
+      // ✅ Save token to BOTH locations for compatibility
       localStorage.setItem('authToken', token);
+      localStorage.setItem('token', token); // For Dashboard/UserBookings
       localStorage.setItem('user', JSON.stringify(user));
       
       dispatch({ type: 'LOGIN_SUCCESS', payload: user });
-      return { success: true, user };
+      return { success: true, user, token };
       
     } catch (error) {
       console.error('❌ Google login error:', error);
@@ -197,6 +229,7 @@ export const AuthProvider = ({ children }) => {
       console.error('❌ Logout API error:', error);
     } finally {
       localStorage.removeItem('authToken');
+      localStorage.removeItem('token'); // Remove both
       localStorage.removeItem('user');
       dispatch({ type: 'LOGOUT' });
     }
@@ -206,6 +239,21 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'CLEAR_ERROR' });
   };
 
+  const updateCredits = (newCredits) => {
+    dispatch({ type: 'UPDATE_CREDITS', payload: newCredits });
+    
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        userData.credits = newCredits;
+        localStorage.setItem('user', JSON.stringify(userData));
+      } catch (error) {
+        console.error('Failed to update credits in localStorage:', error);
+      }
+    }
+  };
+
   const value = {
     ...state,
     login,
@@ -213,7 +261,8 @@ export const AuthProvider = ({ children }) => {
     googleLogin,
     logout,
     clearError,
-    checkAuthStatus: checkInitialAuth
+    checkAuthStatus: checkInitialAuth,
+    updateCredits
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

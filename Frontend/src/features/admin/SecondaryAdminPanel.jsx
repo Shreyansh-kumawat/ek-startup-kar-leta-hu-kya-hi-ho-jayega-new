@@ -4,6 +4,9 @@ import { useNotification } from '../../hooks/useNotification';
 import Button from '../../components/Button';
 import Modal from '../../components/Modal';
 import Loader from '../../components/Loader';
+// ✅ NEW: Import WebsiteBookingsManager
+import WebsiteBookingsManager from './WebsiteBookingsManager';
+
 
 const SecondaryAdminPanel = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -20,9 +23,11 @@ const SecondaryAdminPanel = () => {
   });
   const { addNotification } = useNotification();
 
+
   useEffect(() => {
     fetchData();
   }, [activeTab]);
+
 
   const fetchData = async () => {
     try {
@@ -45,6 +50,7 @@ const SecondaryAdminPanel = () => {
     }
   };
 
+
   const handleScheduleMeeting = (meeting) => {
     setSelectedMeeting(meeting);
     setScheduleData({
@@ -54,6 +60,7 @@ const SecondaryAdminPanel = () => {
     });
     setShowScheduleModal(true);
   };
+
 
   const handleScheduleSubmit = async (e) => {
     e.preventDefault();
@@ -68,6 +75,7 @@ const SecondaryAdminPanel = () => {
     }
   };
 
+
   const handleMeetingStatusUpdate = async (meetingId, status) => {
     try {
       await updateMeetingStatus(meetingId, status);
@@ -78,6 +86,7 @@ const SecondaryAdminPanel = () => {
     }
   };
 
+
   const handleOrderStatusUpdate = async (orderId, status) => {
     try {
       await updateOrderStatus(orderId, status);
@@ -87,6 +96,7 @@ const SecondaryAdminPanel = () => {
       addNotification('Failed to update order status', 'error');
     }
   };
+
 
   const getStatusBadge = (status, type) => {
     const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
@@ -119,6 +129,7 @@ const SecondaryAdminPanel = () => {
       }
     }
   };
+
 
   const renderDashboard = () => (
     <div className="space-y-6">
@@ -173,6 +184,7 @@ const SecondaryAdminPanel = () => {
         </div>
       </div>
 
+
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Users */}
@@ -203,6 +215,7 @@ const SecondaryAdminPanel = () => {
             )}
           </div>
         </div>
+
 
         {/* Recent Orders */}
         <div className="bg-white rounded-lg shadow">
@@ -239,6 +252,7 @@ const SecondaryAdminPanel = () => {
       </div>
     </div>
   );
+
 
   const renderMeetings = () => (
     <div className="space-y-4">
@@ -347,6 +361,7 @@ const SecondaryAdminPanel = () => {
     </div>
   );
 
+
   const renderOrders = () => (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="overflow-x-auto">
@@ -445,7 +460,8 @@ const SecondaryAdminPanel = () => {
     </div>
   );
 
-  if (loading) {
+
+  if (loading && activeTab !== 'website-bookings') {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader />
@@ -453,20 +469,22 @@ const SecondaryAdminPanel = () => {
     );
   }
 
+
   return (
     <div className="space-y-6">
       {/* Tab Navigation */}
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
+        <nav className="-mb-px flex space-x-8 overflow-x-auto">
           {[
             { key: 'dashboard', label: 'Dashboard', emoji: '📊' },
+            { key: 'website-bookings', label: 'Website Bookings (B2B)', emoji: '🌐' }, // ✅ NEW
             { key: 'meetings', label: 'Meetings', emoji: '📅' },
             { key: 'orders', label: 'Orders', emoji: '💰' }
           ].map(({ key, label, emoji }) => (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                 activeTab === key
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -479,10 +497,13 @@ const SecondaryAdminPanel = () => {
         </nav>
       </div>
 
+
       {/* Tab Content */}
       {activeTab === 'dashboard' && renderDashboard()}
+      {activeTab === 'website-bookings' && <WebsiteBookingsManager />} {/* ✅ NEW */}
       {activeTab === 'meetings' && renderMeetings()}
       {activeTab === 'orders' && renderOrders()}
+
 
       {/* Schedule Meeting Modal */}
       <Modal
@@ -548,5 +569,6 @@ const SecondaryAdminPanel = () => {
     </div>
   );
 };
+
 
 export default SecondaryAdminPanel;

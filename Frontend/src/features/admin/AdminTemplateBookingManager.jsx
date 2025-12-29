@@ -9,7 +9,7 @@ import {
   setFinalWebsiteUrl,
   addCommunication,
   getAllBookings,
-  deleteBooking, // ✅ NEW: Import delete function
+  deleteBooking,
   formatCurrency,
   formatDate,
   formatDateTime,
@@ -48,7 +48,7 @@ const AdminTemplateBookingManager = () => {
     totalBookings: 0
   });
 
-  // Form states for modals
+  // Form states
   const [formData, setFormData] = useState({
     paymentPercentage: '',
     meetingStatus: '',
@@ -61,7 +61,7 @@ const AdminTemplateBookingManager = () => {
     message: ''
   });
 
-  // ✅ DEBOUNCED SEARCH FUNCTION
+  // Debounced search
   const debouncedSearch = useCallback(
     debounce((searchTerm) => {
       setFilters(prev => ({ ...prev, search: searchTerm }));
@@ -69,7 +69,7 @@ const AdminTemplateBookingManager = () => {
     []
   );
 
-  // Load bookings with better error handling
+  // Load bookings
   const loadBookings = async (page = 1, forceReload = false) => {
     try {
       if (forceReload) setLoading(true);
@@ -83,28 +83,19 @@ const AdminTemplateBookingManager = () => {
         sortOrder: filters.sortOrder
       };
       
-      // console.log('Loading bookings with params:', params); // Debug log
-      
       const response = await getAllBookings(params);
       
       if (response?.success) {
-        setBookings(response.data?.bookings);
+        setBookings(response.data?.bookings || []);
         setPagination(response.data?.pagination);
-        // console.log('Bookings loaded:', response.data?.bookings?.length || 0); // Debug log
       } else {
         throw new Error(response?.message || 'Failed to load bookings');
       }
     } catch (error) {
       console.error('Error loading bookings:', error);
       showError(error?.message || 'Failed to load bookings');
-      
-      // Set empty state on error
       setBookings([]);
-      setPagination({
-        currentPage: 1,
-        totalPages: 1,
-        totalBookings: 0
-      });
+      setPagination({ currentPage: 1, totalPages: 1, totalBookings: 0 });
     } finally {
       setLoading(false);
     }
@@ -115,19 +106,17 @@ const AdminTemplateBookingManager = () => {
     loadBookings(1, true);
   }, []);
 
-  // FIXED: Reload when filters change with proper dependencies
+  // Reload on filter change
   useEffect(() => {
-    // console.log('Filters changed:', filters); // Debug log
     loadBookings(1, true);
-  }, [filters.status, filters.search, filters.sortBy, filters.sortOrder]); // Specific dependencies
+  }, [filters.status, filters.search, filters.sortBy, filters.sortOrder]);
 
-  // Handle filter changes
+  // Handle filter change
   const handleFilterChange = (key, value) => {
-    // console.log('Filter change:', key, value); // Debug log
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  // Handle search with debounce
+  // Handle search
   const handleSearchChange = (value) => {
     debouncedSearch(value);
   };
@@ -148,7 +137,6 @@ const AdminTemplateBookingManager = () => {
     setSelectedBooking(booking);
     setModalType(type);
 
-    // Pre-fill form data based on modal type - FIXED field references
     switch (type) {
       case 'payment':
         setFormData({
@@ -162,9 +150,9 @@ const AdminTemplateBookingManager = () => {
         break;
       case 'progress':
         setFormData({
-          progress: booking.developmentStatus?.progress || '', // FIXED: developmentStatus
-          stage: booking.developmentStatus?.stage || 'not-started', // FIXED: developmentStatus
-          developerNotes: booking.developmentStatus?.developerNotes || '' // FIXED: developmentStatus
+          progress: booking.developmentStatus?.progress || '',
+          stage: booking.developmentStatus?.stage || 'not-started',
+          developerNotes: booking.developmentStatus?.developerNotes || ''
         });
         break;
       case 'website':
@@ -175,9 +163,7 @@ const AdminTemplateBookingManager = () => {
         });
         break;
       case 'message':
-        setFormData({
-          message: ''
-        });
+        setFormData({ message: '' });
         break;
       default:
         setFormData({});
@@ -194,7 +180,7 @@ const AdminTemplateBookingManager = () => {
     setFormData({});
   };
 
-  // ✅ NEW: Delete booking function
+  // Delete booking
   const handleDeleteBooking = async (bookingId, templateName) => {
     if (!window.confirm(`Are you sure you want to delete booking for "${templateName}"? This action cannot be undone.`)) {
       return;
@@ -203,23 +189,17 @@ const AdminTemplateBookingManager = () => {
     try {
       setProcessing(true);
       await deleteBooking(bookingId);
-      
       showSuccess('Booking deleted successfully');
-      
-      // Refresh bookings list
       await loadBookings(pagination.currentPage);
-      
     } catch (error) {
       console.error('Delete booking error:', error);
-      showError(
-        error?.message || 'Failed to delete booking'
-      );
+      showError(error?.message || 'Failed to delete booking');
     } finally {
       setProcessing(false);
     }
   };
 
-  // Handle form submission
+  // Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedBooking) return;
@@ -263,11 +243,9 @@ const AdminTemplateBookingManager = () => {
             return;
           }
 
-          // Smart route selection based on payment status
           const remainingAmount = selectedBooking.paymentDetails?.totalAmount - selectedBooking.paymentDetails?.paidAmount;
           
           if (remainingAmount > 0) {
-            // Partial payment done, use website-urls route
             await updateWebsiteUrls(selectedBooking._id, {
               previewUrl: formData.previewUrl,
               liveUrl: formData.finalUrl,
@@ -275,7 +253,6 @@ const AdminTemplateBookingManager = () => {
             });
             showSuccess('Website URLs updated successfully - Preview now available!');
           } else {
-            // Final payment done, use final-website route
             await setFinalWebsiteUrl(selectedBooking._id, {
               finalUrl: formData.finalUrl,
               downloadUrl: formData.downloadUrl
@@ -290,10 +267,9 @@ const AdminTemplateBookingManager = () => {
             return;
           }
           
-          // FIX: Change type from 'admin-message' to 'other'
           await addCommunication(selectedBooking._id, {
             message: formData.message.trim(),
-            type: 'other' // FIXED: Valid enum value
+            type: 'other'
           });
           showSuccess('Message sent successfully');
           break;
@@ -313,7 +289,7 @@ const AdminTemplateBookingManager = () => {
     }
   };
 
-  // Get status badge with custom colors
+  // Get status badge
   const getStatusBadge = (status) => {
     const statusConfig = {
       'meeting-scheduled': { bg: '#6498fe', text: 'Meeting Scheduled' },
@@ -338,7 +314,7 @@ const AdminTemplateBookingManager = () => {
     );
   };
 
-  // Render modal content based on type
+  // Render modal content
   const renderModalContent = () => {
     if (!selectedBooking) return null;
 
@@ -346,10 +322,9 @@ const AdminTemplateBookingManager = () => {
       case 'payment':
         return (
           <div className="space-y-6">
-            {/* Header */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
-              <h3 className="text-xl font-bold mb-3" style={{ color: '#6498fe' }}>Set Payment Percentage</h3>
-              <p className="text-gray-600 mb-4">Set the percentage of payment required from customer to start development.</p>
+              <h3 className="text-xl font-bold mb-3 text-blue-600">💰 Set Payment Percentage</h3>
+              <p className="text-gray-600 mb-4">Set the percentage of payment required to start development.</p>
               
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="bg-white p-3 rounded-lg">
@@ -363,7 +338,6 @@ const AdminTemplateBookingManager = () => {
               </div>
             </div>
 
-            {/* Form */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-3">Payment Percentage</label>
               <input
@@ -375,11 +349,10 @@ const AdminTemplateBookingManager = () => {
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-lg"
                 placeholder="Enter percentage (0-100)"
                 required
-                style={{ borderColor: formData.paymentPercentage ? '#6498fe' : '#e5e7eb' }}
               />
               <div className="mt-2 p-3 bg-gray-50 rounded-lg">
                 <span className="text-sm text-gray-600">Required Amount: </span>
-                <span className="font-bold text-lg" style={{ color: '#6498fe' }}>
+                <span className="font-bold text-lg text-blue-600">
                   {formatCurrency((formData.paymentPercentage || 0) / 100 * selectedBooking.templatePrice)}
                 </span>
               </div>
@@ -391,7 +364,7 @@ const AdminTemplateBookingManager = () => {
         return (
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
-              <h3 className="text-xl font-bold mb-3" style={{ color: '#6498fe' }}>Update Meeting Status</h3>
+              <h3 className="text-xl font-bold mb-3 text-blue-600">📅 Update Meeting Status</h3>
               
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="bg-white p-3 rounded-lg">
@@ -410,9 +383,8 @@ const AdminTemplateBookingManager = () => {
               <select
                 value={formData.meetingStatus}
                 onChange={(e) => setFormData(prev => ({ ...prev, meetingStatus: e.target.value }))}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-lg"
+                className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl focus:outline-none focus:border-blue-500 text-lg"
                 required
-                style={{ borderColor: '#6498fe' }}
               >
                 <option value="scheduled">Scheduled</option>
                 <option value="completed">Completed</option>
@@ -427,7 +399,7 @@ const AdminTemplateBookingManager = () => {
         return (
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-xl border border-purple-200">
-              <h3 className="text-xl font-bold mb-3" style={{ color: '#6498fe' }}>Update Development Progress</h3>
+              <h3 className="text-xl font-bold mb-3 text-purple-600">📊 Update Development Progress</h3>
               
               <div className="bg-white p-3 rounded-lg">
                 <div className="flex justify-between text-sm mb-2">
@@ -436,17 +408,14 @@ const AdminTemplateBookingManager = () => {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div 
-                    className="h-3 rounded-full transition-all duration-300"
-                    style={{ 
-                      width: `${selectedBooking.developmentStatus?.progress || 0}%`,
-                      backgroundColor: '#6498fe'
-                    }}
+                    className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                    style={{ width: `${selectedBooking.developmentStatus?.progress || 0}%` }}
                   ></div>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-3">Progress %</label>
                 <input
@@ -458,7 +427,6 @@ const AdminTemplateBookingManager = () => {
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-lg"
                   placeholder="0-100"
                   required
-                  style={{ borderColor: formData.progress ? '#6498fe' : '#e5e7eb' }}
                 />
               </div>
               <div>
@@ -468,7 +436,6 @@ const AdminTemplateBookingManager = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, stage: e.target.value }))}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-lg"
                   required
-                  style={{ borderColor: '#6498fe' }}
                 >
                   <option value="not-started">Not Started</option>
                   <option value="in-progress">In Progress</option>
@@ -486,7 +453,6 @@ const AdminTemplateBookingManager = () => {
                 rows="4"
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 resize-none"
                 placeholder="Add notes about current progress..."
-                style={{ borderColor: formData.developerNotes ? '#6498fe' : '#e5e7eb' }}
               />
             </div>
           </div>
@@ -496,13 +462,13 @@ const AdminTemplateBookingManager = () => {
         return (
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
-              <h3 className="text-xl font-bold mb-3" style={{ color: '#6498fe' }}>Update Website URLs</h3>
+              <h3 className="text-xl font-bold mb-3 text-green-600">🔗 Update Website URLs</h3>
               <p className="text-gray-600 mb-3">Provide the website URLs for customer access</p>
               
               <div className="bg-white p-3 rounded-lg">
                 <div className="text-sm text-gray-600">Payment Status: 
-                  <span className="font-semibold">
-                    {selectedBooking.paymentDetails?.totalAmount - selectedBooking.paymentDetails?.paidAmount <= 0 ? 'Fully Paid' : 'Partial Payment Done'}
+                  <span className="font-semibold ml-2">
+                    {selectedBooking.paymentDetails?.totalAmount - selectedBooking.paymentDetails?.paidAmount <= 0 ? '✅ Fully Paid' : '⏳ Partial Payment Done'}
                   </span>
                 </div>
               </div>
@@ -517,7 +483,6 @@ const AdminTemplateBookingManager = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, previewUrl: e.target.value }))}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500"
                   placeholder="https://preview.example.com"
-                  style={{ borderColor: formData.previewUrl ? '#6498fe' : '#e5e7eb' }}
                 />
               </div>
               <div>
@@ -528,7 +493,6 @@ const AdminTemplateBookingManager = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, finalUrl: e.target.value }))}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500"
                   placeholder="https://example.com"
-                  style={{ borderColor: formData.finalUrl ? '#6498fe' : '#e5e7eb' }}
                 />
               </div>
               <div>
@@ -539,7 +503,6 @@ const AdminTemplateBookingManager = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, downloadUrl: e.target.value }))}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500"
                   placeholder="https://download.example.com/source.zip"
-                  style={{ borderColor: formData.downloadUrl ? '#6498fe' : '#e5e7eb' }}
                 />
               </div>
             </div>
@@ -549,11 +512,10 @@ const AdminTemplateBookingManager = () => {
       case 'message':
         return (
           <div className="space-y-6">
-            {/* Header */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
-              <h3 className="text-xl font-bold mb-3" style={{ color: '#6498fe' }}>Communication Center 💬</h3>
+              <h3 className="text-xl font-bold mb-3 text-blue-600">💬 Communication Center</h3>
               
-              <div className="bg-white p-3 rounded-lg">
+              <div className="bg-white p-3 rounded-lg space-y-2">
                 <div className="text-sm">
                   <span className="text-gray-600">Customer: </span>
                   <span className="font-semibold">{selectedBooking.userId?.name}</span>
@@ -567,7 +529,7 @@ const AdminTemplateBookingManager = () => {
             </div>
 
             {/* Chat History */}
-            <div className="bg-gray-50 rounded-xl p-4 max-h-96 overflow-y-auto" data-lenis-prevent>
+            <div className="bg-gray-50 rounded-xl p-4 max-h-96 overflow-y-auto">
               <h4 className="font-semibold text-gray-800 mb-4 sticky top-0 bg-gray-50 pb-2">
                 💬 Previous Messages ({selectedBooking.communications?.length || 0})
               </h4>
@@ -593,13 +555,13 @@ const AdminTemplateBookingManager = () => {
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  <span className="text-4xl mx-auto mb-2 opacity-30">💬</span>
+                  <span className="text-4xl block mb-2 opacity-30">💬</span>
                   <p>No messages yet. Start the conversation!</p>
                 </div>
               )}
             </div>
 
-            {/* New Message Form */}
+            {/* New Message */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-3">Send New Message</label>
               <textarea
@@ -609,7 +571,6 @@ const AdminTemplateBookingManager = () => {
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 resize-none"
                 placeholder="Type your message to the customer..."
                 required
-                style={{ borderColor: formData.message ? '#6498fe' : '#e5e7eb' }}
               />
               <div className="text-xs text-gray-500 mt-2">
                 Customer will be notified via email about your message
@@ -635,133 +596,121 @@ const AdminTemplateBookingManager = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto p-6 space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6">
         {/* Enhanced Header */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-100 rounded-2xl p-8 border border-blue-200">
-          <div className="flex justify-between items-start">
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 md:p-8 shadow-2xl text-white">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
             <div>
-              <h1 className="text-4xl font-bold mb-3" style={{ color: '#6498fe' }}>Template Bookings Manager</h1>
-              <p className="text-gray-600 text-lg">Manage all template bookings and development progress efficiently</p>
+              <h1 className="text-3xl md:text-4xl font-bold mb-3">📋 Template Bookings Manager</h1>
+              <p className="text-blue-100 text-lg">Manage B2C template bookings and development progress</p>
             </div>
             
-            <div className="flex gap-6 mt-4">
-              <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
-                <span className="text-2xl font-bold" style={{ color: '#6498fe' }}>{pagination.totalBookings}</span>
-                <div className="text-sm text-gray-600">Total Bookings</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white/20 backdrop-blur-md px-4 py-3 rounded-xl text-center">
+                <span className="text-2xl font-bold block">{pagination.totalBookings}</span>
+                <div className="text-xs text-blue-100">Total</div>
               </div>
-              <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
-                <span className="text-2xl font-bold" style={{ color: '#00ffab' }}>
+              <div className="bg-white/20 backdrop-blur-md px-4 py-3 rounded-xl text-center">
+                <span className="text-2xl font-bold block text-green-300">
                   {bookings.filter(b => b.status === 'completed').length}
                 </span>
-                <div className="text-sm text-gray-600">Completed</div>
+                <div className="text-xs text-blue-100">Completed</div>
               </div>
-              <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
-                <span className="text-2xl font-bold text-orange-500">
+              <div className="bg-white/20 backdrop-blur-md px-4 py-3 rounded-xl text-center">
+                <span className="text-2xl font-bold block text-orange-300">
                   {bookings.filter(b => b.status === 'development-in-progress').length}
                 </span>
-                <div className="text-sm text-gray-600">In Progress</div>
+                <div className="text-xs text-blue-100">Active</div>
               </div>
-              {/* NEW: MESSAGE NOTIFICATION STAT */}
-              <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
-                <span className="text-2xl font-bold text-red-500">
+              <div className="bg-white/20 backdrop-blur-md px-4 py-3 rounded-xl text-center">
+                <span className="text-2xl font-bold block text-red-300">
                   {bookings.filter(b => 
                     b.communications && 
                     b.communications.filter(c => !c.isAdminMessage).length > 
                     b.communications.filter(c => c.isAdminMessage).length
                   ).length}
                 </span>
-                <div className="text-sm text-gray-600">New Messages</div>
+                <div className="text-xs text-blue-100">New Messages</div>
               </div>
             </div>
           </div>
 
-          {/* Refresh Button */}
           <button
             onClick={() => loadBookings(pagination.currentPage, true)}
-            className="flex items-center px-4 py-2 rounded-lg text-white hover:opacity-80 transition-opacity shadow-md"
-            style={{ backgroundColor: '#6498fe' }}
-            title="Refresh Data"
+            className="mt-6 flex items-center px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl font-semibold transition-all"
           >
-            🔄 Refresh
+            🔄 Refresh Data
           </button>
         </div>
 
-        {/* Enhanced Filters */}
-        <Card className="p-0 border-0 shadow-xl">
-          <div className="p-8" style={{ backgroundColor: '#d1fcf0' }}>
-            <h2 className="text-xl font-bold mb-6" style={{ color: '#6498fe' }}>Filters & Search</h2>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">Filter by Status</label>
-                <select
-                  value={filters.status}
-                  onChange={(e) => handleFilterChange('status', e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 bg-white"
-                  style={{ borderColor: filters.status ? '#6498fe' : '#e5e7eb' }}
-                >
-                  <option value="">All Statuses</option>
-                  <option value="meeting-scheduled">Meeting Scheduled</option>
-                  <option value="meeting-completed">Meeting Completed</option>
-                  <option value="partial-payment-pending">Payment Pending</option>
-                  <option value="development-in-progress">In Development</option>
-                  <option value="website-ready">Website Ready</option>
-                  <option value="completed">Completed</option>
-                </select>
-              </div>
+        {/* Filters */}
+        <Card className="p-6 shadow-xl border-0 bg-white">
+          <h2 className="text-xl font-bold mb-6 text-gray-800">🔍 Filters & Search</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Filter by Status</label>
+              <select
+                value={filters.status}
+                onChange={(e) => handleFilterChange('status', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 bg-white"
+              >
+                <option value="">All Statuses</option>
+                <option value="meeting-scheduled">Meeting Scheduled</option>
+                <option value="meeting-completed">Meeting Completed</option>
+                <option value="partial-payment-pending">Payment Pending</option>
+                <option value="development-in-progress">In Development</option>
+                <option value="website-ready">Website Ready</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">Search</label>
-                <input
-                  type="text"
-                  value={filters.search}
-                  onChange={(e) => {
-                    // Update the display value immediately
-                    setFilters(prev => ({ ...prev, search: e.target.value }));
-                    // Debounce the actual search
-                    handleSearchChange(e.target.value);
-                  }}
-                  placeholder="Search by template name, booking ID, or customer..."
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 bg-white"
-                  style={{ borderColor: filters.search ? '#6498fe' : '#e5e7eb' }}
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+              <input
+                type="text"
+                value={filters.search}
+                onChange={(e) => {
+                  setFilters(prev => ({ ...prev, search: e.target.value }));
+                  handleSearchChange(e.target.value);
+                }}
+                placeholder="Search by template, booking ID, customer..."
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 bg-white"
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">Sort By</label>
-                <select
-                  value={`${filters.sortBy}-${filters.sortOrder}`}
-                  onChange={(e) => {
-                    const [sortBy, sortOrder] = e.target.value.split('-');
-                    // console.log('Sort change:', sortBy, '-', sortOrder); // Debug log
-                    handleFilterChange('sortBy', sortBy);
-                    handleFilterChange('sortOrder', sortOrder);
-                  }}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 bg-white"
-                  style={{ borderColor: '#6498fe' }}
-                >
-                  <option value="createdAt-desc">Newest First</option>
-                  <option value="createdAt-asc">Oldest First</option>
-                  <option value="templatePrice-desc">Highest Price</option>
-                  <option value="templatePrice-asc">Lowest Price</option>
-                  <option value="status-asc">Status A-Z</option>
-                </select>
-              </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Sort By</label>
+              <select
+                value={`${filters.sortBy}-${filters.sortOrder}`}
+                onChange={(e) => {
+                  const [sortBy, sortOrder] = e.target.value.split('-');
+                  handleFilterChange('sortBy', sortBy);
+                  handleFilterChange('sortOrder', sortOrder);
+                }}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 bg-white"
+              >
+                <option value="createdAt-desc">Newest First</option>
+                <option value="createdAt-asc">Oldest First</option>
+                <option value="templatePrice-desc">Highest Price</option>
+                <option value="templatePrice-asc">Lowest Price</option>
+                <option value="status-asc">Status A-Z</option>
+              </select>
+            </div>
 
-              <div className="flex items-end">
-                <button
-                  onClick={clearFilters}
-                  className="w-full px-4 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-xl font-semibold transition-colors"
-                >
-                  Clear Filters
-                </button>
-              </div>
+            <div className="flex items-end">
+              <button
+                onClick={clearFilters}
+                className="w-full px-4 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-xl font-semibold transition-colors"
+              >
+                Clear Filters
+              </button>
             </div>
           </div>
         </Card>
 
-        {/* Enhanced Bookings Table */}
+        {/* Bookings List */}
         {bookings.length === 0 ? (
           <Card className="p-16 text-center shadow-xl">
             <div className="text-8xl mb-6">📋</div>
@@ -774,219 +723,157 @@ const AdminTemplateBookingManager = () => {
             </p>
           </Card>
         ) : (
-          <Card className="overflow-hidden shadow-2xl border-0">
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead style={{ backgroundColor: '#6498fe' }}>
-                  <tr>
-                    <th className="px-8 py-6 text-left text-sm font-bold text-white uppercase tracking-wider">Booking Details</th>
-                    <th className="px-8 py-6 text-left text-sm font-bold text-white uppercase tracking-wider">Customer</th>
-                    <th className="px-8 py-6 text-left text-sm font-bold text-white uppercase tracking-wider">Meeting</th>
-                    <th className="px-8 py-6 text-left text-sm font-bold text-white uppercase tracking-wider">Progress</th>
-                    <th className="px-8 py-6 text-left text-sm font-bold text-white uppercase tracking-wider">Status</th>
-                    <th className="px-8 py-6 text-left text-sm font-bold text-white uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {bookings.map((booking, index) => (
-                    <tr 
-                      key={booking._id} 
-                      className="hover:bg-blue-50 transition-colors duration-200"
-                      style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8fafc' }}
+          <div className="space-y-4">
+            {bookings.map((booking, index) => (
+              <Card key={booking._id} className="p-6 hover:shadow-2xl transition-all duration-300 border-2 border-gray-100 hover:border-blue-300">
+                <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
+                  {/* Booking Details */}
+                  <div className="lg:col-span-2">
+                    <div className="flex items-center gap-4">
+                      <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
+                        {booking.templateId?.previewImage ? (
+                          <img 
+                            src={booking.templateId.previewImage.startsWith('http') ? 
+                              booking.templateId.previewImage : 
+                              `http://localhost:5000${booking.templateId.previewImage}`
+                            }
+                            alt={booking.templateName}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-3xl text-blue-500">🖼️</div>
+                        )}
+                      </div>
+                      <div>
+                        <div className="text-lg font-bold text-gray-900 mb-1">{booking.templateName}</div>
+                        <div className="text-sm text-gray-500 mb-1">#{booking.bookingId || booking._id.slice(-8)}</div>
+                        <div className="text-xl font-bold text-green-600">
+                          {formatCurrency(booking.templatePrice)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Customer & Meeting */}
+                  <div className="lg:col-span-2 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span>👤</span>
+                      <span className="font-semibold text-gray-900">{booking.userId?.name || 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span>✉️</span>
+                      <span className="text-gray-600 text-sm">{booking.userId?.email || 'N/A'}</span>
+                    </div>
+                    {booking.meetingDetails && (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <span className="text-blue-500">📅</span>
+                          <span className="font-semibold text-gray-900">
+                            {formatDate(booking.meetingDetails.scheduledDate)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span>⏰</span>
+                          <span className="text-gray-600">{booking.meetingDetails.scheduledTime}</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Progress & Status */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-lg text-blue-600">
+                        {booking.developmentStatus?.progress || 0}%
+                      </span>
+                      <span className="text-xs px-2 py-1 rounded-full font-semibold capitalize bg-green-100 text-green-700">
+                        {booking.developmentStatus?.stage?.replace('-', ' ') || 'not started'}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div 
+                        className="bg-blue-600 h-3 rounded-full transition-all duration-500"
+                        style={{ width: `${booking.developmentStatus?.progress || 0}%` }}
+                      ></div>
+                    </div>
+                    <div className="mt-3">
+                      {getStatusBadge(booking.status)}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <button
+                      onClick={() => openModal('payment', booking)}
+                      className="p-3 rounded-lg text-white hover:opacity-80 transition-opacity shadow-md bg-blue-500"
+                      title="Set Payment"
                     >
-                      {/* Booking Details */}
-                      <td className="px-8 py-6">
-                        <div className="flex items-center">
-                          <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl overflow-hidden flex-shrink-0 mr-4 shadow-md">
-                            {booking.templateId?.previewImage ? (
-                              <img loading="lazy"  
-                                src={booking.templateId.previewImage.startsWith('http') ? 
-                                  booking.templateId.previewImage : 
-                                  `http://localhost:5000${booking.templateId.previewImage}`
-                                }
-                                alt={booking.templateName}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-2xl text-blue-500">🖼️</div>
-                            )}
-                          </div>
-                          <div>
-                            <div className="text-lg font-bold text-gray-900 mb-1">{booking.templateName}</div>
-                            <div className="text-sm text-gray-500 mb-1">#{booking.bookingId || booking._id.slice(-8)}</div>
-                            <div className="text-xl font-bold" style={{ color: '#00ffab' }}>
-                              {formatCurrency(booking.templatePrice)}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Customer */}
-                      <td className="px-8 py-6">
-                        <div className="space-y-2">
-                          <div className="flex items-center">
-                            <span className="mr-3">👤</span>
-                            <span className="font-semibold text-gray-900">{booking.userId?.name || 'N/A'}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="mr-3">✉️</span>
-                            <span className="text-gray-600 text-sm">{booking.userId?.email || 'N/A'}</span>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Meeting */}
-                      <td className="px-8 py-6">
-                        <div className="space-y-2">
-                          {booking.meetingDetails ? (
-                            <>
-                              <div className="flex items-center">
-                                <span className="mr-3 text-blue-500">📅</span>
-                                <span className="font-semibold text-gray-900">
-                                  {formatDate(booking.meetingDetails.scheduledDate)}
-                                </span>
-                              </div>
-                              <div className="flex items-center">
-                                <span className="mr-3">⏰</span>
-                                <span className="text-gray-600">{booking.meetingDetails.scheduledTime}</span>
-                              </div>
-                              {booking.meetingDetails.meetingLink && (
-                                <div className="flex items-center">
-                                  <span className="mr-3 text-green-500">🔗</span>
-                                  <a 
-                                    href={booking.meetingDetails.meetingLink} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:text-blue-800 font-semibold text-sm hover:underline"
-                                  >
-                                    Join Meeting
-                                  </a>
-                                </div>
-                              )}
-                            </>
-                          ) : (
-                            <span className="text-gray-400 text-sm">No meeting scheduled</span>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Progress */}
-                      <td className="px-8 py-6">
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-lg" style={{ color: '#6498fe' }}>
-                              {booking.developmentStatus?.progress || 0}%
-                            </span>
-                            <span 
-                              className="text-xs px-2 py-1 rounded-full font-semibold capitalize"
-                              style={{ backgroundColor: '#d1fcf0', color: '#059669' }}
-                            >
-                              {booking.developmentStatus?.stage?.replace('-', ' ') || 'not started'}
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-3">
-                            <div 
-                              className="h-3 rounded-full transition-all duration-500"
-                              style={{ 
-                                width: `${booking.developmentStatus?.progress || 0}%`,
-                                backgroundColor: '#6498fe'
-                              }}
-                            ></div>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-8 py-6">
-                        {getStatusBadge(booking.status)}
-                      </td>
-
-                      {/* Actions */}
-                      <td className="px-8 py-6">
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            onClick={() => openModal('payment', booking)}
-                            className="p-2 rounded-lg text-white hover:opacity-80 transition-opacity shadow-md"
-                            style={{ backgroundColor: '#6498fe' }}
-                            title="Set Payment"
-                          >
-                            💰
-                          </button>
-                          <button
-                            onClick={() => openModal('meeting', booking)}
-                            className="p-2 rounded-lg text-white hover:opacity-80 transition-opacity shadow-md"
-                            style={{ backgroundColor: '#6498fe' }}
-                            title="Update Meeting"
-                          >
-                            📅
-                          </button>
-                          <button
-                            onClick={() => openModal('progress', booking)}
-                            className="p-2 rounded-lg text-white hover:opacity-80 transition-opacity shadow-md"
-                            style={{ backgroundColor: '#6498fe' }}
-                            title="Update Progress"
-                          >
-                            📊
-                          </button>
-                          <button
-                            onClick={() => openModal('website', booking)}
-                            className="p-2 rounded-lg text-white hover:opacity-80 transition-opacity shadow-md"
-                            style={{ backgroundColor: '#6498fe' }}
-                            title="Set URLs"
-                          >
-                            🔗
-                          </button>
-                          {/* ENHANCED MESSAGE BUTTON WITH RED DOT NOTIFICATION */}
-                          <button
-                            onClick={() => openModal('message', booking)}
-                            className="relative p-2 rounded-lg text-white hover:opacity-80 transition-opacity shadow-md"
-                            style={{ backgroundColor: '#22c55e' }}
-                            title="Send Message"
-                          >
-                            💬
-                            {/* RED DOT NOTIFICATION */}
-                            {booking.communications && 
-                             booking.communications.filter(c => !c.isAdminMessage).length > 
-                             booking.communications.filter(c => c.isAdminMessage).length && (
-                              <>
-                                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
-                                <span className="absolute inset-0 w-3 h-3 bg-red-500 rounded-full animate-ping"></span>
-                              </>
-                            )}
-                          </button>
-                          {/* ✅ NEW: Delete Button */}
-                          <button
-                            onClick={() => handleDeleteBooking(booking._id, booking.templateName)}
-                            className="p-2 rounded-lg text-white hover:opacity-80 transition-opacity shadow-md"
-                            style={{ backgroundColor: '#ef4444' }}
-                            title="Delete Booking"
-                            disabled={processing}
-                          >
-                            🗑️
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+                      💰
+                    </button>
+                    <button
+                      onClick={() => openModal('meeting', booking)}
+                      className="p-3 rounded-lg text-white hover:opacity-80 transition-opacity shadow-md bg-blue-500"
+                      title="Update Meeting"
+                    >
+                      📅
+                    </button>
+                    <button
+                      onClick={() => openModal('progress', booking)}
+                      className="p-3 rounded-lg text-white hover:opacity-80 transition-opacity shadow-md bg-blue-500"
+                      title="Update Progress"
+                    >
+                      📊
+                    </button>
+                    <button
+                      onClick={() => openModal('website', booking)}
+                      className="p-3 rounded-lg text-white hover:opacity-80 transition-opacity shadow-md bg-blue-500"
+                      title="Set URLs"
+                    >
+                      🔗
+                    </button>
+                    <button
+                      onClick={() => openModal('message', booking)}
+                      className="relative p-3 rounded-lg text-white hover:opacity-80 transition-opacity shadow-md bg-green-500"
+                      title="Send Message"
+                    >
+                      💬
+                      {booking.communications && 
+                       booking.communications.filter(c => !c.isAdminMessage).length > 
+                       booking.communications.filter(c => c.isAdminMessage).length && (
+                        <>
+                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping"></span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteBooking(booking._id, booking.templateName)}
+                      className="p-3 rounded-lg text-white hover:opacity-80 transition-opacity shadow-md bg-red-500"
+                      title="Delete Booking"
+                      disabled={processing}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
         )}
 
-        {/* Enhanced Pagination */}
+        {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="flex justify-center items-center space-x-4">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4">
             <button
               disabled={pagination.currentPage === 1 || loading}
               onClick={() => loadBookings(pagination.currentPage - 1)}
-              className="flex items-center px-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
-              style={{ backgroundColor: '#6498fe' }}
+              className="w-full md:w-auto px-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg bg-blue-600"
             >
               ← Previous
             </button>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               {[...Array(Math.min(5, pagination.totalPages))].map((_, index) => {
                 const pageNumber = pagination.currentPage - 2 + index;
                 if (pageNumber < 1 || pageNumber > pagination.totalPages) return null;
@@ -1007,7 +894,7 @@ const AdminTemplateBookingManager = () => {
               })}
             </div>
 
-            <div className="text-center px-6 py-3 bg-gray-100 rounded-xl">
+            <div className="px-6 py-3 bg-gray-100 rounded-xl">
               <span className="text-sm font-semibold text-gray-600">
                 Page {pagination.currentPage} of {pagination.totalPages}
               </span>
@@ -1016,15 +903,14 @@ const AdminTemplateBookingManager = () => {
             <button
               disabled={pagination.currentPage >= pagination.totalPages || loading}
               onClick={() => loadBookings(pagination.currentPage + 1)}
-              className="flex items-center px-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
-              style={{ backgroundColor: '#6498fe' }}
+              className="w-full md:w-auto px-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg bg-blue-600"
             >
               Next →
             </button>
           </div>
         )}
 
-        {/* Enhanced Modal */}
+        {/* Modal */}
         <Modal 
           isOpen={showModal} 
           onClose={closeModal} 
@@ -1034,19 +920,19 @@ const AdminTemplateBookingManager = () => {
           <form onSubmit={handleSubmit} className="space-y-8">
             {renderModalContent()}
             
-            <div className="flex justify-end space-x-4 pt-8 border-t-2 border-gray-100">
+            <div className="flex flex-col md:flex-row justify-end gap-4 pt-8 border-t-2 border-gray-100">
               <button
                 type="button"
                 onClick={closeModal}
                 disabled={processing}
-                className="px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+                className="w-full md:w-auto px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={processing}
-                className="flex items-center px-8 py-3 text-white rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 hover:shadow-lg"
+                className="w-full md:w-auto flex items-center justify-center px-8 py-3 text-white rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 hover:shadow-lg"
                 style={{ backgroundColor: processing ? '#9ca3af' : '#6498fe' }}
               >
                 {processing ? (

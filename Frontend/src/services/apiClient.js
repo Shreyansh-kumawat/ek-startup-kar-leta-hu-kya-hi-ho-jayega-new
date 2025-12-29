@@ -1,4 +1,4 @@
-// apiClient_PRODUCTION.js - Updated version
+// apiClient.js - Updated version
 import axios from 'axios';
 
 // ✅ FIXED: Better fallback logic

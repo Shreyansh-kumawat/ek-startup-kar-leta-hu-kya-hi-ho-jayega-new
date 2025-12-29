@@ -51,12 +51,12 @@ exports.getAllTemplates = async (req, res) => {
     const total = await Template.countDocuments(query);
 
     // ✅ Process image URLs (Cloudinary URLs are already absolute)
-    const templatesWithFullUrls = templates.map(template => ({
-      ...template,
-      previewImage: getFullImageUrl(req, template.previewImage),
-      // Keep original for debugging
-      originalImagePath: template.previewImage
-    }));
+   const templatesWithFullUrls = templates.map(template => ({
+  ...template,
+  displayId: `#3di-${template._id.toString().slice(-6)}`, // ✅ ADD displayId
+  previewImage: getFullImageUrl(req, template.previewImage),
+  originalImagePath: template.previewImage
+}));
 
     return res.status(200).json({
       success: true,
@@ -454,5 +454,100 @@ exports.searchTemplates = async (req, res) => {
   } catch (error) {
     console.error('❌ Search templates error:', error);
     return errorResponse(res, 'Server error while searching templates', error);
+  }
+};
+
+
+exports.getTemplateByWebsiteId = async (req, res) => {
+  try {
+    const { websiteId } = req.params;
+    
+    if (!websiteId || websiteId.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: 'Website ID is required'
+      });
+    }
+
+    const template = await Template.findOne({
+      $or: [
+        { externalId: websiteId.trim() },
+        { publicId: websiteId.trim() },
+        { websiteId: websiteId.trim() },
+        { slug: websiteId.trim() }
+      ]
+    }).select('-__v');
+
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        message: 'Template not found with this Website ID'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Template found successfully',
+      data: template
+    });
+  } catch (error) {
+    console.error('❌ Get template by website ID error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
+
+
+// ✅ NEW: Get template by displayId (last 6 chars)
+exports.getTemplateByDisplayId = async (req, res) => {
+  try {
+    const { displayId } = req.params;
+    
+    if (!displayId || displayId.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: 'Display ID is required'
+      });
+    }
+
+    // Remove #3di- prefix if present
+    const cleanId = displayId.replace(/^#?3di-/i, '').trim();
+    
+    if (cleanId.length !== 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid Display ID format'
+      });
+    }
+
+    // Find template where last 6 chars of _id match
+    const templates = await Template.find({}).select('-__v');
+    
+    const template = templates.find(t => 
+      t._id.toString().slice(-6).toLowerCase() === cleanId.toLowerCase()
+    );
+
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        message: 'Template not found with this Display ID'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Template found successfully',
+      data: template
+    });
+  } catch (error) {
+    console.error('❌ Get template by display ID error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
   }
 };

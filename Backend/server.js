@@ -1,3 +1,4 @@
+// Backend\server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,6 +8,10 @@ const path = require('path');
 
 // Load environment variables FIRST
 dotenv.config();
+
+
+const { startProgressUpdater } = require('./jobs/progressUpdater');
+
 
 // Import app AFTER environment variables
 const app = require('./app');
@@ -29,7 +34,6 @@ const connectDB = async () => {
   }
 };
 
-
 // Handle uncaught exceptions BEFORE anything else
 process.on('uncaughtException', (err) => {
   // console.log('🔥 UNCAUGHT EXCEPTION! Shutting down...');
@@ -41,6 +45,8 @@ process.on('uncaughtException', (err) => {
 
 // Connect to database
 connectDB();
+
+startProgressUpdater();
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
@@ -74,6 +80,7 @@ const server = app.listen(PORT, () => {
     // console.log('\n📋 Available endpoints:');
     // console.log('   - Health: http://localhost:' + PORT + '/health');
     // console.log('   - API: http://localhost:' + PORT + '/api');
+    // console.log('   - Plans: http://localhost:' + PORT + '/api/plans'); // ✅ NEW
   }
 });
 
@@ -124,6 +131,8 @@ app.use('/api/orders', (req, res, next) => {
   // console.log('🔍 Request user:', req.user);
   next();
 });
+
+// ✅ Health check endpoints
 app.get('/api/health', (req, res) => {
   res.status(200).json({ 
     success: true, 
@@ -132,7 +141,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// ✅ NEW: Plan system health check
+app.get('/api/health/plans', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    service: 'Plan Purchase System',
+    razorpay: process.env.RAZORPAY_KEY_ID_TEST ? 'Configured' : 'Not Configured',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Export server for testing purposes
 module.exports = server;
-
-

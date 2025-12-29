@@ -2,12 +2,16 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../features/auth/useAuth';
 
+
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
   const { user } = useAuth();
 
+
   const isActive = (path) => location.pathname === path;
 
+
+  // ✅ USER MENU ITEMS - B2B FOCUSED (Credit-based bookings)
   const userMenuItems = [
     { 
       path: '/dashboard', 
@@ -16,43 +20,38 @@ const Sidebar = ({ isOpen, onClose }) => {
       color: 'blue',
       gradient: 'from-blue-500 to-blue-600'
     },
-    { 
-      path: '/templates', 
-      label: 'Websites', 
-      emoji: '🎨',
-      color: 'purple',
-      gradient: 'from-purple-500 to-purple-600'
-    },
+   
     { 
       path: '/dashboard/bookings', 
-      label: 'My Bookings', 
-      emoji: '📋',
+      label: 'My Website Bookings', 
+      emoji: '🎯',
       color: 'indigo',
       gradient: 'from-indigo-500 to-purple-600'
     },
     { 
-      path: '/dashboard/account',  // ✅ NEW - ADDED
+      path: '/pricing', 
+      label: 'Buy Credits', 
+      emoji: '💳',
+      color: 'green',
+      gradient: 'from-green-500 to-emerald-600'
+    },
+    { 
+      path: '/dashboard/account',
       label: 'My Account', 
       emoji: '👤',
       color: 'teal',
       gradient: 'from-teal-500 to-cyan-600'
-    },
+    }
   ];
   
+  // ✅ ADMIN MENU ITEMS - B2B FOCUSED (Main + Secondary Admin)
   const adminMenuItems = [
     { 
-      path: '/admin/templates', 
-      label: 'Website Management', 
-      emoji: '🎨',
-      color: 'purple',
-      gradient: 'from-purple-500 to-indigo-600'
-    },
-    { 
-      path: '/admin/bookings', 
-      label: 'Bookings', 
-      emoji: '📋',
-      color: 'emerald',
-      gradient: 'from-emerald-500 to-green-600'
+      path: '/admin', 
+      label: 'Admin Dashboard', 
+      emoji: '⚡',
+      color: 'indigo',
+      gradient: 'from-indigo-500 to-purple-600'
     },
     { 
       path: '/admin/users', 
@@ -62,29 +61,70 @@ const Sidebar = ({ isOpen, onClose }) => {
       gradient: 'from-cyan-500 to-blue-600'
     },
     { 
-      path: '/admin/meetings', 
-      label: 'Meeting Management', 
-      emoji: '📅',
-      color: 'orange',
-      gradient: 'from-orange-500 to-red-500'
-    },
+      path: '/admin/templates', 
+      label: 'Website Templates', 
+      emoji: '🎨',
+      color: 'purple',
+      gradient: 'from-purple-500 to-indigo-600'
+    }
   ];
 
-  const isAdmin = user?.role === 'admin' || user?.role === 'secondaryAdmin';
-  const menuItems = isAdmin ? [...userMenuItems, { separator: true }, ...adminMenuItems] : userMenuItems;
+  // ✅ SECONDARY ADMIN RESTRICTED ITEMS (No user management, no admin creation)
+  const secondaryAdminMenuItems = [
+    { 
+      path: '/admin', 
+      label: 'Admin Dashboard', 
+      emoji: '⚡',
+      color: 'indigo',
+      gradient: 'from-indigo-500 to-purple-600'
+    },
+    { 
+      path: '/admin/templates', 
+      label: 'Website Templates', 
+      emoji: '🎨',
+      color: 'purple',
+      gradient: 'from-purple-500 to-indigo-600'
+    }
+  ];
+
+
+  // ✅ ROLE-BASED MENU SELECTION
+  const isMainAdmin = user?.role === 'admin';
+  const isSecondaryAdmin = user?.role === 'secondaryAdmin';
+  const isAnyAdmin = isMainAdmin || isSecondaryAdmin;
+
+  let menuItems = userMenuItems;
+  
+  if (isMainAdmin) {
+    // Main admin gets everything
+    menuItems = [...userMenuItems, { separator: true }, ...adminMenuItems];
+  } else if (isSecondaryAdmin) {
+    // Secondary admin gets restricted menu
+    menuItems = [...userMenuItems, { separator: true }, ...secondaryAdminMenuItems];
+  }
+
 
   const getInitials = (name) => {
     return name ? name.charAt(0).toUpperCase() : 'U';
   };
 
+
   const getUserDisplayName = () => {
     return user?.name || user?.username || 'User';
   };
+
+  const getUserRole = () => {
+    if (isMainAdmin) return 'Main Admin';
+    if (isSecondaryAdmin) return 'Secondary Admin';
+    return 'Client';
+  };
+
 
   // Handle click events inside sidebar to prevent closing
   const handleSidebarClick = (e) => {
     e.stopPropagation();
   };
+
 
   return (
     <>
@@ -95,6 +135,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           onClick={onClose}
         />
       )}
+
 
       {/* Sidebar Container - Prevent click propagation */}
       <div 
@@ -108,6 +149,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)' }}
         onClick={handleSidebarClick}
       >
+
 
         {/* Header Section - Responsive padding and sizing */}
         <div className="relative overflow-hidden">
@@ -128,10 +170,16 @@ const Sidebar = ({ isOpen, onClose }) => {
                   {/* User Name - Responsive text sizing and truncation */}
                   <h2 className="text-lg sm:text-xl font-bold truncate">{getUserDisplayName()}</h2>
                   <p className="text-white/80 text-xs sm:text-sm">
-                    {isAdmin ? (
+                    {isMainAdmin ? (
                       <span className="flex items-center gap-1">
                         <span className="text-yellow-300">👑</span>
-                        <span className="hidden sm:inline">Administrator</span>
+                        <span className="hidden sm:inline">Main Admin</span>
+                        <span className="sm:hidden">Admin</span>
+                      </span>
+                    ) : isSecondaryAdmin ? (
+                      <span className="flex items-center gap-1">
+                        <span className="text-purple-300">🔐</span>
+                        <span className="hidden sm:inline">Secondary Admin</span>
                         <span className="sm:hidden">Admin</span>
                       </span>
                     ) : (
@@ -140,6 +188,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                   </p>
                 </div>
               </div>
+
 
               {/* Close Button - Only on mobile/tablet, only cross icon */}
               <button
@@ -153,6 +202,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           </div>
         </div>
 
+
         {/* Navigation Section - Responsive scrolling and padding */}
         <nav className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           <div className="space-y-1 sm:space-y-2">
@@ -162,10 +212,16 @@ const Sidebar = ({ isOpen, onClose }) => {
                   <div key={`separator-${index}`} className="my-6 sm:my-8">
                     <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-4 py-2 sm:py-3">
                       <div className="h-px bg-gray-300 flex-1"></div>
-                      <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full">
-                        <span className="text-yellow-300 text-xs sm:text-sm">👑</span>
+                      <div className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 ${
+                        isMainAdmin 
+                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600' 
+                          : 'bg-gradient-to-r from-purple-500 to-pink-500'
+                      } text-white rounded-full`}>
+                        <span className="text-yellow-300 text-xs sm:text-sm">
+                          {isMainAdmin ? '👑' : '🔐'}
+                        </span>
                         <span className="text-xs font-bold uppercase tracking-wider hidden sm:inline">
-                          Admin Panel
+                          {isMainAdmin ? 'Admin Panel' : 'Admin'}
                         </span>
                         <span className="text-xs font-bold uppercase tracking-wider sm:hidden">
                           Admin
@@ -177,7 +233,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                 );
               }
 
+
               const isCurrentActive = isActive(item.path);
+
 
               return (
                 <Link
@@ -208,6 +266,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                     }}
                   />
 
+
                   {/* Icon container - Responsive sizing */}
                   <div className={`relative z-10 w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
                     isCurrentActive 
@@ -221,6 +280,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                     }`}>{item.emoji}</span>
                   </div>
 
+
                   {/* Label - Responsive text sizing and truncation */}
                   <div className="relative z-10 flex-1 min-w-0">
                     <div className="flex items-center justify-between">
@@ -229,6 +289,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                       </span>
                     </div>
                   </div>
+
 
                   {/* Active indicator */}
                   {isCurrentActive && (
@@ -240,17 +301,26 @@ const Sidebar = ({ isOpen, onClose }) => {
           </div>
         </nav>
 
+
         {/* Footer Section - Responsive text sizing and padding */}
         <div className="p-4 sm:p-6 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
           <div className="text-center">
             <div className="text-xs text-gray-500 mb-1 sm:mb-2 truncate">
-              3Digree Website Booking System
+              3Digree Website Booking Platform
             </div>
+            {/* ✅ Credits Display */}
+            {user?.credits !== undefined && (
+              <div className="mt-2 inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full">
+                <span className="text-xs">🎫</span>
+                <span className="text-xs font-bold text-green-700">{user.credits} Credits</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </>
   );
 };
+
 
 export default Sidebar;

@@ -791,6 +791,7 @@ const TemplateDetails = () => {
                   style={{ borderRadius: '50px' }}
                 >
                   {template.price === 0 ? 'Get Free Website' : 'Book This Website'}
+                  
                 </Button>
 
                 <Button

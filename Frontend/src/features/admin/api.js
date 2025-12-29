@@ -1,6 +1,8 @@
 import apiClient from '../../services/apiClient';
 
-// Dashboard Stats
+
+// ==================== DASHBOARD & STATS ====================
+
 export const getDashboard = async () => {
   try {
     const response = await apiClient.get('/admin/dashboard');
@@ -9,6 +11,7 @@ export const getDashboard = async () => {
     throw error.response?.data || error.message;
   }
 };
+
 
 export const getSystemStats = async () => {
   try {
@@ -19,7 +22,9 @@ export const getSystemStats = async () => {
   }
 };
 
-// User Management
+
+// ==================== USER MANAGEMENT ====================
+
 export const getAllUsers = async () => {
   try {
     const response = await apiClient.get('/admin/users');
@@ -28,6 +33,7 @@ export const getAllUsers = async () => {
     throw error.response?.data || error.message;
   }
 };
+
 
 export const getUserById = async (userId) => {
   try {
@@ -38,6 +44,7 @@ export const getUserById = async (userId) => {
   }
 };
 
+
 export const createSecondaryAdmin = async (userData) => {
   try {
     const response = await apiClient.post('/admin/secondary', userData);
@@ -46,6 +53,7 @@ export const createSecondaryAdmin = async (userData) => {
     throw error.response?.data || error.message;
   }
 };
+
 
 export const updateUserStatus = async (userId, isActive) => {
   try {
@@ -56,6 +64,7 @@ export const updateUserStatus = async (userId, isActive) => {
   }
 };
 
+
 export const deleteUser = async (userId) => {
   try {
     const response = await apiClient.delete(`/admin/users/${userId}`);
@@ -65,7 +74,9 @@ export const deleteUser = async (userId) => {
   }
 };
 
-// Meeting Management
+
+// ==================== MEETING MANAGEMENT ====================
+
 export const getAllMeetings = async () => {
   try {
     const response = await apiClient.get('/meetings');
@@ -74,6 +85,7 @@ export const getAllMeetings = async () => {
     throw error.response?.data || error.message;
   }
 };
+
 
 export const getMeetingRequests = async () => {
   try {
@@ -84,6 +96,7 @@ export const getMeetingRequests = async () => {
   }
 };
 
+
 export const scheduleMeeting = async (meetingId, scheduleData) => {
   try {
     const response = await apiClient.put(`/meetings/${meetingId}/schedule`, scheduleData);
@@ -92,6 +105,7 @@ export const scheduleMeeting = async (meetingId, scheduleData) => {
     throw error.response?.data || error.message;
   }
 };
+
 
 export const updateMeetingStatus = async (meetingId, status) => {
   try {
@@ -102,7 +116,9 @@ export const updateMeetingStatus = async (meetingId, status) => {
   }
 };
 
-// Order Management
+
+// ==================== ORDER MANAGEMENT ====================
+
 export const getAllOrders = async () => {
   try {
     const response = await apiClient.get('/orders');
@@ -111,6 +127,7 @@ export const getAllOrders = async () => {
     throw error.response?.data || error.message;
   }
 };
+
 
 export const updateOrderStatus = async (orderId, status) => {
   try {
@@ -121,7 +138,9 @@ export const updateOrderStatus = async (orderId, status) => {
   }
 };
 
-// Project Management
+
+// ==================== PROJECT MANAGEMENT ====================
+
 export const getAllProjects = async () => {
   try {
     const response = await apiClient.get('/projects');
@@ -131,6 +150,7 @@ export const getAllProjects = async () => {
   }
 };
 
+
 export const updateProjectStatus = async (projectId, status, notes = '') => {
   try {
     const response = await apiClient.put(`/projects/${projectId}/status`, { status, notes });
@@ -139,6 +159,7 @@ export const updateProjectStatus = async (projectId, status, notes = '') => {
     throw error.response?.data || error.message;
   }
 };
+
 
 export const updateProjectLinks = async (projectId, previewLink, liveLink) => {
   try {
@@ -152,6 +173,7 @@ export const updateProjectLinks = async (projectId, previewLink, liveLink) => {
   }
 };
 
+
 export const activateWebsite = async (projectId, websiteUrl) => {
   try {
     const response = await apiClient.post(`/projects/${projectId}/activate`, { websiteUrl });
@@ -161,12 +183,81 @@ export const activateWebsite = async (projectId, websiteUrl) => {
   }
 };
 
+
 export const addNotification = async (projectId, message, type = 'info') => {
   try {
     const response = await apiClient.post(`/projects/${projectId}/notification`, { 
       message, 
       type 
     });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+
+// ==================== ✅ NEW: WEBSITE BOOKING MANAGEMENT (B2B) ====================
+
+// Get all website bookings (Admin)
+export const getAllWebsiteBookings = async (params = {}) => {
+  try {
+    const response = await apiClient.get('/website-booking/admin/all', { params });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// Approve website booking (Admin)
+export const approveWebsiteBooking = async (bookingId) => {
+  try {
+    const response = await apiClient.patch(`/website-booking/admin/${bookingId}/approve`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// Complete website booking with preview link (Admin)
+export const completeWebsiteBooking = async (bookingId, previewLink) => {
+  try {
+    const response = await apiClient.patch(`/website-booking/admin/${bookingId}/complete`, {
+      previewLink
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// Get website booking stats (Admin)
+export const getWebsiteBookingStats = async () => {
+  try {
+    const response = await apiClient.get('/website-booking/admin/stats');
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+
+// ==================== ✅ NEW: CHAT MANAGEMENT ====================
+
+// Get chat messages for a booking
+export const getChatMessages = async (bookingId) => {
+  try {
+    const response = await apiClient.get(`/chat/${bookingId}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// Send chat message
+export const sendChatMessage = async (bookingId, message) => {
+  try {
+    const response = await apiClient.post(`/chat/${bookingId}`, { message });
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;

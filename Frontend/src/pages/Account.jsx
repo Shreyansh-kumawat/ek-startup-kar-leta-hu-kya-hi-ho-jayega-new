@@ -13,6 +13,10 @@ const Account = () => {
   const { user: authUser, logout, isAuthenticated } = useAuth();
   const { showSuccess, showError } = useNotification();
 
+  useEffect(() => {
+    document.title = "My Account | 3Digree";
+  }, []);
+
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -207,25 +211,7 @@ const handleChangePassword = async () => {
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
       <div className="max-w-5xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-        
-        {/* Header */}
-        <div className="mb-6 sm:mb-8 lg:mb-12">
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8" style={{ background: 'linear-gradient(135deg, #6498fe 0%, #5a87f7 100%)' }}>
-            <div className="absolute inset-0 bg-black/10"></div>
-            <div className="relative">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-2 sm:mb-3 leading-tight">
-                    My Account 👤
-                  </h1>
-                  <p className="text-white/90 text-sm sm:text-base lg:text-xl">
-                    Manage your profile and account settings
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+       
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           
@@ -400,12 +386,7 @@ const handleChangePassword = async () => {
                     <span className="text-sm text-gray-600">Status</span>
                     <span className="text-sm font-semibold text-green-600">✅ Active</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Verified</span>
-                    <span className="text-sm font-semibold text-blue-600">
-                      {user.isVerified ? '✅ Yes' : '⏳ Pending'}
-                    </span>
-                  </div>
+                  
                 </div>
               </div>
             </Card>
