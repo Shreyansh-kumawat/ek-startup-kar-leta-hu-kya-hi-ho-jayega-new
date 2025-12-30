@@ -146,7 +146,7 @@ app.get('/api/health/plans', (req, res) => {
   res.json({ 
     status: 'OK', 
     service: 'Plan Purchase System',
-    razorpay: process.env.RAZORPAY_KEY_ID_TEST ? 'Configured' : 'Not Configured',
+    razorpay: process.env.RAZORPAY_KEY_ID ? 'Configured' : 'Not Configured',
     timestamp: new Date().toISOString()
   });
 });

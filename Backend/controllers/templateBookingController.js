@@ -32,8 +32,8 @@ const PREDEFINED_MEET_LINKS = [
 let razorpay;
 try {
   razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID_TEST,
-    key_secret: process.env.RAZORPAY_KEY_SECRET_TEST
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
   });
   // console.log('✅ Razorpay initialized successfully');
 } catch (error) {
@@ -243,7 +243,7 @@ exports.verifyPayment = async (req, res) => {
     // Verify signature
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET_TEST)
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
       .update(body.toString())
       .digest('hex');
 

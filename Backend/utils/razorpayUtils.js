@@ -3,8 +3,8 @@ const crypto = require('crypto');
 
 // Initialize Razorpay instance
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID_TEST,
-  key_secret: process.env.RAZORPAY_KEY_SECRET_TEST,
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 // Create a Razorpay order
@@ -48,7 +48,7 @@ exports.verifyRazorpaySignature = (razorpayOrderId, razorpayPaymentId, razorpayS
 
     // Generate expected signature
     const generatedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET_TEST)
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
       .update(`${razorpayOrderId}|${razorpayPaymentId}`)
       .digest('hex');
 

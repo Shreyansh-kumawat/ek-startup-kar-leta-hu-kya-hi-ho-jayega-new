@@ -35,7 +35,7 @@ app.use(helmet({
 // CORS configuration
 const corsOptions = {
   origin: [
-    'https://3digree.in',
+    'https://web-gallery-tan.vercel.app',
     'http://localhost:3000',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
