@@ -4,10 +4,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
 
-
 // Import middleware
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
-
 
 // ✅ B2B ROUTES ONLY - Cleaned up
 const authRoutes = require('./routes/authRoutes');
@@ -16,30 +14,43 @@ const templateBookingRoutes = require('./routes/templateBookingRoutes');
 const meetingRoutes = require('./routes/meetingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const tutorialRoutes = require('./routes/tutorialRoutes');
-const planRoutes = require('./routes/planRoutes'); // ✅ ADD THIS
-
+const planRoutes = require('./routes/planRoutes');
 
 const websiteBookingRoutes = require('./routes/websiteBookingRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 
-
 const app = express();
 
-
-// Security middleware
+// ✅ UPDATED: Security middleware with Google OAuth support
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }, // ✅ For Google OAuth popups
+  crossOriginEmbedderPolicy: false
 }));
 
-
-// CORS configuration
+// ✅ UPDATED: Better CORS configuration with origin function
 const corsOptions = {
-  origin: [
-    'https://web-gallery-tan.vercel.app',
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-  ],
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'https://web-gallery-tan.vercel.app',
+      'https://3digree1.vercel.app',
+      'https://3digree.in',
+      'https://webgallery.store',
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://127.0.0.1:5173'
+    ];
+    
+    // Allow requests with no origin (like mobile apps, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('❌ CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: [
@@ -52,31 +63,18 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-
+// ✅ Apply CORS before routes
 app.use(cors(corsOptions));
 
-
-// Handle preflight requests
-app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,Accept,Origin');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    return res.sendStatus(200);
-  }
-  next();
-});
-
+// ✅ Explicitly handle OPTIONS preflight for all routes
+app.options('*', cors(corsOptions));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 
 // ROOT ROUTE
 app.get('/', (req, res) => {
@@ -93,7 +91,7 @@ app.get('/', (req, res) => {
       meetings: '/api/meetings - Meeting management',
       admin: '/api/admin - Admin dashboard',
       tutorials: '/api/tutorials - Tutorial tracking',
-      plans: '/api/plans - Credit plans & purchases', // ✅ ADD THIS
+      plans: '/api/plans - Credit plans & purchases',
       health: '/health - Health check'
     },
     documentation: 'Visit /api for detailed API documentation',
@@ -101,7 +99,6 @@ app.get('/', (req, res) => {
     uptime: process.uptime() + ' seconds'
   });
 });
-
 
 // API documentation route
 app.get('/api', (req, res) => {
@@ -190,7 +187,7 @@ app.get('/api', (req, res) => {
           'GET /api/tutorials/analytics - Get tutorial analytics (Admin)'
         ]
       },
-      { // ✅ ADD THIS
+      {
         group: 'Plans & Credits',
         path: '/api/plans',
         routes: [
@@ -222,7 +219,6 @@ app.get('/api', (req, res) => {
   });
 });
 
-
 // Health check route 
 app.get('/health', (req, res) => {
   res.status(200).json({
@@ -241,11 +237,10 @@ app.get('/health', (req, res) => {
       adminControls: 'enabled',
       razorpayIntegration: 'enabled',
       tutorialTracking: 'enabled',
-      creditPlans: 'enabled' // ✅ ADD THIS
+      creditPlans: 'enabled'
     }
   });
 });
-
 
 // ✅ B2B API ROUTES ONLY
 app.use('/api/auth', authRoutes);
@@ -254,20 +249,13 @@ app.use('/api/template-booking', templateBookingRoutes);
 app.use('/api/meetings', meetingRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/tutorials', tutorialRoutes);
-app.use('/api/plans', planRoutes); // ✅ ADD THIS LINE
-
+app.use('/api/plans', planRoutes);
 
 app.use('/api/website-booking', websiteBookingRoutes);
 app.use('/api/chat', chatRoutes);
 
-// ❌ REMOVED B2C ROUTES:
-// app.use('/api/orders', orderRoutes); // Direct purchase - NOT NEEDED
-// app.use('/api/projects', projectRoutes); // Auto projects - NOT NEEDED
-
-
 // Error handling middleware (must be last)
 app.use(notFound);
 app.use(errorHandler);
-
 
 module.exports = app;
