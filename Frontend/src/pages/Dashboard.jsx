@@ -252,9 +252,9 @@ const Dashboard = () => {
         let response;
         if (id.match(/^#?3di-[a-f0-9]{6}$/i)) {
           const cleanId = id.replace(/^#?3di-/i, '');
-          response = await fetch(`http://localhost:5000/api/templates/display/${cleanId}`);
+          response = await fetch(`https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com/api/templates/display/${cleanId}`);
         } else {
-          response = await fetch(`http://localhost:5000/api/templates/website/${id}`);
+          response = await fetch(`https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com/website/${id}`);
         }
 
         if (response.ok) {
