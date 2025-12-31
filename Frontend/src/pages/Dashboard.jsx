@@ -215,7 +215,7 @@ const Dashboard = () => {
  const loadRecentBookings = async () => {
   try {
     // ✅ NEW: Use website-booking API
-    const response = await fetch('http://localhost:5000/api/website-booking/user', {
+    const response = await fetch('https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com/api/website-booking/user', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
