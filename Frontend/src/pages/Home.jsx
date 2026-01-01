@@ -469,42 +469,46 @@ const Home = () => {
               </div>
             )}
 
-            {/* Enhanced Stats with Scroll Animation */}
-            <div 
-              ref={statsRef}
-              className="mt-16 grid grid-cols-3 gap-10 max-w-3xl mx-auto"
-            >
-              {[
-                { number: "50+", label: "Templates", icon: "/svg/lots.svg" },
-                { number: "3", label: "Days Delivery", icon: "/svg/day.svg" },
-                { number: "100%", label: "White-label", icon: "/svg/happy.svg" }
-              ].map((stat, index) => (
-                <div 
-                  key={index} 
-                  className="text-center group"
-                  style={{
-                    animation: isStatsVisible 
-                      ? `slideUpScale 0.8s ease-out ${index * 0.2}s forwards`
-                      : 'none',
-                    opacity: isStatsVisible ? 1 : 0,
-                    transform: isStatsVisible ? 'translateY(0) scale(1)' : 'translateY(100px) scale(0.5)'
-                  }}
-                >
-                  <div className="relative inline-block mb-3">
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#6498fe] to-purple-600 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
-                    <div className="relative text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600 group-hover:scale-110 transition-transform duration-500">
-                      {stat.number}
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-600 font-bold flex items-center justify-center gap-2">
-                    <span>{stat.label}</span>
-                    <span className="text-lg group-hover:scale-125 transition-transform duration-300">
-                      <img src={stat.icon} alt="." className="w-10" />
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+           {/* Enhanced Stats with Scroll Animation */}
+<div 
+  ref={statsRef}
+  className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 max-w-3xl mx-auto px-4"
+>
+  {[
+    { number: "50+", label: "Templates", icon: "/svg/lots.svg" },
+    { number: "3", label: "Days Delivery", icon: "/svg/day.svg" },
+    { number: "100%", label: "White-label", icon: "/svg/happy.svg" }
+  ].map((stat, index) => (
+    <div 
+      key={index} 
+      className="text-center group"
+      style={{
+        animation: isStatsVisible 
+          ? `slideUpScale 0.8s ease-out ${index * 0.2}s forwards`
+          : 'none',
+        opacity: isStatsVisible ? 1 : 0,
+        transform: isStatsVisible ? 'translateY(0) scale(1)' : 'translateY(100px) scale(0.5)'
+      }}
+    >
+      <div className="relative inline-block mb-3">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#6498fe] to-purple-600 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
+        <div className="relative text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600 group-hover:scale-110 transition-transform duration-500">
+          {stat.number}
+        </div>
+      </div>
+      <div className="text-sm text-gray-600 font-bold flex items-center justify-center gap-2">
+        <span>{stat.label}</span>
+        <span className="text-lg group-hover:scale-125 transition-transform duration-300">
+          <img src={stat.icon} alt="." className="w-8 sm:w-10" />
+        </span>
+      </div>
+    </div>
+  ))}
+</div>
+
+
+
+
           </div>
         </div>
 

@@ -140,23 +140,24 @@ const UserBookings = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          {[
-            { label: 'Total', value: stats.total, icon: '📋' },
-            { label: 'Completed', value: stats.completed, icon: '✅' },
-            { label: 'Active', value: stats.inProgress, icon: '⚡' }, 
-          ].map(stat => (
-            <div key={stat.label} className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                  <div className="text-xs text-gray-600">{stat.label}</div>
-                </div>
-                <div className="text-2xl">{stat.icon}</div>
-              </div>
-            </div>
-          ))}
+<div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+  {[
+    { label: 'Total', value: stats.total, icon: '📋' },
+    { label: 'Completed', value: stats.completed, icon: '✅' },
+    { label: 'Active', value: stats.inProgress, icon: '⚡' }, 
+  ].map(stat => (
+    <div key={stat.label} className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+          <div className="text-xs text-gray-600">{stat.label}</div>
         </div>
+        <div className="text-2xl">{stat.icon}</div>
+      </div>
+    </div>
+  ))}
+</div>
+
 
         {/* Compact Filters */}
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-6">
