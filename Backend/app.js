@@ -36,6 +36,7 @@ const corsOptions = {
       'https://3digree1.vercel.app',
       'https://3digree.in',
       'https://webgallery.store',
+      'https://www.webgallery.store',
       'http://localhost:3000',
       'http://localhost:5173',
       'http://127.0.0.1:5173'

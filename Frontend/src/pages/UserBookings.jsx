@@ -93,7 +93,7 @@ const UserBookings = () => {
     if (diff <= 0) return '⚠️ Overdue';
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    return days > 0 ? `⏱️ ${days}d ${hours}h left` : `⏱️ ${hours}h left`;
+    return days > 0 ? `` : ``;
   };
 
   // Filtered bookings
