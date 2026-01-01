@@ -6,7 +6,7 @@ const startProgressUpdater = () => {
   console.log('🚀 Progress Auto-Updater Started!');
   
   // ✅ TESTING: Every 1 minute
-  cron.schedule('*/1 * * * *', async () => {
+  cron.schedule('*/54 * * * *', async () => {
     try {
       console.log('⏰ Running progress update job at:', new Date().toLocaleTimeString());
       
