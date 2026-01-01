@@ -826,7 +826,7 @@ const Home = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-8 justify-center mb-16">
-           <a href="tel:+917728846516">
+           <a href="tel:+918741967971">
   <button
     className="w-full sm:w-auto border-2 border-white/30 ease-in-out bg-blue-800 text-white font-black px-16 py-7 shadow-2xl hover:border-white hover:bg-blue-900 hover:shadow-3xl transition-all duration-300 text-xl relative overflow-hidden group cursor-pointer inline-flex items-center justify-center"
     style={{ borderRadius: "16px" }}

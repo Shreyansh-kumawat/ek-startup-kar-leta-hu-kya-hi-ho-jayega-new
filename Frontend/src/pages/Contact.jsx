@@ -99,7 +99,7 @@ ${formData.message}
               {/* Contact Cards */}
               <div className="space-y-6">
                 <a 
-                  href="https://wa.me/919256129813"
+                  href="https://wa.me/918741967971"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-start gap-4 p-5 bg-gradient-to-br from-blue-50 to-white rounded-xl hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-blue-500 group"
@@ -110,12 +110,12 @@ ${formData.message}
                   <div>
                     <h3 className="font-bold text-black mb-1">WhatsApp</h3>
                     <p className="text-gray-600 text-sm mb-2">Chat with us instantly</p>
-                    <p className="text-blue-500 font-semibold">+91 9256129813</p>
+                    <p className="text-blue-500 font-semibold">+91 8741967971</p>
                   </div>
                 </a>
 
                 <a 
-                  href="tel:+917728846516"
+                  href="tel:+918741967971"
                   className="flex items-start gap-4 p-5 bg-gradient-to-br from-blue-50 to-white rounded-xl hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-blue-500 group"
                 >
                   <div className="bg-blue-500 p-3 rounded-lg group-hover:scale-110 transition-transform duration-300">
@@ -124,8 +124,7 @@ ${formData.message}
                   <div>
                     <h3 className="font-bold text-black mb-1">Phone</h3>
                     <p className="text-gray-600 text-sm mb-2">Call us directly</p>
-                    <p className="text-blue-500 font-semibold">+91 7728846516</p>
-                    <p className="text-blue-500 font-semibold">+91 9256129813</p>
+                    <p className="text-blue-500 font-semibold">+91 8741967971</p> 
                   </div>
                 </a>
 
@@ -316,7 +315,7 @@ ${formData.message}
             For urgent inquiries, reach out via WhatsApp for instant support!
           </p>
           <a
-            href="https://wa.me/919256129813"
+            href="https://wa.me/918741967971"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 bg-[#00ffab] hover:bg-[#00ffab]/90 text-blue-900 font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105 shadow-lg"

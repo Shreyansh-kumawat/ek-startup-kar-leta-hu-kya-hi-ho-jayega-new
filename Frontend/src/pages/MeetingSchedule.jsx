@@ -139,7 +139,7 @@ const About = () => {
               Get Started Now
             </a>
             <a 
-              href="https://wa.me/919256129813"
+              href="https://wa.me/918741967971"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-white/10 backdrop-blur-sm border border-white/30 hover:bg-white/20 text-[#cefcf7] font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105"
@@ -422,7 +422,7 @@ const About = () => {
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-6">
             <a 
-              href="https://wa.me/919256129813" 
+              href="https://wa.me/918741967971" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center gap-3 bg-[#00ffab] hover:bg-[#00ffab]/90 text-blue-900 font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105 shadow-lg"
@@ -432,7 +432,7 @@ const About = () => {
             </a>
             
             <a 
-              href="tel:+917728846516" 
+              href="tel:+918741967971" 
               className="flex items-center gap-3 bg-blue-500 hover:bg-blue-600 text-[#cefcf7] font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105 shadow-lg"
             >
               <FaPhone className="text-xl" />
@@ -443,9 +443,9 @@ const About = () => {
           <div className="mt-8 space-y-3">
             <p className="text-gray-700 flex items-center justify-center gap-3">
               <FaPhone className="text-blue-500" />
-              <span className="font-semibold">+91 9256129813</span>
+              <span className="font-semibold">+91 8741967971</span>
               <span className="text-gray-400">|</span>
-              <span className="font-semibold">+91 7728846516</span>
+              <span className="font-semibold">+91 8741967971</span>
             </p>
             <a 
               href="mailto:info.3digree@gmail.com"

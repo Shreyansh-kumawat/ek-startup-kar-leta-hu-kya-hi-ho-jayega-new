@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { FaWhatsapp, FaEnvelope, FaPhone, FaRocket, FaShieldAlt, FaCode, FaCheckCircle } from 'react-icons/fa';
+import { FaWhatsapp, FaEnvelope, FaPhone, FaRocket, FaShieldAlt, FaCode, FaCheckCircle, FaClock, FaChartLine, FaHandshake } from 'react-icons/fa';
 
 const About = () => {
   useEffect(() => {
@@ -36,25 +36,25 @@ const About = () => {
   }, []);
 
   const features = [
-    "Unlimited Images & Videos",
-    "Unlimited Bandwidth & Space",
-    "100% Responsive Website",
-    "Meta Tags + SEO Friendly",
-    "WhatsApp Integration",
-    "Call Button Integration",
-    "SSL Certificate",
-    "Social Media Integration"
+    "3 Days Delivery",
+    "Template-Based System",
+    "White Label Solution",
+    "Your Brand, Our Work",
+    "Predictable Quality",
+    "Scalable Infrastructure",
+    "No Hiring Hassles",
+    "Better Margins"
   ];
 
-  const industries = [
-    "Startups & Tech Ventures",
-    "EdTech & Coaching",
-    "E-commerce & D2C Brands",
-    "FinTech & Finance Services",
-    "Healthcare & Wellness",
-    "Real Estate & Construction",
-    "Events & Creators Economy",
-    "Local Businesses Going Digital"
+  const targetAudience = [
+    "Freelancers delivering 5+ websites/year",
+    "Small IT Companies (2-10 people)",
+    "Digital Marketing Agencies",
+    "Web Design Studios",
+    "Business Consultants",
+    "Sales-Focused Agencies",
+    "Solopreneurs Scaling Up",
+    "Service Providers Going Digital"
   ];
 
   return (
@@ -91,168 +91,201 @@ const About = () => {
         }
       `}</style>
 
-      {/* Clean Hero Section with Bubbles */}
+      {/* Hero Section */}
       <section id="hero-section" className="relative bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 text-[#cefcf7] py-20 px-6 min-h-screen flex items-center">
         <div className="max-w-6xl mx-auto relative z-10 w-full">
           <div className="flex justify-center mb-6">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-5 py-2">
-              <span className="text-[#cefcf7] font-semibold text-sm tracking-wider">ABOUT US</span>
+              <span className="text-[#cefcf7] font-semibold text-sm tracking-wider">WEBSITE DELIVERY INFRASTRUCTURE</span>
             </div>
           </div>
 
           <div className="text-center mb-12">
             <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
-              Welcome to <span className="text-[#00ffab]">3Digree</span>
+              Your <span className="text-[#00ffab]">Invisible</span> Dev Team
             </h1>
             
             <div className="inline-block bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl px-6 py-3 mb-8">
               <p className="text-xl md:text-2xl font-semibold text-[#cefcf7]">
-                The Tech Partner Everyone Loves
+                You Close. We Build. You Deliver.
               </p>
             </div>
 
             <p className="text-lg md:text-xl text-[#cefcf7]/90 leading-relaxed max-w-4xl mx-auto mb-8">
-              Recognized for speed, innovation, and delivery — 3Digree is your partner in AI, Development, Marketing, and beyond.
+              3Digree is the backend infrastructure for freelancers and small IT companies. We handle the building and deployment while you focus on clients and sales.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-10">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
-              <p className="text-3xl font-bold text-[#00ffab]">24/7</p>
-              <p className="text-sm text-[#cefcf7] mt-1">Support</p>
+              <p className="text-3xl font-bold text-[#00ffab]">3 Days</p>
+              <p className="text-sm text-[#cefcf7] mt-1">Delivery Time</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
-              <p className="text-3xl font-bold text-[#00ffab]">AI</p>
-              <p className="text-sm text-[#cefcf7] mt-1">Powered</p>
+              <p className="text-3xl font-bold text-[#00ffab]">White Label</p>
+              <p className="text-sm text-[#cefcf7] mt-1">We Stay Invisible</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
-              <p className="text-3xl font-bold text-[#00ffab]">100%</p>
-              <p className="text-sm text-[#cefcf7] mt-1">Quality</p>
+              <p className="text-3xl font-bold text-[#00ffab]">Your Brand</p>
+              <p className="text-sm text-[#cefcf7] mt-1">Your Pricing</p>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a 
-              href="#pricing" 
+              href="#how-it-works" 
               className="bg-[#00ffab] hover:bg-[#00ffab]/90 text-blue-900 font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105 shadow-lg"
             >
-              Get Started Now
+              See How It Works
             </a>
             <a 
-              href="https://wa.me/919256129813"
+              href="https://wa.me/918741967971"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-white/10 backdrop-blur-sm border border-white/30 hover:bg-white/20 text-[#cefcf7] font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105"
             >
               <FaWhatsapp className="inline mr-2" />
-              Contact Us
+              Partner With Us
             </a>
           </div>
         </div>
       </section>
 
-      {/* Affordable Pricing Section */}
-      <section className="py-16 px-6 bg-white" id="pricing">
+      {/* The Problem Section */}
+      <section className="py-16 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center text-black mb-4">
-            Premium Websites at <span className="text-blue-500">Unbelievable Prices</span>
+            The <span className="text-blue-500">Delivery Bottleneck</span>
           </h2>
-          <p className="text-center text-gray-700 text-lg mb-12 max-w-2xl mx-auto">
-            Why so affordable? We leverage <span className="font-semibold text-blue-500">AI-Powered Development</span> to deliver faster without compromising quality!
+          <p className="text-center text-gray-700 text-lg mb-12 max-w-3xl mx-auto">
+            If you're a freelancer or running a small agency, you know this pain
           </p>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <div className="border-2 border-blue-500 rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-white">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-black mb-2">Single Page Website</h3>
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-5xl font-bold text-blue-500">₹1,499</span>
-                </div>
-                <p className="text-gray-600 mt-2">Perfect for startups & personal brands</p>
-              </div>
-              
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-3">
-                  <FaCheckCircle className="text-[#00ffab] flex-shrink-0" />
-                  <span className="text-gray-700">1 Professional Landing Page</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FaCheckCircle className="text-[#00ffab] flex-shrink-0" />
-                  <span className="text-gray-700">Free .in Domain</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FaCheckCircle className="text-[#00ffab] flex-shrink-0" />
-                  <span className="text-gray-700">Free Hosting (1st Year)</span>
-                </div>
-              </div>
-              
-              <div className="bg-blue-50 rounded-lg p-4 text-center">
-                <p className="text-sm text-gray-600">Hosting Renewal</p>
-                <p className="text-2xl font-bold text-blue-500">Just ₹599<span className="text-base font-normal">/year</span></p>
-                <p className="text-xs text-gray-500 mt-1">Less than ₹50/month!</p>
-              </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-gradient-to-br from-red-50 to-white rounded-2xl p-8 border-2 border-red-200 hover:shadow-xl transition-all duration-300">
+              <div className="text-5xl mb-4 text-red-500">⏱️</div>
+              <h3 className="text-xl font-bold text-black mb-3">Time Drain</h3>
+              <p className="text-gray-700 leading-relaxed">
+                You spend weeks building the same types of websites over and over. Your delivery becomes the bottleneck.
+              </p>
             </div>
 
-            <div className="border-2 border-blue-500 rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-gradient-to-br from-blue-500 to-blue-600 text-[#cefcf7] relative overflow-hidden">
-              <div className="absolute top-4 right-4 bg-[#00ffab] text-blue-900 px-4 py-1 rounded-full text-xs font-bold">
-                POPULAR
-              </div>
-              
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold mb-2">Multi-Page Website</h3>
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-5xl font-bold">₹2,499</span>
-                </div>
-                <p className="text-[#cefcf7]/90 mt-2">Ideal for growing businesses</p>
-              </div>
-              
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-3">
-                  <FaCheckCircle className="text-[#00ffab] flex-shrink-0" />
-                  <span>5+ Professional Pages</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FaCheckCircle className="text-[#00ffab] flex-shrink-0" />
-                  <span>Free .in Domain</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FaCheckCircle className="text-[#00ffab] flex-shrink-0" />
-                  <span>Free Hosting (1st Year)</span>
-                </div>
-              </div>
-              
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
-                <p className="text-sm text-[#cefcf7]/80">Hosting Renewal</p>
-                <p className="text-2xl font-bold">Only ₹599<span className="text-base font-normal">/year</span></p>
-                <p className="text-xs text-[#cefcf7]/70 mt-1">Affordable long-term solution!</p>
-              </div>
+            <div className="bg-gradient-to-br from-orange-50 to-white rounded-2xl p-8 border-2 border-orange-200 hover:shadow-xl transition-all duration-300">
+              <div className="text-5xl mb-4 text-orange-500">💸</div>
+              <h3 className="text-xl font-bold text-black mb-3">Hiring Hassles</h3>
+              <p className="text-gray-700 leading-relaxed">
+                Hiring developers project-by-project is expensive and unpredictable. Quality varies, timelines slip.
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-br from-yellow-50 to-white rounded-2xl p-8 border-2 border-yellow-200 hover:shadow-xl transition-all duration-300">
+              <div className="text-5xl mb-4 text-yellow-600">📉</div>
+              <h3 className="text-xl font-bold text-black mb-3">Shrinking Margins</h3>
+              <p className="text-gray-700 leading-relaxed">
+                Your margins shrink because delivery costs are high. Scaling feels impossible without sacrificing quality.
+              </p>
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-8 text-center">
-            <h3 className="text-2xl font-bold text-black mb-4">Risk-Free Payment Model</h3>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-6 max-w-3xl mx-auto">
-              <div className="flex-1">
-                <p className="text-4xl font-bold text-blue-500 mb-2">25%</p>
-                <p className="text-gray-700">Pay upfront to start</p>
-              </div>
-              <div className="text-3xl text-blue-500">→</div>
-              <div className="flex-1">
-                <p className="text-4xl font-bold text-blue-500 mb-2">75%</p>
-                <p className="text-gray-700">After preview & approval</p>
-              </div>
-            </div>
-            <p className="text-gray-600 mt-6 text-sm">See your website first, then complete the payment!</p>
+          <div className="mt-12 text-center bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-8">
+            <p className="text-2xl font-bold text-black mb-2">
+              Clients keep coming, but you can't scale delivery
+            </p>
+            <p className="text-gray-700 text-lg">
+              That's exactly where 3Digree steps in
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* How We Work Section */}
+      <section id="how-it-works" className="py-16 px-6 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center text-[#cefcf7] mb-4">
+            How <span className="text-[#00ffab]">3Digree</span> Works
+          </h2>
+          <p className="text-center text-[#cefcf7]/90 text-lg mb-12 max-w-2xl mx-auto">
+            Simple, transparent, and designed to make you the hero
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/20 transition-all duration-300">
+              <div className="text-5xl mb-4">🤝</div>
+              <h3 className="text-2xl font-bold text-[#cefcf7] mb-3">1. You Close the Deal</h3>
+              <p className="text-[#cefcf7]/90 leading-relaxed">
+                You set the pricing. You own the client relationship. We never talk to your clients directly.
+              </p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/20 transition-all duration-300">
+              <div className="text-5xl mb-4">⚡</div>
+              <h3 className="text-2xl font-bold text-[#cefcf7] mb-3">2. We Build in 3 Business Days</h3>
+              <p className="text-[#cefcf7]/90 leading-relaxed">
+                Using our tested Website system, we build and deploy the website fast. Quality guaranteed, every time.
+              </p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/20 transition-all duration-300">
+              <div className="text-5xl mb-4">🎯</div>
+              <h3 className="text-2xl font-bold text-[#cefcf7] mb-3">3. You Deliver & Win</h3>
+              <p className="text-[#cefcf7]/90 leading-relaxed">
+                Your client never sees us. You deliver under your brand, take the credit, and keep your margins healthy.
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+            <p className="text-2xl font-bold text-[#00ffab] mb-2">We Stay in the Backend</p>
+            <p className="text-[#cefcf7] text-lg">
+              Your client never knows we exist. That's the promise.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Who This Is For */}
+      <section className="py-16 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center text-black mb-4">
+            Who <span className="text-blue-500">3Digree</span> Is Built For
+          </h2>
+          <p className="text-center text-gray-700 text-lg mb-12 max-w-2xl mx-auto">
+            If you're one of these, we're your perfect backend partner
+          </p>
+
+          <div className="grid md:grid-cols-4 gap-4">
+            {targetAudience.map((audience, index) => (
+              <div 
+                key={index}
+                className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105 border border-blue-100"
+              >
+                <FaCheckCircle className="text-blue-500 text-3xl mx-auto mb-3" />
+                <p className="text-gray-800 font-semibold">{audience}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-8 text-center">
+            <p className="text-xl font-bold text-black mb-2">
+              Want predictable delivery without expanding your team?
+            </p>
+            <p className="text-gray-700">
+              That's exactly what 3Digree delivers.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* What You Get */}
       <section className="py-16 px-6 bg-blue-500">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center text-[#cefcf7] mb-12">
-            Everything You Need, <span className="text-[#00ffab]">Included</span>
+          <h2 className="text-4xl font-bold text-center text-[#cefcf7] mb-4">
+            What You Get with <span className="text-[#00ffab]">3Digree</span>
           </h2>
+          <p className="text-center text-[#cefcf7]/90 text-lg mb-12 max-w-2xl mx-auto">
+            Everything you need to scale your delivery, nothing you don't
+          </p>
+
           <div className="grid md:grid-cols-4 gap-6">
             {features.map((feature, index) => (
               <div 
@@ -264,58 +297,80 @@ const About = () => {
               </div>
             ))}
           </div>
-          
-          <div className="mt-12 text-center bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-            <p className="text-2xl font-bold text-[#00ffab]">24/7 Support</p>
-            <p className="text-[#cefcf7] mt-2">We're always here to help you succeed!</p>
+
+          <div className="mt-12 grid md:grid-cols-3 gap-6">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center border border-white/20">
+              <FaClock className="text-[#00ffab] text-4xl mx-auto mb-3" />
+              <p className="text-[#cefcf7] font-bold text-lg mb-2">Speed That Scales</p>
+              <p className="text-[#cefcf7]/80 text-sm">Consistent 3 days turnaround</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center border border-white/20">
+              <FaChartLine className="text-[#00ffab] text-4xl mx-auto mb-3" />
+              <p className="text-[#cefcf7] font-bold text-lg mb-2">Better Margins</p>
+              <p className="text-[#cefcf7]/80 text-sm">No hiring, no overhead costs</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center border border-white/20">
+              <FaHandshake className="text-[#00ffab] text-4xl mx-auto mb-3" />
+              <p className="text-[#cefcf7] font-bold text-lg mb-2">Your Brand Only</p>
+              <p className="text-[#cefcf7]/80 text-sm">100% white label delivery</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Why Choose Us */}
+      {/* Why We Exist */}
       <section className="py-16 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center text-black mb-12">
-            Why Choose <span className="text-blue-500">3Digree</span>?
+            Why <span className="text-blue-500">3Digree</span> Exists
           </h2>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
               <FaCode className="text-5xl text-blue-500 mb-4" />
-              <h3 className="text-xl font-bold text-black mb-3">AI-Powered Full-Stack Delivery</h3>
+              <h3 className="text-xl font-bold text-black mb-3">Built from Experience</h3>
               <p className="text-gray-700 leading-relaxed">
-                From wireframes to launch — we design, develop, and deploy full-stack solutions powered by AI, automation & smart architecture.
+                We built 3Digree to solve our own website delivery problem. We were freelancers stuck in the same bottleneck.
               </p>
             </div>
 
             <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
               <FaRocket className="text-5xl text-[#00ffab] mb-4" />
-              <h3 className="text-xl font-bold text-black mb-3">Smarter. Faster. Safer.</h3>
+              <h3 className="text-xl font-bold text-black mb-3">Universal Problem</h3>
               <p className="text-gray-700 leading-relaxed">
-                AI-assisted dev sprints. Automated testing. Lightning-fast deployments. We ship smarter, not just faster — without breaking a thing.
+                Then we realized every freelancer and small agency faces the same challenge. Delivery becomes the ceiling for growth.
               </p>
             </div>
 
             <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
               <FaShieldAlt className="text-5xl text-blue-500 mb-4" />
-              <h3 className="text-xl font-bold text-black mb-3">Secure & Scalable by Design</h3>
+              <h3 className="text-xl font-bold text-black mb-3">Your Infrastructure Partner</h3>
               <p className="text-gray-700 leading-relaxed">
-                AI-monitored systems. Bulletproof code. Cloud-native, auto-scaling infrastructure that just works — no matter the traffic.
+                Now we're the invisible infrastructure partner that makes your delivery faster, your margins better, and your growth possible.
               </p>
             </div>
+          </div>
+
+          <div className="mt-12 text-center bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-8">
+            <p className="text-2xl font-bold text-black mb-3">
+              We're not just a service provider
+            </p>
+            <p className="text-gray-700 text-lg">
+              We're your invisible dev team, your delivery infrastructure, your growth enabler
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Founders */}
+      {/* Founders Section */}
       <section className="py-16 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-black mb-4">
-              Meet Our <span className="text-blue-500">Founders</span>
+              Meet the <span className="text-blue-500">Founders</span>
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              The visionaries behind 3Digree, dedicated to revolutionizing web development with AI-powered solutions
+              Two freelancers who solved their own delivery problem—and now help you solve yours
             </p>
           </div>
 
@@ -333,9 +388,7 @@ const About = () => {
               <div className="text-center">
                 <h3 className="text-2xl font-bold text-black mb-2">Akshat Kumawat</h3>
                 <p className="text-blue-500 font-semibold mb-4 text-lg">Co-Founder & CEO</p>
-                <p className="text-gray-700 mb-6 leading-relaxed">
-                  Visionary leader driving 3Digree's strategic growth and innovation in AI-powered development solutions.
-                </p>
+                 
                 
                 <a 
                   href="https://www.linkedin.com/in/akssshat/" 
@@ -355,7 +408,7 @@ const About = () => {
               <div className="relative mb-6 overflow-hidden rounded-xl">
                 <img 
                   src="/f2.png" 
-                  alt="Shreyansh Kumawat - Co-Founder & CTO" 
+                  alt="Shreyansh Kumawat - Co-Founder, CTO & CMnO" 
                   className="w-full h-80 object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -363,10 +416,7 @@ const About = () => {
               
               <div className="text-center">
                 <h3 className="text-2xl font-bold text-black mb-2">Shreyansh Kumawat</h3>
-                <p className="text-blue-500 font-semibold mb-4 text-lg">Co-Founder & CTO</p>
-                <p className="text-gray-700 mb-6 leading-relaxed">
-                  Technical architect behind 3Digree's cutting-edge full-stack solutions and AI-powered automation systems.
-                </p>
+                <p className="text-blue-500 font-semibold mb-4 text-lg">Co-Founder, CTO & CMnO</p>
                 
                 <a 
                   href="https://www.linkedin.com/in/shreyansh-kumawat-405125309/" 
@@ -385,55 +435,36 @@ const About = () => {
 
           <div className="mt-12 text-center">
             <p className="text-gray-600 text-lg">
-              Together, we're building the future of <span className="font-semibold text-blue-500">affordable, AI-powered web development</span>
+              We've been in your shoes. Now we're <span className="font-semibold text-blue-500">building the infrastructure we wish we had</span>
             </p>
           </div>
         </div>
       </section>
 
-      {/* Industries Served - Simple Version */}
-      <section className="py-16 px-6 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center text-[#cefcf7] mb-12">
-            Industries We <span className="text-[#00ffab]">Empower</span>
-          </h2>
-          <div className="grid md:grid-cols-4 gap-4">
-            {industries.map((industry, index) => (
-              <div 
-                key={index}
-                className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105"
-              >
-                <p className="text-[#cefcf7] font-semibold">{industry}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Contact Section */}
-      <section className="py-16 px-6 bg-white">
+      <section className="py-16 px-6 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-black mb-6">
-            Contact <span className="text-blue-500">Us</span>
+          <h2 className="text-4xl font-bold text-[#cefcf7] mb-6">
+            Ready to <span className="text-[#00ffab]">Scale Your Delivery</span>?
           </h2>
-          <p className="text-gray-700 text-lg mb-10">
-            Let's turn your vision into reality. Contact us today!
+          <p className="text-[#cefcf7] text-lg mb-10">
+            Let's talk about how 3Digree can become your backend infrastructure partner
           </p>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-6">
             <a 
-              href="https://wa.me/919256129813" 
+              href="https://wa.me/918741967971" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center gap-3 bg-[#00ffab] hover:bg-[#00ffab]/90 text-blue-900 font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105 shadow-lg"
             >
               <FaWhatsapp className="text-2xl" />
-              <span>WhatsApp Us</span>
+              <span>Partner With Us on WhatsApp</span>
             </a>
             
             <a 
-              href="tel:+917728846516" 
-              className="flex items-center gap-3 bg-blue-500 hover:bg-blue-600 text-[#cefcf7] font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105 shadow-lg"
+              href="tel:+918741967971" 
+              className="flex items-center gap-3 bg-white/10 backdrop-blur-sm border border-white/30 hover:bg-white/20 text-[#cefcf7] font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105"
             >
               <FaPhone className="text-xl" />
               <span>Call Now</span>
@@ -441,27 +472,25 @@ const About = () => {
           </div>
 
           <div className="mt-8 space-y-3">
-            <p className="text-gray-700 flex items-center justify-center gap-3">
-              <FaPhone className="text-blue-500" />
-              <span className="font-semibold">+91 9256129813</span>
-              <span className="text-gray-400">|</span>
-              <span className="font-semibold">+91 7728846516</span>
+            <p className="text-[#cefcf7] flex items-center justify-center gap-3">
+              <FaPhone className="text-[#00ffab]" />
+              <span className="font-semibold">+91 8741967971</span>
+              <span className="text-[#cefcf7]/40">|</span>
+              <span className="font-semibold">+91 8741967971</span>
             </p>
             <a 
               href="mailto:info.3digree@gmail.com"
-              className="text-blue-500 hover:text-blue-600 flex items-center justify-center gap-2 font-semibold"
+              className="text-[#00ffab] hover:text-[#00ffab]/80 flex items-center justify-center gap-2 font-semibold"
             >
               <FaEnvelope />
               <span>info.3digree@gmail.com</span>
             </a>
           </div>
         </div>
-
       </section>
 
-            <div className="text-xs text-gray-700 text-center">Version 2.7</div>
-<br />
-      
+      <div className="text-xs text-gray-700 text-center">Version 3.0 - B2B Infrastructure</div>
+      <br />
     </div>
   );
 };
