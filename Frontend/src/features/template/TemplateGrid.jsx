@@ -85,15 +85,19 @@ const NoResults = memo(() => {
 NoResults.displayName = "NoResults";
 
 // Main Component
-const TemplateGrid = ({ templates = [], isTutorialActive = false }) => {
+const TemplateGrid = ({ 
+  templates = [], 
+  isTutorialActive = false,
+  onBookTemplate // ✅ NEW PROP
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedKeyword, setSelectedKeyword] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [priceRange, setPriceRange] = useState({ min: "", max: "" });
   const [randomSeed, setRandomSeed] = useState(Math.random());
-  
-  // ✅ NEW: Track screen width
+
+  // ✅ Track screen width
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
   // ✅ Screen width detection
@@ -109,13 +113,13 @@ const TemplateGrid = ({ templates = [], isTutorialActive = false }) => {
   // ✅ Calculate grid columns based on screen width and tutorial state
   const gridColumns = useMemo(() => {
     if (screenWidth < 700) {
-      return "grid-cols-1"; // Always 1 column on mobile
+      return "grid-cols-1";
     } else if (screenWidth >= 700 && screenWidth < 840) {
-      return isTutorialActive ? "grid-cols-1" : "sm:grid-cols-2"; // 1 if tutorial, 2 if not
+      return isTutorialActive ? "grid-cols-1" : "sm:grid-cols-2";
     } else if (screenWidth >= 840 && screenWidth < 974) {
-      return isTutorialActive ? "grid-cols-1 sm:grid-cols-2" : "sm:grid-cols-2"; // 2 always
+      return isTutorialActive ? "grid-cols-1 sm:grid-cols-2" : "sm:grid-cols-2";
     } else {
-      return isTutorialActive ? "sm:grid-cols-2" : "sm:grid-cols-2 md:grid-cols-3"; // 2 if tutorial, 3 if not
+      return isTutorialActive ? "sm:grid-cols-2" : "sm:grid-cols-2 md:grid-cols-3";
     }
   }, [screenWidth, isTutorialActive]);
 
@@ -305,11 +309,15 @@ const TemplateGrid = ({ templates = [], isTutorialActive = false }) => {
         </div>
       </div>
 
-      {/* ✅ Templates Grid with dynamic columns */}
+      {/* ✅ Templates Grid with dynamic columns AND onBookTemplate */}
       <div className={`grid ${gridColumns} gap-10`}>
         {filteredTemplates.length > 0 ? (
           filteredTemplates.map((template) => (
-            <TemplateCard key={template._id} template={template} />
+            <TemplateCard 
+              key={template._id} 
+              template={template}
+              onBookTemplate={onBookTemplate} // ✅ PASS IT HERE
+            />
           ))
         ) : (
           <NoResults />

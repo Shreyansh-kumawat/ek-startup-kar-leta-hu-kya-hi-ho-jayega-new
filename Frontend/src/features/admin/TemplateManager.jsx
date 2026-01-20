@@ -7,7 +7,6 @@ import Modal from '../../components/Modal';
 import Loader from '../../components/Loader';
 import { getServerImageUrl } from '../../services/apiClient';
 
-
 const DEFAULT_INCLUDED_ITEMS = [
   { text: '1 Free Domain Name', included: true },
   { text: '1 Free Hosting', included: true },
@@ -30,7 +29,7 @@ const TemplateManager = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [showDisabled, setShowDisabled] = useState(true);
 
-  // ✅ NEW: Pagination state
+  // ✅ Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,7 +43,8 @@ const TemplateManager = () => {
     price: '',
     liveDemo: '',
     previewImage: null,
-    backend: false, // NEW: Backend field
+    withBackend: false, // ✅ CHANGED: backend → withBackend
+    creditsRequired: 1, // ✅ NEW: Credits field
     whatsIncludedTitle: "What's Included",
     includedItems: [...DEFAULT_INCLUDED_ITEMS],
     customIncludedItems: [],
@@ -58,10 +58,9 @@ const TemplateManager = () => {
     developmentSteps: [],
   });
 
-
   const { addNotification } = useNotification();
 
-  // ✅ UPDATED: Fetch with pagination and search
+  // ✅ Fetch with pagination and search
   useEffect(() => {
     fetchTemplates();
   }, [currentPage, searchTerm]);
@@ -72,7 +71,7 @@ const TemplateManager = () => {
     return getServerImageUrl(template.previewImage);
   };
 
-  // ✅ UPDATED: fetchTemplates with pagination params
+  // ✅ fetchTemplates with pagination params
   const fetchTemplates = async () => {
     try {
       setLoading(true);
@@ -85,7 +84,6 @@ const TemplateManager = () => {
       const templatesList = response?.data?.templates || response?.templates || response || [];
       setTemplates(Array.isArray(templatesList) ? templatesList : []);
       setTotalPages(response?.data?.pagination?.totalPages || response?.pagination?.totalPages || 1);
-      // console.log('✅ Templates fetched:', templatesList.length, 'templates');
     } catch (error) {
       console.error('Error fetching templates:', error);
       addNotification('Error fetching templates', 'error');
@@ -102,7 +100,8 @@ const TemplateManager = () => {
       price: '',
       liveDemo: '',
       previewImage: null,
-      backend: false, // NEW: Backend field
+      withBackend: false, // ✅ CHANGED
+      creditsRequired: 1, // ✅ NEW
       whatsIncludedTitle: "What's Included",
       includedItems: [...DEFAULT_INCLUDED_ITEMS],
       customIncludedItems: [],
@@ -117,11 +116,8 @@ const TemplateManager = () => {
     });
   };
 
-
   const openModal = (template = null) => {
     if (template) {
-      // console.log('🔍 Opening template for edit:', template);
-
       setEditingTemplate(template);
       setFormData({
         name: template.name || '',
@@ -129,7 +125,8 @@ const TemplateManager = () => {
         price: template.price || '',
         liveDemo: template.liveDemo || '',
         previewImage: null,
-        backend: Boolean(template?.backend),
+        withBackend: Boolean(template?.withBackend || template?.backend), // ✅ Support both field names
+        creditsRequired: template?.creditsRequired || 1, // ✅ NEW
         whatsIncludedTitle: template.whatsIncluded?.title || "What's Included",
         includedItems: (template.whatsIncluded?.items && Array.isArray(template.whatsIncluded.items) && template.whatsIncluded.items.length > 0) ?
           template.whatsIncluded.items.map(i => ({
@@ -155,15 +152,6 @@ const TemplateManager = () => {
         developmentProcessTitle: "",
         developmentSteps: [],
       });
-
-      // console.log('✅ Form data set for editing:', {
-      //   whatsIncludedTitle: template.whatsIncluded?.title,
-      //   itemsCount: template.whatsIncluded?.items?.length || 0,
-      //   customItemsCount: template.whatsIncluded?.customItems?.length || 0,
-      //   templateInfoTitle: template.templateInfo?.title,
-      //   detailsCount: template.templateInfo?.details?.length || 0
-      // });
-
     } else {
       setEditingTemplate(null);
       resetForm();
@@ -188,7 +176,8 @@ const TemplateManager = () => {
         price: formData.price,
         liveDemo: formData.liveDemo,
         previewImage: formData.previewImage,
-        backend: !!formData.backend,
+        withBackend: !!formData.withBackend, // ✅ CHANGED
+        creditsRequired: parseInt(formData.creditsRequired) || 1, // ✅ NEW
         whatsIncluded: {
           title: formData.whatsIncludedTitle,
           items: formData.includedItems,
@@ -339,7 +328,7 @@ const TemplateManager = () => {
         </div>
       </div>
 
-      {/* ✅ NEW: Search Bar */}
+      {/* ✅ Search Bar */}
       <div className="bg-white p-4 rounded-lg shadow-sm">
         <input
           type="text"
@@ -353,7 +342,7 @@ const TemplateManager = () => {
         />
       </div>
 
-      {/* ✅ NEW: Pagination (Top) */}
+      {/* ✅ Pagination (Top) */}
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">
           {Array.from({ length: totalPages }, (_, i) => (
@@ -393,6 +382,13 @@ const TemplateManager = () => {
                 {template.isActive ? 'Active' : 'Disabled'}
               </div>
 
+              {/* ✅ NEW: Backend Badge */}
+              {(template.withBackend || template.backend) && (
+                <div className="absolute top-2 left-2 px-2 py-1 rounded text-xs bg-purple-600 text-white font-semibold">
+                  🔧 Backend
+                </div>
+              )}
+
               {!template.isActive && (
                 <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
                   <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
@@ -411,9 +407,19 @@ const TemplateManager = () => {
                 }`}>
                 {template.description}
               </p>
-              <div className={`text-xl font-bold mb-4 ${template.isActive ? 'text-blue-600' : 'text-gray-400'
+
+              {/* ✅ NEW: Price & Credits Display */}
+              <div className="flex items-center justify-between mb-4">
+                <div className={`text-xl font-bold ${template.isActive ? 'text-blue-600' : 'text-gray-400'}`}>
+                  ₹{template.price?.toLocaleString() || 0}
+                </div>
+                <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                  template.creditsRequired > 1 
+                    ? 'bg-orange-100 text-orange-700 border border-orange-300' 
+                    : 'bg-blue-100 text-blue-700 border border-blue-300'
                 }`}>
-                ₹{template.price?.toLocaleString() || 0}
+                  💳 {template.creditsRequired || 1} Credit{(template.creditsRequired || 1) > 1 ? 's' : ''}
+                </div>
               </div>
 
               <div className="flex gap-2 text-sm">
@@ -450,7 +456,7 @@ const TemplateManager = () => {
         ))}
       </div>
 
-      {/* ✅ NEW: Pagination (Bottom) */}
+      {/* ✅ Pagination (Bottom) */}
       {totalPages > 1 && (
         <div className="flex justify-center gap-2 mt-6">
           {Array.from({ length: totalPages }, (_, i) => (
@@ -513,23 +519,53 @@ const TemplateManager = () => {
               <div />
             </div>
 
-            {/* NEW: Backend Checkbox */}
-            <div className="mt-4 flex items-center gap-2 bg-blue-50 p-3 rounded-lg border border-blue-200">
-              <input
-                type="checkbox"
-                id="backend-checkbox"
-                checked={formData.backend}
-                onChange={(e) => setFormData({ ...formData, backend: e.target.checked })}
-                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <label htmlFor="backend-checkbox" className="text-sm font-medium text-gray-700 cursor-pointer">
-                With Backend
-              </label>
-              <span className="text-xs text-gray-500 ml-2">
-                (Enable to mark this template as "with Backend")
-              </span>
-            </div>
+            {/* ✅ UPDATED: Backend & Credits Section */}
+            <div className="mt-4 space-y-3">
+              {/* Backend Checkbox */}
+              <div className="flex items-center gap-2 bg-purple-50 p-3 rounded-lg border border-purple-200">
+                <input
+                  type="checkbox"
+                  id="backend-checkbox"
+                  checked={formData.withBackend}
+                  onChange={(e) => {
+                    const isBackend = e.target.checked;
+                    setFormData({ 
+                      ...formData, 
+                      withBackend: isBackend,
+                      creditsRequired: isBackend ? 4 : 1 // ✅ Auto-set credits
+                    });
+                  }}
+                  className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                />
+                <label htmlFor="backend-checkbox" className="text-sm font-medium text-gray-700 cursor-pointer">
+                  🔧 With Backend
+                </label>
+                <span className="text-xs text-gray-500 ml-2">
+                  (Automatically sets credits to 2)
+                </span>
+              </div>
 
+              {/* ✅ NEW: Credits Input */}
+              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  💳 Credits Required
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={formData.creditsRequired}
+                  onChange={(e) => setFormData({ ...formData, creditsRequired: parseInt(e.target.value) || 1 })}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-xs text-gray-600 mt-1">
+                  {formData.withBackend 
+                    ? '⚡ Backend templates typically require 4 credits' 
+                    : '⚡ Frontend templates typically require 1 credit'
+                  }
+                </p>
+              </div>
+            </div>
 
             <div className="mt-4">
               <Input label="Preview Image" type="file" accept="image/*" onChange={(e) => setFormData({ ...formData, previewImage: e.target.files[0] })} />

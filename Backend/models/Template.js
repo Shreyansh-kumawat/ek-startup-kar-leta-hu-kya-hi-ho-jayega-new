@@ -1,36 +1,61 @@
+// Backend\models\Template.js
 const mongoose = require('mongoose');
 
 const templateSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
-    unique: true,
+    required: [true, 'Template name is required'],
+    trim: true,
+    maxlength: [100, 'Template name cannot exceed 100 characters']
+  },
+  description: {
+    type: String,
+    required: [true, 'Description is required'],
     trim: true
   },
   price: {
     type: Number,
-    required: true,
-    min: 0
-  },
-  previewImage: {
-    type: String,
-    default: ''
+    required: [true, 'Price is required'],
+    min: [0, 'Price cannot be negative']
   },
   liveDemo: {
     type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
     trim: true
   },
-  backend: {
+  templateLink: {
+    type: String,
+    trim: true
+  },
+  previewImage: {
+    type: String,
+    required: false
+  },
+  category: {
+    type: String,
+    enum: ['portfolio', 'ecommerce', 'blog', 'business', 'other'],
+    default: 'other'
+  },
+  tags: [{
+    type: String,
+    trim: true
+  }],
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  
+  // ✅ NEW: Backend support fields
+  withBackend: {
     type: Boolean,
     default: false
   },
-  
-  // CUSTOMIZABLE SECTIONS
+  creditsRequired: {
+    type: Number,
+    default: 1,
+    min: [1, 'Credits required must be at least 1']
+  },
+
+  // What's Included Section
   whatsIncluded: {
     title: {
       type: String,
@@ -52,10 +77,11 @@ const templateSchema = new mongoose.Schema({
     }]
   },
 
+  // Template Info Section
   templateInfo: {
     title: {
       type: String,
-      default: "Template Information"
+      default: 'Template Information'
     },
     details: [{
       label: String,
@@ -63,51 +89,58 @@ const templateSchema = new mongoose.Schema({
     }]
   },
 
+  // Development Process Section
   developmentProcess: {
-    title: {
-      type: String,
-      default: "Development Process"
-    },
+    title: String,
     steps: [{
-      step: Number,
+      stepNumber: Number,
       title: String,
-      description: String,
-      timeline: String
+      description: String
     }]
   },
 
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: false
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
+    ref: 'User'
   }
+}, {
+  timestamps: true
 });
 
-// ✅ VIRTUAL FIELD: displayId (last 6 chars)
-templateSchema.virtual('displayId').get(function() {
-  const last6 = this._id.toString().slice(-6);
-  return `#3di-${last6}`;
+// ✅ NEW: Pre-save hook to auto-set creditsRequired based on withBackend
+templateSchema.pre('save', function(next) {
+  if (this.withBackend) {
+    this.creditsRequired = 4;
+  } else {
+    this.creditsRequired = 1;
+  }
+  next();
 });
 
-// ✅ ENABLE VIRTUALS IN JSON/OBJECT OUTPUT
-templateSchema.set('toJSON', { virtuals: true });
-templateSchema.set('toObject', { virtuals: true });
+// ✅ NEW: Pre-update hook for findOneAndUpdate
+templateSchema.pre('findOneAndUpdate', function(next) {
+  const update = this.getUpdate();
+  
+  // Handle both direct update and $set update
+  const withBackend = update.withBackend !== undefined 
+    ? update.withBackend 
+    : (update.$set && update.$set.withBackend !== undefined ? update.$set.withBackend : null);
+  
+  if (withBackend !== null) {
+    if (update.$set) {
+      update.$set.creditsRequired = withBackend ? 4 : 1;
+    } else {
+      update.creditsRequired = withBackend ? 4 : 1;
+    }
+  }
+  
+  next();
+});
 
+// Index for better search performance
+templateSchema.index({ name: 'text', description: 'text' });
 templateSchema.index({ isActive: 1 });
-templateSchema.index({ createdAt: -1 });
+templateSchema.index({ category: 1 });
+templateSchema.index({ withBackend: 1 }); // ✅ NEW: Index for backend filter
 
-const Template = mongoose.model('Template', templateSchema);
-
-module.exports = Template;
+module.exports = mongoose.model('Template', templateSchema);

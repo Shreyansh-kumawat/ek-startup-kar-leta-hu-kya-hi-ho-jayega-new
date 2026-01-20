@@ -37,9 +37,13 @@ exports.purchaseWebsite = async (req, res) => {
       });
     }
 
+    // ✅ NEW: Get credits required from template
+    const creditsRequired = template.creditsRequired || 1;
+    console.log(`💳 Template "${template.name}" requires ${creditsRequired} credits`);
+
     // ✅ FIXED: Check user exists first
     const user = await User.findById(userId);
-    
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -47,17 +51,23 @@ exports.purchaseWebsite = async (req, res) => {
       });
     }
 
-    // Check user credits
-    if (user.credits < 1) {
+    // ✅ NEW: Check if user has enough credits
+    if (user.credits < creditsRequired) {
       return res.status(400).json({
         success: false,
-        message: 'Insufficient credits. Please purchase a plan.'
+        message: `Insufficient credits. Required: ${creditsRequired}, Available: ${user.credits}`,
+        data: {
+          required: creditsRequired,
+          available: user.credits,
+          shortage: creditsRequired - user.credits
+        }
       });
     }
 
-    // Deduct 1 credit
-    user.credits -= 1;
+    // ✅ NEW: Deduct correct credits
+    user.credits -= creditsRequired;
     await user.save();
+    console.log(`✅ Deducted ${creditsRequired} credits. Remaining: ${user.credits}`);
 
     // ✅ FIXED: Create booking with meeting details
     const bookingData = {
@@ -66,6 +76,7 @@ exports.purchaseWebsite = async (req, res) => {
       templateId: template._id,
       templateName: template.name,
       templateImage: template.previewImage,
+      creditsUsed: creditsRequired, // ✅ NEW: Track credits used
       status: 'purchased',
       progress: 10,
       purchasedAt: new Date()
@@ -85,11 +96,12 @@ exports.purchaseWebsite = async (req, res) => {
     res.status(201).json({
       success: true,
       message: meetingDate && meetingTime 
-        ? `Website booked! Meeting scheduled for ${meetingDate} at ${meetingTime}.`
-        : 'Website purchased successfully! 1 credit deducted.',
+        ? `Website booked! Meeting scheduled for ${meetingDate} at ${meetingTime}. ${creditsRequired} credit${creditsRequired > 1 ? 's' : ''} deducted.`
+        : `Website purchased successfully! ${creditsRequired} credit${creditsRequired > 1 ? 's' : ''} deducted.`,
       data: {
         booking,
-        remainingCredits: user.credits
+        remainingCredits: user.credits,
+        creditsDeducted: creditsRequired // ✅ NEW: Return credits deducted
       }
     });
 
@@ -257,9 +269,9 @@ exports.approveBooking = async (req, res) => {
     const completionTime = new Date(now.getTime() + (72 * 60 * 60 * 1000));
 
     booking.status = 'inprogress';  // ⬅️ CHANGE TO 'inprogress'
-booking.approvedAt = now;
-booking.estimatedCompletionAt = completionTime;
-await booking.save();
+    booking.approvedAt = now;
+    booking.estimatedCompletionAt = completionTime;
+    await booking.save();
 
     res.json({
       success: true,
@@ -348,10 +360,10 @@ exports.getAdminStats = async (req, res) => {
     const total = await WebsiteBooking.countDocuments();
     const purchased = await WebsiteBooking.countDocuments({ status: 'purchased' });
 
-   const approved = await WebsiteBooking.countDocuments({ status: 'approved' });
-const inProgress = await WebsiteBooking.countDocuments({ 
-  status: { $in: ['inprogress', 'readyforcompletion'] } 
-});
+    const approved = await WebsiteBooking.countDocuments({ status: 'approved' });
+    const inProgress = await WebsiteBooking.countDocuments({ 
+      status: { $in: ['inprogress', 'readyforcompletion'] } 
+    });
 
     const completed = await WebsiteBooking.countDocuments({ status: 'completed' });
 
@@ -413,13 +425,11 @@ exports.getDashboardStats = async (req, res) => {
   }
 };
 
-
-
 exports.getUserWebsiteBookings = async (req, res) => {
   try {
     const bookings = await WebsiteBooking.find({ userId: req.user.id })
       .sort({ purchasedAt: -1 });
-    
+
     res.json({ success: true, data: bookings });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

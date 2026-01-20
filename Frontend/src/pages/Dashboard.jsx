@@ -10,15 +10,15 @@ const CustomDateTimePicker = memo(({ selectedDate, selectedTime, onDateSelect, o
   const getAvailableDates = useMemo(() => {
     const dates = [];
     const now = new Date();
-    
+
     let startDate = new Date(now);
     startDate.setDate(startDate.getDate() + 1);
     startDate.setHours(0, 0, 0, 0);
-    
+
     for (let i = 0; i < 5; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
-      
+
       dates.push({
         date: date,
         displayDate: date.getDate(),
@@ -27,33 +27,33 @@ const CustomDateTimePicker = memo(({ selectedDate, selectedTime, onDateSelect, o
         fullDate: date.toISOString().split('T')[0]
       });
     }
-    
+
     return dates;
   }, []);
 
   const getAvailableTimeSlots = useMemo(() => {
     const allSlots = ['10:00', '12:00', '14:00', '16:00', '20:00'];
-    
+
     if (!selectedDate) return [];
-    
+
     const now = new Date();
     const selectedDateTime = new Date(selectedDate);
     const tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
-    
+
     if (selectedDateTime.getTime() === tomorrow.getTime()) {
       const currentHour = now.getHours();
       const currentMinutes = now.getMinutes();
       const currentTimeInMinutes = currentHour * 60 + currentMinutes;
-      
+
       return allSlots.filter(slot => {
         const [slotHour] = slot.split(':').map(Number);
         const slotTimeInMinutes = slotHour * 60;
         return currentTimeInMinutes < slotTimeInMinutes;
       });
     }
-    
+
     return allSlots;
   }, [selectedDate]);
 
@@ -63,7 +63,6 @@ const CustomDateTimePicker = memo(({ selectedDate, selectedTime, onDateSelect, o
         <label className="block text-sm font-semibold text-gray-900 mb-3">
           📅 Select Meeting Date <span className="text-red-500">*</span>
         </label>
-        {/* ✅ RESPONSIVE GRID: 3 columns on mobile, 5 on desktop */}
         <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
           {getAvailableDates.map((dateObj, index) => (
             <button
@@ -93,13 +92,12 @@ const CustomDateTimePicker = memo(({ selectedDate, selectedTime, onDateSelect, o
         <label className="block text-sm font-semibold text-gray-900 mb-3">
           🕐 Select Meeting Time <span className="text-red-500">*</span>
         </label>
-        
+
         {!selectedDate ? (
           <div className="text-center py-6 sm:py-8 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
             <span className="text-gray-500 text-sm font-medium">👆 Select a date first</span>
           </div>
         ) : getAvailableTimeSlots.length > 0 ? (
-          // ✅ RESPONSIVE GRID: 2 columns on mobile, 3 on desktop
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
             {getAvailableTimeSlots.map((time) => (
               <button
@@ -146,24 +144,26 @@ const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
 
+  const [showCreditModal, setShowCreditModal] = useState(false);
+
   const credits = user?.credits ?? 0;
 
-   useEffect(() => {
+  useEffect(() => {
     document.title = "Dashboard | 3Digree";
   }, []);
 
-  // ✅ IMPROVED BODY SCROLL LOCK
+  // ✅ Scroll lock for booking modal
   useEffect(() => {
     if (showBookingModal) {
       const scrollY = window.scrollY;
-      
+
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.left = '0';
       document.body.style.right = '0';
       document.body.style.overflow = 'hidden';
       document.body.style.width = '100%';
-      
+
       document.documentElement.style.overflow = 'hidden';
     } else {
       const scrollY = document.body.style.top;
@@ -174,7 +174,7 @@ const Dashboard = () => {
       document.body.style.overflow = '';
       document.body.style.width = '';
       document.documentElement.style.overflow = '';
-      
+
       window.scrollTo(0, parseInt(scrollY || '0') * -1);
     }
 
@@ -188,6 +188,43 @@ const Dashboard = () => {
       document.documentElement.style.overflow = '';
     };
   }, [showBookingModal]);
+
+  // ✅ Scroll lock for credit modal
+  useEffect(() => {
+    if (showCreditModal) {
+      const scrollY = window.scrollY;
+
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.overflow = 'hidden';
+      document.body.style.width = '100%';
+
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+      document.body.style.width = '';
+      document.documentElement.style.overflow = '';
+
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    }
+
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+      document.body.style.width = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [showCreditModal]);
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -212,33 +249,30 @@ const Dashboard = () => {
     }
   };
 
- const loadRecentBookings = async () => {
-  try {
-    // ✅ NEW: Use website-booking API
-    const response = await fetch('https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com/api/website-booking/user', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
+  const loadRecentBookings = async () => {
+    try {
+      const response = await fetch('https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com/api/website-booking/user', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      
-      // ✅ FIXED: data.data is the array
-      if (data.success && Array.isArray(data.data)) {
-        setRecentBookings(data.data.slice(0, 3));
-      } else {
-        setRecentBookings([]);
+      if (response.ok) {
+        const data = await response.json();
+
+        if (data.success && Array.isArray(data.data)) {
+          setRecentBookings(data.data.slice(0, 3));
+        } else {
+          setRecentBookings([]);
+        }
       }
+    } catch (error) {
+      console.error('❌ Recent bookings error:', error);
+      setRecentBookings([]);
     }
-  } catch (error) {
-    console.error('❌ Recent bookings error:', error);
-    setRecentBookings([]);
-  }
-};
-
+  };
 
   const handleWebsiteIdChange = async (e) => {
     const id = e.target.value.trim();
@@ -248,7 +282,7 @@ const Dashboard = () => {
     if (id.length >= 6) {
       try {
         setSearchLoading(true);
-        
+
         let response;
         if (id.match(/^#?3di-[a-f0-9]{6}$/i)) {
           const cleanId = id.replace(/^#?3di-/i, '');
@@ -289,14 +323,6 @@ const Dashboard = () => {
   };
 
   const handleBuyClick = () => {
-    if (credits < 1) {
-      addNotification({
-        type: 'error',
-        message: '⚠️ Insufficient credits! Buy more credits first.'
-      });
-      return;
-    }
-
     if (!selectedTemplate) {
       addNotification({
         type: 'error',
@@ -305,10 +331,23 @@ const Dashboard = () => {
       return;
     }
 
+    const creditsRequired = selectedTemplate?.creditsRequired || 1;
+    const userCredits = user?.credits || 0;
+
+    if (userCredits < creditsRequired) {
+      setShowCreditModal(true);
+      return;
+    }
+
     setWantMeeting(false);
     setSelectedDate('');
     setSelectedTime('');
     setShowBookingModal(true);
+  };
+
+  const handleBuyCredits = () => {
+    setShowCreditModal(false);
+    navigate('/pricing');
   };
 
   const handleConfirmBooking = async () => {
@@ -328,23 +367,25 @@ const Dashboard = () => {
       return;
     }
 
+    const creditsRequired = selectedTemplate?.creditsRequired || 1;
+
     try {
       setBookingLoading(true);
-      
+
       const templateDisplayId = websiteId.startsWith('#') 
         ? websiteId 
         : `#3di-${websiteId.replace(/^3di-/i, '')}`;
-      
+
       const meetingDetails = wantMeeting ? {
         meetingDate: selectedDate,
         meetingTime: selectedTime
       } : {};
 
       const response = await templateBookingAPI.purchaseWebsite(templateDisplayId, meetingDetails);
-      
+
       const message = wantMeeting 
-        ? `✅ Website booked! Meeting scheduled for ${selectedDate} at ${selectedTime}. (${credits - 1} credits remaining)`
-        : `✅ Website booked successfully! (${credits - 1} credits remaining)`;
+        ? `✅ Website booked! Meeting scheduled for ${selectedDate} at ${selectedTime}. (${credits - creditsRequired} credits remaining)`
+        : `✅ Website booked successfully! (${credits - creditsRequired} credits remaining)`;
 
       addNotification({
         type: 'success',
@@ -352,7 +393,7 @@ const Dashboard = () => {
       });
 
       if (updateCredits) {
-        updateCredits(credits - 1);
+        updateCredits(credits - creditsRequired);
       }
 
       setWebsiteId('');
@@ -360,7 +401,7 @@ const Dashboard = () => {
       setShowBookingModal(false);
       loadDashboardData();
       loadRecentBookings();
-      
+
     } catch (error) {
       console.error('❌ Booking error:', error);
       addNotification({
@@ -391,17 +432,17 @@ const Dashboard = () => {
     );
   }
 
+  const creditsRequired = selectedTemplate?.creditsRequired || 1;
+
   return (
     <div className="space-y-8">
-      
-
       {/* Website ID Paste Booking Section */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 sm:p-8 rounded-3xl border border-blue-100">
         <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
           <span className="text-blue-600">🎯</span>
           Quick Book by Website ID
         </h3>
-        
+
         <div className="max-w-2xl mx-auto">
           <div className="space-y-4">
             <div>
@@ -440,12 +481,24 @@ const Dashboard = () => {
                     <h4 className="font-bold text-lg sm:text-xl text-gray-900 mb-2">
                       {selectedTemplate.name}
                     </h4>
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-3 flex-wrap">
                       <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-mono font-bold rounded-lg">
                         {websiteId}
                       </span>
+                      <span className={`px-3 py-1 text-xs font-bold rounded-lg ${
+                        creditsRequired > 1 
+                          ? 'bg-orange-100 text-orange-800' 
+                          : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        💳 {creditsRequired} Credit{creditsRequired > 1 ? 's' : ''}
+                      </span>
+                      {selectedTemplate.withBackend && (
+                        <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-lg">
+                          🔧 Backend
+                        </span>
+                      )}
                     </div>
-                    
+
                     <button
                       onClick={handleLivePreview}
                       className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-semibold rounded-xl hover:from-green-600 hover:to-green-700 transition-all"
@@ -463,22 +516,144 @@ const Dashboard = () => {
             {selectedTemplate && (
               <button
                 onClick={handleBuyClick}
-                disabled={credits < 1}
-                className={`w-full py-3 sm:py-4 px-6 rounded-2xl font-semibold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-3 ${
-                  credits >= 1
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5'
-                    : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
+                className="w-full py-3 sm:py-4 px-6 rounded-2xl font-semibold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
               >
                 <span className="text-xl">🚀</span>
-                Book This Website (1 Credit)
+                Book This Website ({creditsRequired} Credit{creditsRequired > 1 ? 's' : ''})
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* ✅ FULLY RESPONSIVE MODAL */}
+      {/* ✅ PROFESSIONAL Credit Modal */}
+      {showCreditModal && (
+        <div 
+          className="fixed inset-0 z-[9999] overflow-y-auto"
+          style={{ 
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)'
+          }}
+          onClick={() => setShowCreditModal(false)}
+        >
+          <div className="min-h-screen px-4 flex items-center justify-center">
+            <div 
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative transform transition-all"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Insufficient Credits</h3>
+                </div>
+                <button
+                  onClick={() => setShowCreditModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 py-6 space-y-5">
+                {/* Template Info */}
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-start gap-4">
+                    <img
+                      src={selectedTemplate?.previewImage || '/placeholder-template.jpg'}
+                      alt={selectedTemplate?.name}
+                      className="w-20 h-20 rounded-lg object-cover flex-shrink-0 border border-gray-200"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-base text-gray-900 mb-2">
+                        {selectedTemplate?.name}
+                      </h4>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {selectedTemplate?.withBackend && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-md">
+                            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                            </svg>
+                            Backend Support
+                          </span>
+                        )}
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-md">
+                          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                            <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
+                          </svg>
+                          {creditsRequired} Credit{creditsRequired > 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Credit Comparison */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
+                    <p className="text-xs font-medium text-red-600 uppercase tracking-wide mb-2">Required</p>
+                    <p className="text-3xl font-bold text-red-700">{creditsRequired}</p>
+                    <p className="text-xs text-red-600 mt-1">credit{creditsRequired > 1 ? 's' : ''}</p>
+                  </div>
+                  <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
+                    <p className="text-xs font-medium text-orange-600 uppercase tracking-wide mb-2">Available</p>
+                    <p className="text-3xl font-bold text-orange-700">{credits}</p>
+                    <p className="text-xs text-orange-600 mt-1">credit{credits !== 1 ? 's' : ''}</p>
+                  </div>
+                </div>
+
+                {/* Shortage Alert */}
+                <div className="bg-amber-50 border-l-4 border-amber-400 rounded-r-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-amber-900">
+                        You need {creditsRequired - credits} more credit{(creditsRequired - credits) > 1 ? 's' : ''}
+                      </p>
+                      <p className="text-xs text-amber-700 mt-1">
+                        Purchase additional credits to unlock this template
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-2xl flex gap-3">
+                <button
+                  onClick={() => setShowCreditModal(false)}
+                  className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-semibold text-sm rounded-lg hover:bg-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleBuyCredits}
+                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-sm rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                    <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
+                  </svg>
+                  Purchase Credits
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Booking Modal */}
       {showBookingModal && (
         <div 
           className="fixed inset-0 z-[9999] h-full overflow-y-auto"
@@ -494,7 +669,6 @@ const Dashboard = () => {
               style={{ maxHeight: '95vh' }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Header - Fixed */}
               <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-900">🎉 Confirm Booking</h3>
                 <button
@@ -504,10 +678,8 @@ const Dashboard = () => {
                   ×
                 </button>
               </div>
-              
-              {/* ✅ SCROLLABLE CONTENT */}
+
               <div className="flex-1 px-4 sm:px-6 py-4 sm:py-6 overflow-y-auto">
-                {/* Template Preview - Hidden when meeting toggle is ON */}
                 {selectedTemplate && !wantMeeting && (
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-3 sm:p-4 mb-4 animate-fadeIn">
                     <div className="flex items-center gap-3">
@@ -518,20 +690,21 @@ const Dashboard = () => {
                       />
                       <div>
                         <h4 className="font-bold text-sm sm:text-base text-gray-900">{selectedTemplate.name}</h4>
-                        <p className="text-xs sm:text-sm text-gray-600 mt-1">ID: {websiteId}</p>
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                          ID: {websiteId} • {creditsRequired} Credit{creditsRequired > 1 ? 's' : ''}
+                        </p>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Meeting Toggle */}
                 <div className="bg-white border-2 border-gray-200 rounded-xl p-3 sm:p-4 mb-4">
                   <div className="flex items-center justify-between gap-3 sm:gap-4">
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm sm:text-base text-gray-900">Want a free meeting with 3Digree?</p>
                       <p className="text-xs text-gray-600 mt-1">Discuss your requirements in a 10-min call</p>
                     </div>
-                    
+
                     <button
                       onClick={() => setWantMeeting(!wantMeeting)}
                       className={`relative inline-flex h-7 w-12 sm:h-8 sm:w-14 items-center rounded-full transition-colors flex-shrink-0 ${
@@ -547,7 +720,6 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                {/* Meeting Scheduler */}
                 {wantMeeting && (
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6 animate-fadeIn">
                     <CustomDateTimePicker
@@ -560,7 +732,6 @@ const Dashboard = () => {
                 )}
               </div>
 
-              {/* Footer - Fixed */}
               <div className="px-4 sm:px-6 py-4 sm:py-5 border-t border-gray-200 flex gap-2 sm:gap-3 flex-shrink-0">
                 <button
                   onClick={() => setShowBookingModal(false)}
@@ -583,7 +754,7 @@ const Dashboard = () => {
                       <span className="hidden sm:inline">Booking...</span>
                     </span>
                   ) : (
-                    <span className="whitespace-nowrap">Book Website (1 Credit)</span>
+                    <span className="whitespace-nowrap">Book Website ({creditsRequired} Credit{creditsRequired > 1 ? 's' : ''})</span>
                   )}
                 </button>
               </div>
@@ -620,7 +791,7 @@ const Dashboard = () => {
                       alt={booking.templateName}
                       className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover flex-shrink-0"
                     />
-                    
+
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-xs sm:text-sm text-gray-900 truncate">
                         {booking.templateName}
@@ -659,10 +830,6 @@ const Dashboard = () => {
           )}
         </div>
 
-
-
-{/* Credits & Stats Header */}
-     
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
@@ -691,9 +858,6 @@ const Dashboard = () => {
             </button>
           )}
         </div>
-
-          
- 
       </div>
 
       <style>{`

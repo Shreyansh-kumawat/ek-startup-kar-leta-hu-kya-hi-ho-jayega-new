@@ -73,7 +73,7 @@ ${formData.message}
       <section className="bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 text-white py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Let's Build Something <span className="text-[#00ffab]">Amazing</span>
+            Let's Do Something <span className="text-[#00ffab]">Amazing</span>
           </h1>
        
           <p className="text-lg text-white/80">
@@ -253,7 +253,7 @@ ${formData.message}
                 </div>
 
                 <div>
-                  <label htmlFor="service" className="block text-sm font-semibold text-gray-700 mb-2">
+                  {/* <label htmlFor="service" className="block text-sm font-semibold text-gray-700 mb-2">
                     Service Interested In
                   </label>
                   <select
@@ -269,7 +269,7 @@ ${formData.message}
                     <option value="custom">Custom Development</option>
                     <option value="ai-services">AI Services</option>
                     <option value="other">Other</option>
-                  </select>
+                  </select> */}
                 </div>
 
                 <div>

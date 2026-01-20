@@ -1,3 +1,4 @@
+// Backend\models\WebsiteBooking.js
 const mongoose = require('mongoose');
 
 const websiteBookingSchema = new mongoose.Schema({
@@ -8,7 +9,7 @@ const websiteBookingSchema = new mongoose.Schema({
     required: true,
     index: true
   },
-  
+
   // Template Reference (by displayId - #3di-XXXXXX)
   templateDisplayId: {
     type: String,
@@ -20,7 +21,7 @@ const websiteBookingSchema = new mongoose.Schema({
     ref: 'Template',
     required: true
   },
-  
+
   // Cached Template Info
   templateName: {
     type: String,
@@ -30,22 +31,29 @@ const websiteBookingSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  
-  // Booking Status
- status: {
-  type: String,
-  enum: [
-    'purchased',           // 📦 Just bought
-    'approved',            // ⚙️ Timer started
-    'inprogress',          // ⚡ Auto-updating (10% → 90%)
-    'readyforcompletion',  // ⏳ Reached 90%, waiting for admin
-    'completed'            // ✅ 100% done
-  ],
-  default: 'purchased',
-  index: true
-},
 
-  
+  // ✅ NEW: Track credits used for this booking
+  creditsUsed: {
+    type: Number,
+    default: 1,
+    required: true,
+    min: [1, 'Credits used must be at least 1']
+  },
+
+  // Booking Status
+  status: {
+    type: String,
+    enum: [
+      'purchased',           // 📦 Just bought
+      'approved',            // ⚙️ Timer started
+      'inprogress',          // ⚡ Auto-updating (10% → 90%)
+      'readyforcompletion',  // ⏳ Reached 90%, waiting for admin
+      'completed'            // ✅ 100% done
+    ],
+    default: 'purchased',
+    index: true
+  },
+
   // Progress Tracking
   progress: {
     type: Number,
@@ -53,7 +61,7 @@ const websiteBookingSchema = new mongoose.Schema({
     min: 10,
     max: 100
   },
-  
+
   // Timer & Approval
   approvedAt: {
     type: Date,
@@ -63,13 +71,13 @@ const websiteBookingSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
-  
+
   // Preview Link (Admin adds)
   previewLink: {
     type: String,
     default: null
   },
-  
+
   // Timestamps
   purchasedAt: {
     type: Date,

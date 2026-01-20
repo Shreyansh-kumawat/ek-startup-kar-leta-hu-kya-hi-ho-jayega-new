@@ -1,3 +1,4 @@
+//  Frontend/src/features/template/api.js
 import apiClient from "../../services/apiClient";
 
 // Get all templates (support pagination, filtering, sorting)
@@ -27,7 +28,7 @@ export const getTemplateById = async (id) => {
   }
 };
 
-// ✅ NEW: Get template by Website ID / Public ID / Slug
+// ✅ Get template by Website ID / Public ID / Slug
 export const getByWebsiteId = async (websiteId) => {
   try {
     const response = await apiClient.get(`/templates/by-website-id/${websiteId}`);
@@ -47,8 +48,9 @@ export const createTemplate = async (templateData) => {
     if (templateData.description) formData.append('description', templateData.description);
     formData.append('price', templateData.price ?? 0);
     formData.append('liveDemo', templateData.liveDemo);
-    formData.append('backend', String(!!templateData.backend)); // NEW: Backend field
-    
+    formData.append('withBackend', String(!!templateData.withBackend)); // ✅ CHANGED: backend → withBackend
+    formData.append('creditsRequired', String(templateData.creditsRequired || 1)); // ✅ NEW: Credits field
+
     // Append image file if any
     if (templateData.previewImage && templateData.previewImage instanceof File) {
       formData.append("previewImage", templateData.previewImage);
@@ -58,7 +60,7 @@ export const createTemplate = async (templateData) => {
     const whatsIncluded = {
       title: templateData.whatsIncludedTitle || "What's Included",
       items: templateData.includedItems || [],
-      customItems: (templateData.customItems || []).filter(
+      customItems: (templateData.customIncludedItems || templateData.customItems || []).filter(
         (item) => item.text && item.text.trim()
       ),
     };
@@ -97,8 +99,14 @@ export const updateTemplate = async (id, templateData) => {
     formData.append('price', templateData.price ?? 0);
     formData.append('liveDemo', templateData.liveDemo);
 
-    if (typeof templateData.backend !== 'undefined') {
-      formData.append('backend', String(!!templateData.backend)); // NEW: Backend field
+    // ✅ CHANGED: backend → withBackend
+    if (typeof templateData.withBackend !== 'undefined') {
+      formData.append('withBackend', String(!!templateData.withBackend));
+    }
+
+    // ✅ NEW: Credits field
+    if (typeof templateData.creditsRequired !== 'undefined') {
+      formData.append('creditsRequired', String(templateData.creditsRequired || 1));
     }
 
     if (templateData.previewImage && templateData.previewImage instanceof File) {
@@ -117,7 +125,8 @@ export const updateTemplate = async (id, templateData) => {
           "What's Included",
         items: templateData.includedItems || templateData.whatsIncluded?.items || [],
         customItems:
-          (templateData.customItems ||
+          (templateData.customIncludedItems ||
+            templateData.customItems ||
             templateData.whatsIncluded?.customItems ||
             []
           ).filter((item) => item.text && item.text.trim()),

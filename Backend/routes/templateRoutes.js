@@ -9,7 +9,7 @@ const {
   getAdminTemplates,
   searchTemplates,
   getTemplateByWebsiteId,
-  getTemplateByDisplayId // ✅ ADD THIS
+  getTemplateByDisplayId
 } = require('../controllers/templateController');
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const { validateTemplate } = require('../middleware/validationMiddleware');
@@ -17,17 +17,17 @@ const { uploadImage } = require('../middleware/uploadMiddleware');
 
 const router = express.Router();
 
-// ✅ NEW ROUTES FIRST (specific routes before :id)
-router.get('/display/:displayId', getTemplateByDisplayId); // ✅ BEFORE /:id
-router.get('/by-website-id/:websiteId', getTemplateByWebsiteId); // ✅ BEFORE /:id
-router.get('/search', searchTemplates); // ✅ BEFORE /:id
+// ✅ SPECIFIC ROUTES FIRST (before :id)
+router.get('/search', searchTemplates);
+router.get('/admin/all', verifyToken, isAdmin, getAdminTemplates);
+router.get('/display/:displayId', getTemplateByDisplayId);
+router.get('/by-website-id/:websiteId', getTemplateByWebsiteId);
 
 // Public routes
 router.get('/', getAllTemplates);
-router.get('/:id', getTemplateById); // ✅ KEEP THIS LAST
+router.get('/:id', getTemplateById); // ✅ MUST BE LAST
 
 // Protected admin routes
-router.get('/admin/all', verifyToken, isAdmin, getAdminTemplates);
 router.post('/', verifyToken, isAdmin, uploadImage, validateTemplate, createTemplate);
 router.put('/:id', verifyToken, isAdmin, uploadImage, updateTemplate);
 router.delete('/:id', verifyToken, isAdmin, deleteTemplate);

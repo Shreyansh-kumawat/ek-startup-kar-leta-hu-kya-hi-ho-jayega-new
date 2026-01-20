@@ -1,32 +1,22 @@
 const Template = require('../models/Template');
-const { successResponse, errorResponse } = require('../utils/responseUtils');
+const { uploadToCloudinary, deleteFromCloudinary } = require('../config/cloudinary');
+const fs = require('fs').promises;
 
-// ✅ Helper function for image URLs
-const getFullImageUrl = (req, imagePath) => {
-  if (!imagePath) return null;
-  
-  // ✅ If already absolute URL (Cloudinary), return as-is
-  if (imagePath.startsWith('http')) {
-    return imagePath;
-  }
-  
-  // ✅ Generate full URL for relative paths
-  const protocol = req.protocol;
-  const host = req.get('host');
-  const fullUrl = `${protocol}://${host}${imagePath}`;
-  
-  return fullUrl;
-};
-
-// ✅ FIXED: getAllTemplates function - Admin sees disabled templates
+// Get all templates with pagination and filters
 exports.getAllTemplates = async (req, res) => {
   try {
-    // console.log('🔍 Getting all templates...');
-    
-    const { page = 1, limit = 10, search, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const search = req.query.search || '';
+    const category = req.query.category;
+    const isActive = req.query.isActive;
+    const withBackend = req.query.withBackend; // ✅ Filter by backend
 
-    let query = { isActive: true }; // Default: only active templates for public
-    
+    // Build query
+    let query = {};
+
+    // Search by name or description
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -34,277 +24,271 @@ exports.getAllTemplates = async (req, res) => {
       ];
     }
 
-    // ✅ FIXED: Admin should see ALL templates (active + disabled)
-    if (req.user && (req.user.role === 'admin' || req.user.role === 'secondaryAdmin')) {
-      delete query.isActive; // Remove isActive filter for admin
-      // console.log('✅ Admin access: Showing all templates (active + disabled)');
+    // Filter by category
+    if (category) {
+      query.category = category;
     }
 
-    // .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
-    const templates = await Template.find(query)
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .select('-__v')
-      .lean();
+    // Filter by active status
+    if (isActive !== undefined) {
+      query.isActive = isActive === 'true';
+    }
 
+    // ✅ Filter by backend
+    if (withBackend !== undefined) {
+      query.withBackend = withBackend === 'true';
+    }
+
+    // Get total count
     const total = await Template.countDocuments(query);
 
-    // ✅ Process image URLs (Cloudinary URLs are already absolute)
-   const templatesWithFullUrls = templates.map(template => ({
-  ...template,
-  displayId: `#3di-${template._id.toString().slice(-6)}`, // ✅ ADD displayId
-  previewImage: getFullImageUrl(req, template.previewImage),
-  originalImagePath: template.previewImage
-}));
+    // Get templates
+    const templates = await Template.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
-      message: 'Templates fetched successfully',
       data: {
-        templates: templatesWithFullUrls,
+        templates,
         pagination: {
-          currentPage: parseInt(page),
+          currentPage: page,
           totalPages: Math.ceil(total / limit),
           totalTemplates: total,
-          hasNext: page < Math.ceil(total / limit),
-          hasPrev: page > 1
+          limit
         }
-      },
-      timestamp: new Date().toISOString()
+      }
     });
-    
   } catch (error) {
-    console.error('❌ Get all templates error:', error);
-    console.error('❌ Error details:', error.message);
-    console.error('❌ Error stack:', error.stack);
-    return errorResponse(res, 'Server error while fetching templates', error);
-  }
-};
-
-// ✅ Create template - Updated for Cloudinary
-exports.createTemplate = async (req, res) => {
-  try {
-    const { 
-      name, 
-      description, 
-      price, 
-      // templateLink,
-      backend,
-      liveDemo,
-      whatsIncluded,
-      templateInfo,
-      developmentProcess
-    } = req.body;
-
-    // ✅ FIXED: Remove templateLink from required validation
-    if (!name || !price || !liveDemo) {
-      return errorResponse(res, 'Name, price, and live demo are required', null, 400);
-    }
-
-    // Check for duplicate name
-    const existingTemplate = await Template.findOne({ 
-      name: { $regex: `^${name.trim()}$`, $options: 'i' } 
+    console.error('Get all templates error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching templates',
+      error: error.message
     });
-    
-    if (existingTemplate) {
-      return errorResponse(res, 'Template with this name already exists', null, 400);
-    }
-
-    // ✅ Handle image upload - Cloudinary URL
-    let previewImage = '';
-    if (req.file) {
-      previewImage = req.file.path; // This will be Cloudinary URL from middleware
-    }
-
-    // Parse JSON strings
-    let parsedWhatsIncluded = {
-      title: "What's Included",
-      items: [],
-      customItems: []
-    };
-    
-    let parsedTemplateInfo = {
-      title: "Template Information",
-      details: []
-    };
-    
-    let parsedDevelopmentProcess = {
-      title: "Development Process",
-      steps: []
-    };
-
-    try {
-      if (whatsIncluded) {
-        parsedWhatsIncluded = JSON.parse(whatsIncluded);
-      }
-      
-      if (templateInfo) {
-        parsedTemplateInfo = JSON.parse(templateInfo);
-      }
-      
-      if (developmentProcess) {
-        parsedDevelopmentProcess = JSON.parse(developmentProcess);
-      }
-
-    } catch (parseError) {
-      console.error('❌ JSON parsing error:', parseError);
-      console.error('❌ Failed to parse:', { whatsIncluded, templateInfo, developmentProcess });
-      return errorResponse(res, 'Invalid JSON data in form fields', parseError, 400);
-    }
-
-    // Create template
-    const template = new Template({
-      name: name.trim(),
-      description: description ? description.trim() : '',
-      price: parseFloat(price),
-      // templateLink: templateLink || '', // ✅ Allow empty string
-      liveDemo,
-      backend: backend === 'true' || backend === true, 
-      previewImage, // Cloudinary URL
-      whatsIncluded: parsedWhatsIncluded,
-      templateInfo: parsedTemplateInfo,
-      developmentProcess: parsedDevelopmentProcess,
-      createdBy: req.user ? req.user.id : null,
-      isActive: true
-    });
-
-    await template.save();
-
-    // console.log('✅ Template created successfully:', template._id);
-    return successResponse(res, 'Template created successfully', template, 201);
-
-  } catch (error) {
-    console.error('❌ Create template error:', error);
-    
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(err => err.message);
-      return errorResponse(res, 'Validation failed', { errors: validationErrors }, 400);
-    }
-    
-    if (error.code === 11000) {
-      return errorResponse(res, 'Template with this name already exists', null, 400);
-    }
-    
-    return errorResponse(res, 'Server error while creating template', error);
   }
 };
 
 // Get single template by ID
 exports.getTemplateById = async (req, res) => {
   try {
-    const template = await Template.findById(req.params.id)
-      .select('-__v')
-      .lean();
+    const template = await Template.findById(req.params.id);
 
     if (!template) {
-      return errorResponse(res, 'Template not found', null, 404);
+      return res.status(404).json({
+        success: false,
+        message: 'Template not found'
+      });
     }
 
-    if (!template.isActive && (!req.user || (req.user.role !== 'admin' && req.user.role !== 'secondaryAdmin'))) {
-      return errorResponse(res, 'Template not available', null, 404);
-    }
+    res.status(200).json({
+      success: true,
+      data: template
+    });
+  } catch (error) {
+    console.error('Get template by ID error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching template',
+      error: error.message
+    });
+  }
+};
 
-    // ✅ Process image URL
-    const templateWithFullUrl = {
-      ...template,
-      previewImage: getFullImageUrl(req, template.previewImage)
+// Create new template
+exports.createTemplate = async (req, res) => {
+  try {
+    const {
+      name,
+      description,
+      price,
+      liveDemo,
+      category,
+      tags,
+      withBackend, // ✅ Backend field
+      creditsRequired, // ✅ NEW: Credits field
+      whatsIncluded,
+      templateInfo,
+      developmentProcess
+    } = req.body;
+
+    // Prepare template data
+    const templateData = {
+      name,
+      description,
+      price,
+      liveDemo,
+      category,
+      tags: tags ? (Array.isArray(tags) ? tags : [tags]) : [],
+      withBackend: withBackend === true || withBackend === 'true', // ✅ Handle backend field
+      creditsRequired: parseInt(creditsRequired) || 1, // ✅ NEW: Credits (default 1)
+      createdBy: req.user._id
     };
 
-    return successResponse(res, 'Template fetched successfully', templateWithFullUrl);
+    // Handle image upload
+    if (req.file) {
+      try {
+        const result = await uploadToCloudinary(req.file.path, 'templates');
+        templateData.previewImage = result.secure_url;
+
+        // Delete local file
+        await fs.unlink(req.file.path).catch(err => 
+          console.error('Error deleting local file:', err)
+        );
+      } catch (uploadError) {
+        console.error('Image upload error:', uploadError);
+        // Continue without image if upload fails
+      }
+    }
+
+    // Parse and add whatsIncluded
+    if (whatsIncluded) {
+      const parsed = typeof whatsIncluded === 'string' ? JSON.parse(whatsIncluded) : whatsIncluded;
+      templateData.whatsIncluded = parsed;
+    }
+
+    // Parse and add templateInfo
+    if (templateInfo) {
+      const parsed = typeof templateInfo === 'string' ? JSON.parse(templateInfo) : templateInfo;
+      templateData.templateInfo = parsed;
+    }
+
+    // Parse and add developmentProcess
+    if (developmentProcess) {
+      const parsed = typeof developmentProcess === 'string' ? JSON.parse(developmentProcess) : developmentProcess;
+      templateData.developmentProcess = parsed;
+    }
+
+    const template = await Template.create(templateData);
+
+    res.status(201).json({
+      success: true,
+      message: 'Template created successfully',
+      data: template
+    });
   } catch (error) {
-    console.error('❌ Get template by ID error:', error);
-    return errorResponse(res, 'Server error while fetching template', error);
+    console.error('Create template error:', error);
+
+    // Delete uploaded file if exists
+    if (req.file && req.file.path) {
+      await fs.unlink(req.file.path).catch(err => 
+        console.error('Error deleting file:', err)
+      );
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Error creating template',
+      error: error.message
+    });
   }
 };
 
 // Update template
 exports.updateTemplate = async (req, res) => {
   try {
-    const template = await Template.findById(req.params.id);
-    
-    if (!template) {
-      return errorResponse(res, 'Template not found', null, 404);
-    }
-
-    const { 
-      name, 
-      description, 
-      price, 
-      // templateLink, 
+    const {
+      name,
+      description,
+      price,
       liveDemo,
-      backend,
+      category,
+      tags,
+      withBackend, // ✅ Backend field
+      creditsRequired, // ✅ NEW: Credits field
       whatsIncluded,
       templateInfo,
       developmentProcess
     } = req.body;
 
-    // Check for duplicate name excluding current template
-    if (name && name.trim() !== template.name) {
-      const existingTemplate = await Template.findOne({ 
-        name: { $regex: `^${name.trim()}$`, $options: 'i' },
-        _id: { $ne: template._id }
+    const template = await Template.findById(req.params.id);
+
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        message: 'Template not found'
       });
-      
-      if (existingTemplate) {
-        return errorResponse(res, 'Template with this name already exists', null, 400);
-      }
     }
 
-    // ✅ Handle image upload - Cloudinary URL
-    let previewImage = template.previewImage;
+    // Prepare update data
+    const updateData = {
+      name: name || template.name,
+      description: description || template.description,
+      price: price !== undefined ? price : template.price,
+      liveDemo: liveDemo || template.liveDemo,
+      category: category || template.category,
+      tags: tags ? (Array.isArray(tags) ? tags : [tags]) : template.tags,
+      withBackend: withBackend !== undefined ? (withBackend === true || withBackend === 'true') : template.withBackend, // ✅
+      creditsRequired: creditsRequired !== undefined ? parseInt(creditsRequired) : template.creditsRequired // ✅ NEW
+    };
+
+    // Handle image upload
     if (req.file) {
-      previewImage = req.file.path; // Cloudinary URL
+      try {
+        // Delete old image from Cloudinary if exists
+        if (template.previewImage) {
+          await deleteFromCloudinary(template.previewImage).catch(err =>
+            console.error('Error deleting old image:', err)
+          );
+        }
+
+        const result = await uploadToCloudinary(req.file.path, 'templates');
+        updateData.previewImage = result.secure_url;
+
+        // Delete local file
+        await fs.unlink(req.file.path).catch(err =>
+          console.error('Error deleting local file:', err)
+        );
+      } catch (uploadError) {
+        console.error('Image upload error:', uploadError);
+      }
     }
 
-    // Update basic fields
-    template.name = name ? name.trim() : template.name;
-    template.description = description ? description.trim() : template.description;
-    template.price = price ? parseFloat(price) : template.price;
-    // template.templateLink = templateLink || template.templateLink;
-    template.liveDemo = liveDemo || template.liveDemo;
-    if (typeof backend !== 'undefined') {
-  template.backend = backend === 'true' || backend === true;
-}
-    template.previewImage = previewImage;
-    
-    // Update structured sections if provided
+    // Update whatsIncluded
     if (whatsIncluded) {
-      try {
-        template.whatsIncluded = JSON.parse(whatsIncluded);
-      } catch (e) {
-        return errorResponse(res, 'Invalid whatsIncluded JSON', e, 400);
-      }
+      const parsed = typeof whatsIncluded === 'string' ? JSON.parse(whatsIncluded) : whatsIncluded;
+      updateData.whatsIncluded = parsed;
     }
-    
+
+    // Update templateInfo
     if (templateInfo) {
-      try {
-        template.templateInfo = JSON.parse(templateInfo);
-      } catch (e) {
-        return errorResponse(res, 'Invalid templateInfo JSON', e, 400);
-      }
+      const parsed = typeof templateInfo === 'string' ? JSON.parse(templateInfo) : templateInfo;
+      updateData.templateInfo = parsed;
     }
-    
+
+    // Update developmentProcess
     if (developmentProcess) {
-      try {
-        template.developmentProcess = JSON.parse(developmentProcess);
-      } catch (e) {
-        return errorResponse(res, 'Invalid developmentProcess JSON', e, 400);
-      }
+      const parsed = typeof developmentProcess === 'string' ? JSON.parse(developmentProcess) : developmentProcess;
+      updateData.developmentProcess = parsed;
     }
 
-    template.updatedAt = Date.now();
-    await template.save();
+    const updatedTemplate = await Template.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
 
-    return successResponse(res, 'Template updated successfully', template);
+    res.status(200).json({
+      success: true,
+      message: 'Template updated successfully',
+      data: updatedTemplate
+    });
   } catch (error) {
-    console.error('❌ Update template error:', error);
-    
-    if (error.code === 11000) {
-      return errorResponse(res, 'Template with this name already exists', null, 400);
+    console.error('Update template error:', error);
+
+    if (req.file && req.file.path) {
+      await fs.unlink(req.file.path).catch(err =>
+        console.error('Error deleting file:', err)
+      );
     }
-    
-    return errorResponse(res, 'Server error while updating template', error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Error updating template',
+      error: error.message
+    });
   }
 };
 
@@ -312,55 +296,133 @@ exports.updateTemplate = async (req, res) => {
 exports.deleteTemplate = async (req, res) => {
   try {
     const template = await Template.findById(req.params.id);
-    
+
     if (!template) {
-      return errorResponse(res, 'Template not found', null, 404);
+      return res.status(404).json({
+        success: false,
+        message: 'Template not found'
+      });
     }
 
-    // ✅ Note: Cloudinary images are not deleted automatically
-    // You may want to add Cloudinary deletion logic here if needed
-    
-    await Template.deleteOne({ _id: req.params.id });
-    
-    return successResponse(res, 'Template deleted successfully');
+    // Delete image from Cloudinary if exists
+    if (template.previewImage) {
+      await deleteFromCloudinary(template.previewImage).catch(err =>
+        console.error('Error deleting image from Cloudinary:', err)
+      );
+    }
+
+    await Template.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Template deleted successfully'
+    });
   } catch (error) {
-    console.error('❌ Delete template error:', error);
-    return errorResponse(res, 'Server error while deleting template', error);
+    console.error('Delete template error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting template',
+      error: error.message
+    });
   }
 };
 
-// Toggle template status
+// Toggle template status (active/inactive)
 exports.toggleTemplateStatus = async (req, res) => {
   try {
     const template = await Template.findById(req.params.id);
-    
+
     if (!template) {
-      return errorResponse(res, 'Template not found', null, 404);
+      return res.status(404).json({
+        success: false,
+        message: 'Template not found'
+      });
     }
 
     template.isActive = !template.isActive;
-    template.updatedAt = Date.now();
     await template.save();
 
-    const statusText = template.isActive ? 'activated' : 'deactivated';
-    return successResponse(res, `Template ${statusText} successfully`, {
-      id: template._id,
-      name: template.name,
-      isActive: template.isActive,
-      updatedAt: template.updatedAt
+    res.status(200).json({
+      success: true,
+      message: `Template ${template.isActive ? 'activated' : 'deactivated'} successfully`,
+      data: template
     });
   } catch (error) {
-    console.error('❌ Toggle template status error:', error);
-    return errorResponse(res, 'Server error while updating template status', error);
+    console.error('Toggle template status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error toggling template status',
+      error: error.message
+    });
   }
 };
 
-// Get admin templates
+// Get templates by category
+exports.getTemplatesByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+    const templates = await Template.find({ category, isActive: true })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: templates
+    });
+  } catch (error) {
+    console.error('Get templates by category error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching templates',
+      error: error.message
+    });
+  }
+};
+
+// Search templates
+exports.searchTemplates = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        message: 'Search query is required'
+      });
+    }
+
+    const templates = await Template.find({
+      $or: [
+        { name: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } },
+        { tags: { $in: [new RegExp(query, 'i')] } }
+      ],
+      isActive: true
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: templates
+    });
+  } catch (error) {
+    console.error('Search templates error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error searching templates',
+      error: error.message
+    });
+  }
+};
+
+// ✅ NEW: Get Admin Templates (with pagination)
 exports.getAdminTemplates = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, sortBy = 'createdAt', sortOrder = 'desc', status } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    const search = req.query.search || '';
 
     let query = {};
+
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -368,186 +430,113 @@ exports.getAdminTemplates = async (req, res) => {
       ];
     }
 
-    if (status && status !== 'all') {
-      query.isActive = status === 'active';
-    }
-
-    // .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
-    const templates = await Template.find(query)
-      .sort({ createdAt: -1 }) 
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .select('-__v')
-      .lean();
-
     const total = await Template.countDocuments(query);
-    const activeCount = await Template.countDocuments({ isActive: true });
-    const inactiveCount = await Template.countDocuments({ isActive: false });
-
-    // ✅ Process image URLs
-    const templatesWithFullUrls = templates.map(template => ({
-      ...template,
-      previewImage: getFullImageUrl(req, template.previewImage)
-    }));
-
-    return successResponse(res, 'Admin templates fetched successfully', {
-      templates: templatesWithFullUrls,
-      stats: {
-        total,
-        active: activeCount,
-        inactive: inactiveCount
-      },
-      pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(total / limit),
-        totalTemplates: total,
-        hasNext: page < Math.ceil(total / limit),
-        hasPrev: page > 1
-      }
-    });
-  } catch (error) {
-    console.error('❌ Get admin templates error:', error);
-    return errorResponse(res, 'Server error while fetching admin templates', error);
-  }
-};
-
-// Search templates
-exports.searchTemplates = async (req, res) => {
-  try {
-    const { q, minPrice, maxPrice, limit = 12 } = req.query;
-    
-    if (!q) {
-      return errorResponse(res, 'Search query is required', null, 400);
-    }
-
-    let query = {
-      isActive: true,
-      $or: [
-        { name: { $regex: q, $options: 'i' } },
-        { description: { $regex: q, $options: 'i' } }
-      ]
-    };
-
-    if (minPrice || maxPrice) {
-      query.price = {};
-      if (minPrice) query.price.$gte = parseFloat(minPrice);
-      if (maxPrice) query.price.$lte = parseFloat(maxPrice);
-    }
 
     const templates = await Template.find(query)
-      .limit(parseInt(limit))
       .sort({ createdAt: -1 })
-      .select('-__v')
+      .skip(skip)
+      .limit(limit)
       .lean();
-
-    // ✅ Process image URLs
-    const templatesWithFullUrls = templates.map(template => ({
-      ...template,
-      previewImage: getFullImageUrl(req, template.previewImage)
-    }));
-
-    return successResponse(res, 'Templates search completed', {
-      query: q,
-      results: templatesWithFullUrls,
-      count: templatesWithFullUrls.length
-    });
-  } catch (error) {
-    console.error('❌ Search templates error:', error);
-    return errorResponse(res, 'Server error while searching templates', error);
-  }
-};
-
-
-exports.getTemplateByWebsiteId = async (req, res) => {
-  try {
-    const { websiteId } = req.params;
-    
-    if (!websiteId || websiteId.trim() === '') {
-      return res.status(400).json({
-        success: false,
-        message: 'Website ID is required'
-      });
-    }
-
-    const template = await Template.findOne({
-      $or: [
-        { externalId: websiteId.trim() },
-        { publicId: websiteId.trim() },
-        { websiteId: websiteId.trim() },
-        { slug: websiteId.trim() }
-      ]
-    }).select('-__v');
-
-    if (!template) {
-      return res.status(404).json({
-        success: false,
-        message: 'Template not found with this Website ID'
-      });
-    }
 
     res.status(200).json({
       success: true,
-      message: 'Template found successfully',
-      data: template
+      data: {
+        templates,
+        pagination: {
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          totalTemplates: total,
+          limit
+        }
+      }
     });
+
   } catch (error) {
-    console.error('❌ Get template by website ID error:', error);
+    console.error('❌ Get admin templates error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
+      message: 'Failed to get templates',
       error: error.message
     });
   }
 };
 
+// ✅ NEW: Get Template by Website ID
+exports.getTemplateByWebsiteId = async (req, res) => {
+  try {
+    const { websiteId } = req.params;
 
-// ✅ NEW: Get template by displayId (last 6 chars)
+    const template = await Template.findOne({ websiteId });
+
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        message: 'Template not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: template
+    });
+
+  } catch (error) {
+    console.error('❌ Get template by website ID error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get template',
+      error: error.message
+    });
+  }
+};
+
+// ✅ NEW: Get Template by Display ID (#3di-XXXXXX)
 exports.getTemplateByDisplayId = async (req, res) => {
   try {
     const { displayId } = req.params;
-    
-    if (!displayId || displayId.trim() === '') {
-      return res.status(400).json({
-        success: false,
-        message: 'Display ID is required'
-      });
-    }
 
-    // Remove #3di- prefix if present
-    const cleanId = displayId.replace(/^#?3di-/i, '').trim();
-    
-    if (cleanId.length !== 6) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid Display ID format'
-      });
-    }
+    // Extract last 6 characters from display ID
+    const last6 = displayId.replace('#3di-', '').replace('3di-', '');
 
-    // Find template where last 6 chars of _id match
-    const templates = await Template.find({}).select('-__v');
-    
+    // Find template where _id ends with these characters
+    const templates = await Template.find({}).lean();
     const template = templates.find(t => 
-      t._id.toString().slice(-6).toLowerCase() === cleanId.toLowerCase()
+      t._id.toString().slice(-6) === last6
     );
 
     if (!template) {
       return res.status(404).json({
         success: false,
-        message: 'Template not found with this Display ID'
+        message: 'Template not found'
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Template found successfully',
       data: template
     });
+
   } catch (error) {
     console.error('❌ Get template by display ID error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
+      message: 'Failed to get template',
       error: error.message
     });
   }
+};
+
+// ✅ EXPORTS - All functions
+module.exports = {
+  getAllTemplates: exports.getAllTemplates,
+  getTemplateById: exports.getTemplateById,
+  createTemplate: exports.createTemplate,
+  updateTemplate: exports.updateTemplate,
+  deleteTemplate: exports.deleteTemplate,
+  toggleTemplateStatus: exports.toggleTemplateStatus,
+  getTemplatesByCategory: exports.getTemplatesByCategory,
+  searchTemplates: exports.searchTemplates,
+  getAdminTemplates: exports.getAdminTemplates,           // ✅ NEW
+  getTemplateByWebsiteId: exports.getTemplateByWebsiteId, // ✅ NEW
+  getTemplateByDisplayId: exports.getTemplateByDisplayId  // ✅ NEW
 };

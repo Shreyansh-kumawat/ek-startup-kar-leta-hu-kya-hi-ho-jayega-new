@@ -11,7 +11,8 @@ const Badge = memo(({ text, color }) => {
     green: 'bg-green-100/90 text-green-800 border-green-300',
     blue: 'bg-blue-100/90 text-blue-800 border-blue-400',
     red: 'bg-red-100/90 text-red-800 border-red-300',
-    purple: 'bg-purple-100/90 text-purple-800 border-purple-300'
+    purple: 'bg-purple-100/90 text-purple-800 border-purple-300',
+    orange: 'bg-orange-100/90 text-orange-800 border-orange-300'
   };
 
   return (
@@ -23,7 +24,11 @@ const Badge = memo(({ text, color }) => {
 
 Badge.displayName = 'Badge';
 
-const TemplateCard = ({ template, viewMode = 'grid' }) => {
+const TemplateCard = ({ 
+  template, 
+  viewMode = 'grid',
+  onBookTemplate // ✅ NEW PROP
+}) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -49,17 +54,26 @@ const TemplateCard = ({ template, viewMode = 'grid' }) => {
     [template?.isActive]
   );
 
-  const hostingBadge = useMemo(() => 
-    template?.price >= 1400 ? 'Free Domain + Hosting' : 'Free Web Hosting',
-    [template?.price]
-  );
-
-  // ✅ Display ID Badge
   const displayId = useMemo(() => {
     if (!template?._id) return null;
     const last6 = template._id.toString().slice(-6);
     return `#3di-${last6}`;
   }, [template?._id]);
+
+  const hasBackend = useMemo(() => 
+    Boolean(template?.withBackend || template?.backend),
+    [template?.withBackend, template?.backend]
+  );
+
+  const creditsRequired = useMemo(() => 
+    template?.creditsRequired || 1,
+    [template?.creditsRequired]
+  );
+
+  const creditsColor = useMemo(() => 
+    creditsRequired > 1 ? 'orange' : 'blue',
+    [creditsRequired]
+  );
 
   // ✅ COPY HANDLER
   const handleCopyId = useCallback((e) => {
@@ -76,6 +90,14 @@ const TemplateCard = ({ template, viewMode = 'grid' }) => {
       window.open(template.liveDemo || template.templateLink, '_blank', 'noopener,noreferrer');
     }
   }, [template?.liveDemo, template?.templateLink]);
+
+  // ✅ NEW: Book Handler
+  const handleBook = useCallback((e) => {
+    e.stopPropagation();
+    if (onBookTemplate) {
+      onBookTemplate(template);
+    }
+  }, [onBookTemplate, template]);
 
   const handleImageError = useCallback((e) => {
     e.target.src = FALLBACK_IMAGE;
@@ -101,7 +123,7 @@ const TemplateCard = ({ template, viewMode = 'grid' }) => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
           )}
-          
+
           <img
             src={imageSrc}
             alt={template.name}
@@ -111,9 +133,24 @@ const TemplateCard = ({ template, viewMode = 'grid' }) => {
             loading="lazy"
           />
 
-          {/* Status Badge */}
+          {/* Backend Badge (Top Left) */}
+          {hasBackend && (
+            <div className="absolute top-3 left-3 z-10">
+              <Badge text="🔧 Backend" color="purple" />
+            </div>
+          )}
+
+          {/* Status Badge (Top Right) */}
           <div className="absolute top-3 right-3 z-10">
             <Badge text={statusText} color={statusColor} />
+          </div>
+
+          {/* Credits Badge (Bottom Right) */}
+          <div className="absolute bottom-3 right-3 z-10">
+            <Badge 
+              text={`💳 ${creditsRequired} Credit${creditsRequired > 1 ? 's' : ''}`} 
+              color={creditsColor} 
+            />
           </div>
         </div>
 
@@ -124,7 +161,7 @@ const TemplateCard = ({ template, viewMode = 'grid' }) => {
             {template.name}
           </h3>
 
-          {/* ✅ ID BADGE WITH COPY */}
+          {/* ID BADGE WITH COPY */}
           <div className="flex items-center justify-between">
             <div className="text-xl font-bold text-gray-700">
               Id: <span className="font-mono">{displayId}</span>
@@ -148,22 +185,34 @@ const TemplateCard = ({ template, viewMode = 'grid' }) => {
             </button>
           </div>
 
-          {/* ✅ LIVE BUTTON */}
-          <button
-            onClick={handleLivePreview}
-            className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 text-lg shadow-xl transform hover:scale-105 flex items-center justify-center gap-3"
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd"/>
-            </svg>
-            Live
-          </button>
+          {/* ✅ NEW: TWO BUTTONS - LIVE + BOOK */}
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={handleLivePreview}
+              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd"/>
+              </svg>
+              Live
+            </button>
+
+            <button
+              onClick={handleBook}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+              </svg>
+              Book
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
-  // List View (same as above, just different layout)
+  // List View
   return (
     <div className="group bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border-4 border-blue-300 hover:border-blue-500">
       <div className="flex flex-col md:flex-row">
@@ -174,7 +223,7 @@ const TemplateCard = ({ template, viewMode = 'grid' }) => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
           )}
-          
+
           <img
             src={imageSrc}
             alt={template.name}
@@ -184,9 +233,21 @@ const TemplateCard = ({ template, viewMode = 'grid' }) => {
             loading="lazy"
           />
 
-          {/* Status Badge */}
+          {hasBackend && (
+            <div className="absolute top-3 left-3 z-10">
+              <Badge text="🔧 Backend" color="purple" />
+            </div>
+          )}
+
           <div className="absolute top-3 right-3">
             <Badge text={statusText} color={statusColor} />
+          </div>
+
+          <div className="absolute bottom-3 right-3 z-10">
+            <Badge 
+              text={`💳 ${creditsRequired} Credit${creditsRequired > 1 ? 's' : ''}`} 
+              color={creditsColor} 
+            />
           </div>
         </div>
 
@@ -197,7 +258,6 @@ const TemplateCard = ({ template, viewMode = 'grid' }) => {
               {template.name}
             </h3>
 
-            {/* ID with Copy */}
             <div className="flex items-center justify-between mb-6">
               <div className="text-xl font-bold text-gray-700">
                 Id: <span className="font-mono">{displayId}</span>
@@ -222,16 +282,28 @@ const TemplateCard = ({ template, viewMode = 'grid' }) => {
             </div>
           </div>
 
-          {/* Live Button */}
-          <button
-            onClick={handleLivePreview}
-            className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 text-lg shadow-xl transform hover:scale-105 flex items-center justify-center gap-3"
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd"/>
-            </svg>
-            Live
-          </button>
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={handleLivePreview}
+              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd"/>
+              </svg>
+              Live
+            </button>
+
+            <button
+              onClick={handleBook}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+              </svg>
+              Book
+            </button>
+          </div>
         </div>
       </div>
     </div>

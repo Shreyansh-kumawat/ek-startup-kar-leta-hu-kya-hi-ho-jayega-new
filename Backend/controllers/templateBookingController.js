@@ -1,5 +1,3 @@
-//Backend\controllers\templateBookingController.js
-
 const mongoose = require('mongoose');
 const TemplateBooking = require('../models/TemplateBooking');
 const Template = require('../models/Template');
@@ -18,15 +16,13 @@ const Razorpay = require('razorpay');
 
 
 // Predefined Google Meet links (always available)
-const PREDEFINED_MEET_LINKS = [
+const PREDEFINED_MEET_links = [
 'https://meet.google.com/myu-hrpq-mix',
 'https://meet.google.com/pyw-rwve-vgc',
 // 'https://meet.google.com/qqz-cxsk-owc',
 // 'https://meet.google.com/ytt-phxb-tyx',
 // 'https://meet.google.com/aeo-uyrs-hhc'
 ];
-
-
 
 // Initialize Razorpay with error handling
 let razorpay;
@@ -368,8 +364,7 @@ const getAvailableMeetingLink = async (scheduledDate, scheduledTime) => {
   }
 };
 
-
-// Book Template with Meeting
+// ✅ UPDATED: Book Template with Credit System
 exports.bookTemplate = async (req, res) => {
   try {
     const { templateId } = req.params;
@@ -395,6 +390,22 @@ exports.bookTemplate = async (req, res) => {
     const template = await Template.findById(templateId);
     if (!template || !template.isActive) {
       return errorResponse(res, 'Template not found or not available', null, 404);
+    }
+
+    // ✅ NEW: Get user to check credits
+    const user = await User.findById(userId);
+    if (!user) {
+      return errorResponse(res, 'User not found', null, 404);
+    }
+
+    // ✅ NEW: Check if user has enough credits
+    const requiredCredits = template.creditsRequired || 1;
+    if (user.credits < requiredCredits) {
+      return errorResponse(res, 
+        `Insufficient credits. This ${template.withBackend ? 'backend-enabled ' : ''}website requires ${requiredCredits} credit${requiredCredits > 1 ? 's' : ''}, but you only have ${user.credits} credit${user.credits !== 1 ? 's' : ''}. Please purchase a plan to continue.`, 
+        null, 
+        400
+      );
     }
 
     // Check if user already has a booking for this template
@@ -430,18 +441,24 @@ const templateBooking = new TemplateBooking({
     paymentPercentage: 0
   },
   developmentStatus: {
-    stage: 'not_started',  // ✅ UNDERSCORE
+    stage: 'not_started',
     progress: 0
   },
-  status: 'meeting_scheduled',  // ✅ UNDERSCORE
+  status: 'meeting_scheduled',
   metadata: {
     userAgent: req.get('User-Agent'),
     ipAddress: req.ip,
-    sourceChannel: 'website'
+    sourceChannel: 'website',
+    creditsUsed: requiredCredits, // ✅ NEW: Track credits used
+    withBackend: template.withBackend || false // ✅ NEW: Track if backend website
   }
 });
 
 await templateBooking.save();
+
+// ✅ NEW: Deduct credits from user
+user.credits -= requiredCredits;
+await user.save();
 
 // Populate for response
 await templateBooking.populate('userId', 'name email');
@@ -450,7 +467,7 @@ await templateBooking.populate('templateId', 'name previewImage');
 // Add communication log
 await templateBooking.addCommunication(
   'meeting',
-  `Meeting scheduled for ${scheduledDate} at ${scheduledTime}`,
+  `Meeting scheduled for ${scheduledDate} at ${scheduledTime}. ${requiredCredits} credit(s) deducted.`,
   userId,
   false
 );
@@ -460,76 +477,34 @@ await templateBooking.addCommunication(
 // 🔥 SEND RESPONSE FIRST
 res.status(201).json({
   success: true,
-  message: 'Template booked successfully! Meeting scheduled with developer.',
+  message: `Template booked successfully! ${requiredCredits} credit(s) used. Remaining credits: ${user.credits}`,
   data: {
     booking: templateBooking,
     bookingId: templateBooking.bookingId,
-    meetingLink: templateBooking.meetingDetails.meetingLink
+    meetingLink: templateBooking.meetingDetails.meetingLink,
+    creditsUsed: requiredCredits,
+    remainingCredits: user.credits
   }
 });
 
 // 🔥 SEND EMAIL AFTER (NON-BLOCKING)
 setImmediate(async () => {
   try {
-    const user = await User.findById(userId);
-    if (user && user.email) {
-      await sendTemplateBookingConfirmation(user, templateBooking);
-      // console.log('✅ Booking confirmation email sent to:', user.email);
+    const userWithEmail = await User.findById(userId);
+    if (userWithEmail && userWithEmail.email) {
+      await sendTemplateBookingConfirmation(userWithEmail, templateBooking);
+      // console.log('✅ Booking confirmation email sent to:', userWithEmail.email);
     }
   } catch (emailError) {
     console.error('❌ Email notification error:', emailError.message);
   }
 });
 
-
-
-    await templateBooking.save();
-
-    // Populate for response
-    await templateBooking.populate('userId', 'name email');
-    await templateBooking.populate('templateId', 'name previewImage');
-
-    // Add communication log
-    await templateBooking.addCommunication(
-      'meeting',
-      `Meeting scheduled for ${scheduledDate} at ${scheduledTime}`,
-      userId,
-      false
-    );
-
-    // console.log('✅ Template booking created successfully:', templateBooking.id);
-
-    // 🔥 CRITICAL: Send response FIRST, then send email asynchronously
-    res.status(201).json({
-      success: true,
-      message: 'Template booked successfully! Meeting scheduled with developer.',
-      data: {
-        booking: templateBooking,
-        bookingId: templateBooking.bookingId,
-        meetingLink: templateBooking.meetingDetails.meetingLink
-      }
-    });
-
-    // 🔥 Send email AFTER response (non-blocking)
-    setImmediate(async () => {
-      try {
-        const user = await User.findById(userId);
-        if (user && user.email) {
-          await sendTemplateBookingConfirmation(user, templateBooking);
-          // console.log('✅ Booking confirmation email sent to:', user.email);
-        }
-      } catch (emailError) {
-        console.error('❌ Email notification error:', emailError.message);
-        // Don't fail the booking if email fails
-      }
-    });
-
   } catch (error) {
     console.error('❌ Book template error:', error);
     return errorResponse(res, 'Failed to book template', error.message, 500);
   }
 };
-
 
 // Get User's Template Bookings
 exports.getUserBookings = async (req, res) => {
@@ -942,7 +917,6 @@ exports.setFinalWebsiteUrl = async (req, res) => {
   }
 };
 
-
 // Get Available Meeting Slots
 exports.getAvailableMeetingSlots = async (req, res) => {
   try {
@@ -1183,8 +1157,6 @@ exports.deleteBooking = async (req, res) => {
     return errorResponse(res, 'Failed to delete booking', error.message, 500);
   }
 };
-
-
 
 ////////
 
