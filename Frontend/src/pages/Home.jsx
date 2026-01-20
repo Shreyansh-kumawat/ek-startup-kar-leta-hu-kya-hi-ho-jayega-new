@@ -69,6 +69,7 @@ const useSmartCurrency = () => {
         main: { amount: usdAmount, symbol: '$', code: 'USD' },
         secondary: null
       };
+      
     } else {
       const localCurrencyMap = {
         'GB': { rate: rates.GBP || 0.0095, symbol: '£', code: 'GBP' },
