@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/useAuth';
 import { useNotification } from '../hooks/useNotification';
-import TemplateGrid from '../components/TemplateGrid';
+import TemplateGrid from '../features/template/TemplateGrid';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
