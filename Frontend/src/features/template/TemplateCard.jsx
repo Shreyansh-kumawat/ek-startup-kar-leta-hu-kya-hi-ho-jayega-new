@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useCallback, memo, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { formatCurrency } from '../../utils/helpers';
 import './TemplateCard.css'; 
 
-// Fallback image constant
-const FALLBACK_IMAGE = 'https://3digree.com/3digree/assets/images/logo.png';
+// ✅ FIXED: Fallback image
+const FALLBACK_IMAGE = 'https://via.placeholder.com/800x600/E8F4FD/4299E1?text=No+Preview+Available';
 
 // Memoized Badge Component
 const Badge = memo(({ text, color }) => {
@@ -27,17 +27,26 @@ Badge.displayName = 'Badge';
 const TemplateCard = ({ 
   template, 
   viewMode = 'grid',
-  onBookTemplate // ✅ NEW PROP
+  onBookTemplate
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Memoized values
+  // ✅ FIXED: Image URL logic
   const imageSrc = useMemo(() => {
-    if (!template?.previewImage) return FALLBACK_IMAGE;
-    if (template.previewImage.startsWith('http')) return template.previewImage;
-    return `http://localhost:5000${template.previewImage}`;
-  }, [template?.previewImage]);
+    if (!template?.previewImage || imageError) {
+      return FALLBACK_IMAGE;
+    }
+
+    // If already full URL (Cloudinary), use directly
+    if (template.previewImage.startsWith('http')) {
+      return template.previewImage;
+    }
+
+    // If relative path, construct full URL
+    return `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${template.previewImage}`;
+  }, [template?.previewImage, imageError]);
 
   const priceDisplay = useMemo(() => {
     if (!template) return '₹0';
@@ -60,8 +69,9 @@ const TemplateCard = ({
     return `#3di-${last6}`;
   }, [template?._id]);
 
+  // ✅ FIXED: Backend badge logic (checks both fields)
   const hasBackend = useMemo(() => 
-    Boolean(template?.withBackend || template?.backend),
+    Boolean(template?.withBackend === true || template?.backend === true),
     [template?.withBackend, template?.backend]
   );
 
@@ -78,9 +88,11 @@ const TemplateCard = ({
   // ✅ COPY HANDLER
   const handleCopyId = useCallback((e) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(displayId);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (displayId) {
+      navigator.clipboard.writeText(displayId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   }, [displayId]);
 
   // ✅ Live Preview Handler
@@ -91,7 +103,7 @@ const TemplateCard = ({
     }
   }, [template?.liveDemo, template?.templateLink]);
 
-  // ✅ NEW: Book Handler
+  // ✅ Book Handler
   const handleBook = useCallback((e) => {
     e.stopPropagation();
     if (onBookTemplate) {
@@ -99,20 +111,24 @@ const TemplateCard = ({
     }
   }, [onBookTemplate, template]);
 
+  // ✅ FIXED: Better error handling
   const handleImageError = useCallback((e) => {
-    e.target.src = FALLBACK_IMAGE;
+    console.warn('❌ Image load failed:', template?.previewImage);
+    setImageError(true);
     setImageLoaded(true);
-  }, []);
+    e.target.src = FALLBACK_IMAGE;
+  }, [template?.previewImage]);
 
   const handleImageLoad = useCallback(() => {
     setImageLoaded(true);
+    setImageError(false);
   }, []);
 
   if (!template) {
     return null;
   }
 
-  // Grid View (WEB 2 DESIGN)
+  // Grid View
   if (viewMode === 'grid') {
     return (
       <div className="group bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border-4 border-blue-300 hover:border-blue-500 transform hover:-translate-y-2">
@@ -126,17 +142,17 @@ const TemplateCard = ({
 
           <img
             src={imageSrc}
-            alt={template.name}
+            alt={template.name || 'Template preview'}
             className={`w-full h-full object-cover transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
             onError={handleImageError}
             onLoad={handleImageLoad}
             loading="lazy"
           />
 
-          {/* Backend Badge (Top Left) */}
+          {/* ✅ Backend Badge (Top Left) - FIXED VISIBILITY */}
           {hasBackend && (
             <div className="absolute top-3 left-3 z-10">
-              <Badge text="🔧 Backend" color="purple" />
+              <Badge text="With Backend" color="purple" />
             </div>
           )}
 
@@ -185,11 +201,12 @@ const TemplateCard = ({
             </button>
           </div>
 
-          {/* ✅ NEW: TWO BUTTONS - LIVE + BOOK */}
+          {/* ✅ TWO BUTTONS - LIVE + BOOK */}
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={handleLivePreview}
-              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+              disabled={!template?.liveDemo && !template?.templateLink}
+              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg transform hover:scale-105 disabled:hover:scale-100 flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd"/>
@@ -226,16 +243,17 @@ const TemplateCard = ({
 
           <img
             src={imageSrc}
-            alt={template.name}
+            alt={template.name || 'Template preview'}
             className={`w-full h-full object-cover transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
             onError={handleImageError}
             onLoad={handleImageLoad}
             loading="lazy"
           />
 
+          {/* ✅ Backend Badge - FIXED */}
           {hasBackend && (
             <div className="absolute top-3 left-3 z-10">
-              <Badge text="🔧 Backend" color="purple" />
+              <Badge text="With Backend" color="purple" />
             </div>
           )}
 
@@ -286,7 +304,8 @@ const TemplateCard = ({
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={handleLivePreview}
-              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+              disabled={!template?.liveDemo && !template?.templateLink}
+              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg transform hover:scale-105 disabled:hover:scale-100 flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd"/>
