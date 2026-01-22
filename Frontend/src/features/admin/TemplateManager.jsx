@@ -1,3 +1,4 @@
+// Frontend\src\features\admin\TemplateManager.jsx
 import React, { useState, useEffect } from 'react';
 import { getAllTemplates, createTemplate, updateTemplate, deleteTemplate, toggleTemplateStatus } from '../template/api';
 import { useNotification } from '../../hooks/useNotification';
@@ -6,6 +7,7 @@ import Input from '../../components/Input';
 import Modal from '../../components/Modal';
 import Loader from '../../components/Loader';
 import { getServerImageUrl } from '../../services/apiClient';
+
 
 const DEFAULT_INCLUDED_ITEMS = [
   { text: '1 Free Domain Name', included: true },
@@ -21,6 +23,7 @@ const DEFAULT_INCLUDED_ITEMS = [
   { text: 'Social Media Integration', included: true },
 ];
 
+
 const TemplateManager = () => {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,8 +31,6 @@ const TemplateManager = () => {
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [showDisabled, setShowDisabled] = useState(true);
-
-  // ✅ Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,8 +44,8 @@ const TemplateManager = () => {
     price: '',
     liveDemo: '',
     previewImage: null,
-    withBackend: false, // ✅ CHANGED: backend → withBackend
-    creditsRequired: 1, // ✅ NEW: Credits field
+    withBackend: false,
+    creditsRequired: 1,
     whatsIncludedTitle: "What's Included",
     includedItems: [...DEFAULT_INCLUDED_ITEMS],
     customIncludedItems: [],
@@ -60,18 +61,29 @@ const TemplateManager = () => {
 
   const { addNotification } = useNotification();
 
-  // ✅ Fetch with pagination and search
   useEffect(() => {
     fetchTemplates();
   }, [currentPage, searchTerm]);
 
+  // ✅ FIXED: Proper image URL handling with debugging
   const getTemplateImageUrl = (template) => {
-    if (!template?.previewImage) return fallbackImage;
-    if (typeof template.previewImage === 'string' && template.previewImage.startsWith('http')) return template.previewImage;
-    return getServerImageUrl(template.previewImage);
+    if (!template?.previewImage) {
+      console.log('⚠️ No preview image for:', template?.name);
+      return fallbackImage;
+    }
+
+    // ✅ Direct Cloudinary/external URL
+    if (typeof template.previewImage === 'string' && template.previewImage.startsWith('http')) {
+      console.log('✅ Cloudinary URL:', template.previewImage);
+      return template.previewImage;
+    }
+
+    // ✅ Relative path - construct server URL
+    const serverUrl = getServerImageUrl(template.previewImage);
+    console.log('🔗 Server URL:', serverUrl);
+    return serverUrl;
   };
 
-  // ✅ fetchTemplates with pagination params
   const fetchTemplates = async () => {
     try {
       setLoading(true);
@@ -82,10 +94,14 @@ const TemplateManager = () => {
       };
       const response = await getAllTemplates(params);
       const templatesList = response?.data?.templates || response?.templates || response || [];
+
+      console.log('📋 Fetched', templatesList.length, 'templates');
+      templatesList.forEach(t => console.log('  -', t.name, ':', t.previewImage));
+
       setTemplates(Array.isArray(templatesList) ? templatesList : []);
       setTotalPages(response?.data?.pagination?.totalPages || response?.pagination?.totalPages || 1);
     } catch (error) {
-      console.error('Error fetching templates:', error);
+      console.error('❌ Error fetching templates:', error);
       addNotification('Error fetching templates', 'error');
       setTemplates([]);
     } finally {
@@ -100,8 +116,8 @@ const TemplateManager = () => {
       price: '',
       liveDemo: '',
       previewImage: null,
-      withBackend: false, // ✅ CHANGED
-      creditsRequired: 1, // ✅ NEW
+      withBackend: false,
+      creditsRequired: 1,
       whatsIncludedTitle: "What's Included",
       includedItems: [...DEFAULT_INCLUDED_ITEMS],
       customIncludedItems: [],
@@ -125,8 +141,8 @@ const TemplateManager = () => {
         price: template.price || '',
         liveDemo: template.liveDemo || '',
         previewImage: null,
-        withBackend: Boolean(template?.withBackend || template?.backend), // ✅ Support both field names
-        creditsRequired: template?.creditsRequired || 1, // ✅ NEW
+        withBackend: Boolean(template?.withBackend || template?.backend),
+        creditsRequired: template?.creditsRequired || 1,
         whatsIncludedTitle: template.whatsIncluded?.title || "What's Included",
         includedItems: (template.whatsIncluded?.items && Array.isArray(template.whatsIncluded.items) && template.whatsIncluded.items.length > 0) ?
           template.whatsIncluded.items.map(i => ({
@@ -176,8 +192,8 @@ const TemplateManager = () => {
         price: formData.price,
         liveDemo: formData.liveDemo,
         previewImage: formData.previewImage,
-        withBackend: !!formData.withBackend, // ✅ CHANGED
-        creditsRequired: parseInt(formData.creditsRequired) || 1, // ✅ NEW
+        withBackend: !!formData.withBackend,
+        creditsRequired: parseInt(formData.creditsRequired) || 1,
         whatsIncluded: {
           title: formData.whatsIncludedTitle,
           items: formData.includedItems,
@@ -328,7 +344,6 @@ const TemplateManager = () => {
         </div>
       </div>
 
-      {/* ✅ Search Bar */}
       <div className="bg-white p-4 rounded-lg shadow-sm">
         <input
           type="text"
@@ -342,7 +357,6 @@ const TemplateManager = () => {
         />
       </div>
 
-      {/* ✅ Pagination (Top) */}
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">
           {Array.from({ length: totalPages }, (_, i) => (
@@ -373,6 +387,7 @@ const TemplateManager = () => {
                 alt={template.name || 'Template'}
                 className="w-full h-full object-cover"
                 onError={(e) => {
+                  console.error('❌ Image failed:', template.name, template.previewImage);
                   e.target.src = fallbackImage;
                   e.target.onerror = null;
                 }}
@@ -382,7 +397,6 @@ const TemplateManager = () => {
                 {template.isActive ? 'Active' : 'Disabled'}
               </div>
 
-              {/* ✅ NEW: Backend Badge */}
               {(template.withBackend || template.backend) && (
                 <div className="absolute top-2 left-2 px-2 py-1 rounded text-xs bg-purple-600 text-white font-semibold">
                   🔧 Backend
@@ -408,7 +422,6 @@ const TemplateManager = () => {
                 {template.description}
               </p>
 
-              {/* ✅ NEW: Price & Credits Display */}
               <div className="flex items-center justify-between mb-4">
                 <div className={`text-xl font-bold ${template.isActive ? 'text-blue-600' : 'text-gray-400'}`}>
                   ₹{template.price?.toLocaleString() || 0}
@@ -456,7 +469,6 @@ const TemplateManager = () => {
         ))}
       </div>
 
-      {/* ✅ Pagination (Bottom) */}
       {totalPages > 1 && (
         <div className="flex justify-center gap-2 mt-6">
           {Array.from({ length: totalPages }, (_, i) => (
@@ -519,9 +531,7 @@ const TemplateManager = () => {
               <div />
             </div>
 
-            {/* ✅ UPDATED: Backend & Credits Section */}
             <div className="mt-4 space-y-3">
-              {/* Backend Checkbox */}
               <div className="flex items-center gap-2 bg-purple-50 p-3 rounded-lg border border-purple-200">
                 <input
                   type="checkbox"
@@ -532,7 +542,7 @@ const TemplateManager = () => {
                     setFormData({ 
                       ...formData, 
                       withBackend: isBackend,
-                      creditsRequired: isBackend ? 4 : 1 // ✅ Auto-set credits
+                      creditsRequired: isBackend ? 4 : 1
                     });
                   }}
                   className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
@@ -541,11 +551,10 @@ const TemplateManager = () => {
                   🔧 With Backend
                 </label>
                 <span className="text-xs text-gray-500 ml-2">
-                  (Automatically sets credits to 2)
+                  (Automatically sets credits to 4)
                 </span>
               </div>
 
-              {/* ✅ NEW: Credits Input */}
               <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   💳 Credits Required

@@ -1,3 +1,4 @@
+// Backend\routes\templateRoutes.js
 const express = require('express');
 const {
   getAllTemplates,
