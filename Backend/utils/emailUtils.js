@@ -57,7 +57,7 @@ exports.sendWelcomeEmail = async (user) => {
     };
     
     const info = await transporter.sendMail(mailOptions);
-    // console.log('✅ Welcome email sent successfully to:', user.email);
+    // console.removed.log('✅ Welcome email sent successfully to:', user.email);
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('❌ sendWelcomeEmail Error:', error);
@@ -127,7 +127,7 @@ exports.sendLoginNotification = async (user, loginDetails = {}) => {
     };
     
     const info = await transporter.sendMail(mailOptions);
-    // console.log('✅ Login notification email sent to:', user.email);
+    // console.removed.log('✅ Login notification email sent to:', user.email);
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('❌ sendLoginNotification Error:', error);
@@ -201,7 +201,7 @@ exports.sendMeetingScheduledEmail = async (user, meeting) => {
     };
     
     const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Meeting scheduled email sent to:', user.email);
+    // console.log('✅ Meeting scheduled email sent to:', user.email);
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('❌ sendMeetingScheduledEmail Error:', error);

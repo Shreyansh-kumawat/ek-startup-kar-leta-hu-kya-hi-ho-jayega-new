@@ -521,7 +521,7 @@ const addCreditsToUser = async (req, res) => {
     const { userId, credits, reason } = req.body;
     const adminId = req.user.id;
 
-    console.log('💳 Admin adding credits:', { userId, credits, adminId });
+    // console.log('💳 Admin adding credits:', { userId, credits, adminId });
 
     // Validate input
     if (!userId || !credits || credits <= 0) {
@@ -545,7 +545,7 @@ const addCreditsToUser = async (req, res) => {
     user.credits = previousCredits + credits;
     await user.save();
 
-    console.log(`✅ Credits added! ${previousCredits} → ${user.credits}`);
+    // console.log(`✅ Credits added! ${previousCredits} → ${user.credits}`);
 
     // Optional: Log this action (you can create a CreditLog model later)
     // await CreditLog.create({ userId, credits, addedBy: adminId, reason });
@@ -579,7 +579,7 @@ const deductCreditsFromUser = async (req, res) => {
     const { userId, credits, reason } = req.body;
     const adminId = req.user.id;
 
-    console.log('💸 Admin deducting credits:', { userId, credits, adminId });
+    // console.log('💸 Admin deducting credits:', { userId, credits, adminId });
 
     if (!userId || !credits || credits <= 0) {
       return res.status(400).json({ 
@@ -608,7 +608,7 @@ const deductCreditsFromUser = async (req, res) => {
     user.credits = previousCredits - credits;
     await user.save();
 
-    console.log(`✅ Credits deducted! ${previousCredits} → ${user.credits}`);
+    // console.log(`✅ Credits deducted! ${previousCredits} → ${user.credits}`);
 
     res.status(200).json({ 
       success: true,

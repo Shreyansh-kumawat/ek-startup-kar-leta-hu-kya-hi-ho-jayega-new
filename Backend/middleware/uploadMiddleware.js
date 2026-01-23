@@ -1,3 +1,4 @@
+// Backend\middleware\uploadMiddleware.js
 const multer = require('multer');
 const sharp = require('sharp');
 const path = require('path');
@@ -19,7 +20,7 @@ if (!fs.existsSync(templatesDir)) {
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  // console.log('📸 File upload attempt:', file.originalname, file.mimetype);
+  // console.removed.log('📸 File upload attempt:', file.originalname, file.mimetype);
   
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
@@ -43,7 +44,7 @@ const compressAndUploadToCloudinary = async (req, res, next) => {
       return next();
     }
 
-    // console.log('🔄 Compressing and uploading to Cloudinary:', req.file.originalname);
+    // console.removed.log('🔄 Compressing and uploading to Cloudinary:', req.file.originalname);
 
     // Generate unique filename
     const timestamp = Date.now();
@@ -75,13 +76,13 @@ const compressAndUploadToCloudinary = async (req, res, next) => {
     req.file.destination = templatesDir;
     req.file.compressedPath = tempPath;
 
-    // console.log('✅ Image uploaded to Cloudinary:', cloudinaryUrl);
+    // console.removed.log('✅ Image uploaded to Cloudinary:', cloudinaryUrl);
 
     // ✅ Cleanup local temp file
     setTimeout(() => {
       if (fs.existsSync(tempPath)) {
         fs.unlinkSync(tempPath);
-        // console.log('🗑️ Cleaned up temp file:', filename);
+        // console.removed.log('🗑️ Cleaned up temp file:', filename);
       }
     }, 5000); // Delete after 5 seconds
 

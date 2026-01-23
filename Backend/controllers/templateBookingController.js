@@ -31,7 +31,7 @@ try {
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET
   });
-  // console.log('✅ Razorpay initialized successfully');
+  // console.removed.log('✅ Razorpay initialized successfully');
 } catch (error) {
   console.error('❌ Razorpay initialization error:', error);
 }
@@ -43,20 +43,20 @@ try {
 // Create Payment Order
 exports.createPaymentOrder = async (req, res) => {
   try {
-    // console.log('🔥 DEBUG: createPaymentOrder function called');
-    // console.log('🔍 DEBUG: req.params:', req.params);
-    // console.log('🔍 DEBUG: req.body:', req.body);
-    // console.log('🔍 DEBUG: req.user:', req.user);
+    // console.removed.log('🔥 DEBUG: createPaymentOrder function called');
+    // console.removed.log('🔍 DEBUG: req.params:', req.params);
+    // console.removed.log('🔍 DEBUG: req.body:', req.body);
+    // console.removed.log('🔍 DEBUG: req.user:', req.user);
     
     const { bookingId } = req.params;
     const { paymentType } = req.body; // 'partial' or 'final'
     const userId = req.user.id;
 
-    // console.log('💰 Creating payment order:', { bookingId, paymentType, userId });
+    // console.removed.log('💰 Creating payment order:', { bookingId, paymentType, userId });
 
     // Validate paymentType
     if (!paymentType || !['partial', 'final'].includes(paymentType)) {
-      // console.log('❌ Invalid payment type:', paymentType);
+      // console.removed.log('❌ Invalid payment type:', paymentType);
       return errorResponse(res, 'Invalid payment type. Must be "partial" or "final"', null, 400);
     }
 
@@ -67,20 +67,20 @@ exports.createPaymentOrder = async (req, res) => {
     }
 
     // Find booking
-    // console.log('🔍 Looking for booking:', bookingId);
+    // console.removed.log('🔍 Looking for booking:', bookingId);
     const booking = await TemplateBooking.findOne({
       _id: bookingId,
       userId
     }).populate('userId', 'name email phone');
 
     if (!booking) {
-      // console.log('❌ Booking not found:', bookingId);
+      // console.removed.log('❌ Booking not found:', bookingId);
       return errorResponse(res, 'Booking not found', null, 404);
     }
 
-    // console.log('✅ Booking found:', booking._id);
-    // console.log('🔍 Booking status:', booking.status);
-    // console.log('🔍 Payment details:', booking.paymentDetails);
+    // console.removed.log('✅ Booking found:', booking._id);
+    // console.removed.log('🔍 Booking status:', booking.status);
+    // console.removed.log('🔍 Payment details:', booking.paymentDetails);
 
     // Calculate payment amount
     let paymentAmount = 0;
@@ -88,7 +88,7 @@ exports.createPaymentOrder = async (req, res) => {
 
     if (paymentType === 'partial') {
       if (!booking.paymentDetails.paymentPercentage || booking.paymentDetails.paymentPercentage <= 0) {
-        // console.log('❌ Payment percentage not set:', booking.paymentDetails.paymentPercentage);
+        // console.removed.log('❌ Payment percentage not set:', booking.paymentDetails.paymentPercentage);
         return errorResponse(res, 'Payment percentage not set by admin yet', null, 400);
       }
       
@@ -97,7 +97,7 @@ exports.createPaymentOrder = async (req, res) => {
       
       // Check if partial payment already done
       if (booking.paymentDetails.partialPaymentId) {
-        // console.log('❌ Partial payment already completed:', booking.paymentDetails.partialPaymentId);
+        // console.removed.log('❌ Partial payment already completed:', booking.paymentDetails.partialPaymentId);
         return errorResponse(res, 'Partial payment already completed', null, 400);
       }
       
@@ -107,18 +107,18 @@ exports.createPaymentOrder = async (req, res) => {
       paymentPercentage = 100 - (booking.paymentProgress || 0);
       
       if (paymentAmount <= 0) {
-        // console.log('❌ No pending payment required:', paymentAmount);
+        // console.removed.log('❌ No pending payment required:', paymentAmount);
         return errorResponse(res, 'No pending payment required', null, 400);
       }
       
       // Check if website is ready
       if (booking.status !== 'website_ready' && booking.status !== 'final_payment_pending') {
-        // console.log('❌ Website not ready for final payment. Status:', booking.status);
+        // console.removed.log('❌ Website not ready for final payment. Status:', booking.status);
         return errorResponse(res, 'Website is not ready for final payment yet', null, 400);
       }
     }
 
-    // console.log('💰 Payment calculation:', { paymentAmount, paymentPercentage });
+    // console.removed.log('💰 Payment calculation:', { paymentAmount, paymentPercentage });
 
     // Create Razorpay order
    const razorpayOrderOptions = {
@@ -134,9 +134,9 @@ exports.createPaymentOrder = async (req, res) => {
   }
 };
 
-    // console.log('🔍 Creating Razorpay order with options:', razorpayOrderOptions);
+    // console.removed.log('🔍 Creating Razorpay order with options:', razorpayOrderOptions);
     const razorpayOrder = await razorpay.orders.create(razorpayOrderOptions);
-    // console.log('✅ Razorpay order created:', razorpayOrder.id);
+    // console.removed.log('✅ Razorpay order created:', razorpayOrder.id);
 
     // Create payment record
     const paymentData = {
@@ -160,10 +160,10 @@ exports.createPaymentOrder = async (req, res) => {
       }
     };
 
-    // console.log('🔍 Creating payment record:', paymentData);
+    // console.removed.log('🔍 Creating payment record:', paymentData);
     const payment = new Payment(paymentData);
     await payment.save();
-    // console.log('✅ Payment record saved:', payment.paymentId);
+    // console.removed.log('✅ Payment record saved:', payment.paymentId);
 
     // Add order to booking's razorpayOrderIds array
     booking.paymentDetails.razorpayOrderIds.push({
@@ -173,9 +173,9 @@ exports.createPaymentOrder = async (req, res) => {
       status: 'created'
     });
     await booking.save();
-    // console.log('✅ Booking updated with Razorpay order');
+    // console.removed.log('✅ Booking updated with Razorpay order');
 
-    // console.log('✅ Payment order created successfully:', razorpayOrder.id);
+    // console.removed.log('✅ Payment order created successfully:', razorpayOrder.id);
 
     return successResponse(res, 'Payment order created successfully', {
       razorpayOrder: {
@@ -280,7 +280,7 @@ exports.verifyPayment = async (req, res) => {
       false
     );
 
-    // console.log('✅ Payment verified and recorded successfully');
+    // console.removed.log('✅ Payment verified and recorded successfully');
 
     return successResponse(res, 'Payment verified successfully', {
       payment: {
@@ -309,7 +309,7 @@ exports.getPaymentHistory = async (req, res) => {
     const { bookingId } = req.params;
     const userId = req.user.id;
 
-    // console.log('📊 Getting payment history:', { bookingId, userId });
+    // console.removed.log('📊 Getting payment history:', { bookingId, userId });
 
     // Verify booking access
     const booking = await TemplateBooking.findOne({
@@ -371,7 +371,7 @@ exports.bookTemplate = async (req, res) => {
     const { scheduledDate, scheduledTime, additionalRequirements } = req.body;
     const userId = req.user.id;
 
-    // console.log('📝 Booking template:', templateId, userId, scheduledDate, scheduledTime);
+    // console.removed.log('📝 Booking template:', templateId, userId, scheduledDate, scheduledTime);
 
     // Validate input
     if (!scheduledDate || !scheduledTime) {
@@ -472,7 +472,7 @@ await templateBooking.addCommunication(
   false
 );
 
-// console.log('✅ Template booking created successfully:', templateBooking._id);
+// console.removed.log('✅ Template booking created successfully:', templateBooking._id);
 
 // 🔥 SEND RESPONSE FIRST
 res.status(201).json({
@@ -493,7 +493,7 @@ setImmediate(async () => {
     const userWithEmail = await User.findById(userId);
     if (userWithEmail && userWithEmail.email) {
       await sendTemplateBookingConfirmation(userWithEmail, templateBooking);
-      // console.log('✅ Booking confirmation email sent to:', userWithEmail.email);
+      // console.removed.log('✅ Booking confirmation email sent to:', userWithEmail.email);
     }
   } catch (emailError) {
     console.error('❌ Email notification error:', emailError.message);
@@ -512,7 +512,7 @@ exports.getUserBookings = async (req, res) => {
     const userId = req.user.id;
     const { status, page = 1, limit = 10 } = req.query;
 
-    // console.log('📋 Getting user bookings:', { userId, status, page, limit });
+    // console.removed.log('📋 Getting user bookings:', { userId, status, page, limit });
 
     // Build query
     const query = { userId };
@@ -545,7 +545,7 @@ exports.getUserBookings = async (req, res) => {
       }
     };
 
-    // console.log('✅ Retrieved user bookings:', bookings.length);
+    // console.removed.log('✅ Retrieved user bookings:', bookings.length);
     return successResponse(res, 'Bookings retrieved successfully', response);
 
   } catch (error) {
@@ -560,7 +560,7 @@ exports.getBookingDetails = async (req, res) => {
     const { bookingId } = req.params;
     const userId = req.user.id;
 
-    // console.log('🔍 Getting booking details:', { bookingId, userId });
+    // console.removed.log('🔍 Getting booking details:', { bookingId, userId });
 
     const booking = await TemplateBooking.findOne({
       _id: bookingId,
@@ -575,7 +575,7 @@ exports.getBookingDetails = async (req, res) => {
       return errorResponse(res, 'Booking not found', null, 404);
     }
 
-    // console.log('✅ Retrieved booking details:', booking._id);
+    // console.removed.log('✅ Retrieved booking details:', booking._id);
     return successResponse(res, 'Booking details retrieved successfully', { booking });
 
   } catch (error) {
@@ -591,7 +591,7 @@ exports.getAllBookings = async (req, res) => {
   try {
     const { status, page = 1, limit = 20, search } = req.query;
 
-    // console.log('📋 Admin getting all bookings:', { status, page, limit, search });
+    // console.removed.log('📋 Admin getting all bookings:', { status, page, limit, search });
 
     // Build query
     const query = {};
@@ -635,7 +635,7 @@ exports.getAllBookings = async (req, res) => {
       }
     };
 
-    // console.log('✅ Retrieved all bookings:', bookings.length);
+    // console.removed.log('✅ Retrieved all bookings:', bookings.length);
     return successResponse(res, 'All bookings retrieved successfully', response);
 
   } catch (error) {
@@ -651,7 +651,7 @@ exports.setPaymentPercentage = async (req, res) => {
     const { paymentPercentage } = req.body;
     const adminId = req.user.id;
 
-    // console.log('💰 Setting payment percentage:', { bookingId, paymentPercentage, adminId });
+    // console.removed.log('💰 Setting payment percentage:', { bookingId, paymentPercentage, adminId });
 
     // Validate percentage
     if (!paymentPercentage || paymentPercentage < 0 || paymentPercentage > 100) {
@@ -689,14 +689,14 @@ exports.setPaymentPercentage = async (req, res) => {
     try {
       if (booking.userId && booking.userId.email) {
         await sendPaymentPercentageNotification(booking.userId, booking, paymentAmount);
-        // console.log(`✅ Payment percentage notification email sent to ${booking.userId.email}`);
+        // console.removed.log(`✅ Payment percentage notification email sent to ${booking.userId.email}`);
       }
     } catch (emailError) {
       console.error('Email notification error:', emailError);
       // Don't fail the operation if email fails
     }
 
-    // console.log('✅ Payment percentage set successfully:', paymentPercentage);
+    // console.removed.log('✅ Payment percentage set successfully:', paymentPercentage);
 
     return successResponse(res, 'Payment percentage set successfully', {
       booking,
@@ -716,7 +716,7 @@ exports.updateMeetingStatus = async (req, res) => {
     const { meetingStatus, meetingNotes } = req.body;
     const adminId = req.user.id;
 
-    // console.log('📅 Updating meeting status:', { bookingId, meetingStatus, adminId });
+    // console.removed.log('📅 Updating meeting status:', { bookingId, meetingStatus, adminId });
 
     // Find booking
     const booking = await TemplateBooking.findById(bookingId);
@@ -745,7 +745,7 @@ exports.updateMeetingStatus = async (req, res) => {
       true
     );
 
-    // console.log('✅ Meeting status updated successfully');
+    // console.removed.log('✅ Meeting status updated successfully');
 
     return successResponse(res, 'Meeting status updated successfully', { booking });
 
@@ -762,7 +762,7 @@ exports.updateDevelopmentProgress = async (req, res) => {
     const { progress, stage, developerNotes, websitePreviewUrl } = req.body;
     const adminId = req.user.id;
 
-    // console.log('🚀 Updating development progress:', { bookingId, progress, stage });
+    // console.removed.log('🚀 Updating development progress:', { bookingId, progress, stage });
 
     // Find booking
     const booking = await TemplateBooking.findById(bookingId)
@@ -793,13 +793,13 @@ exports.updateDevelopmentProgress = async (req, res) => {
     if (stage === 'completed' && booking.userId && booking.userId.email) {
       try {
         await sendWebsiteReadyNotification(booking.userId, booking);
-        // console.log(`✅ Website ready notification email sent to ${booking.userId.email}`);
+        // console.removed.log(`✅ Website ready notification email sent to ${booking.userId.email}`);
       } catch (emailError) {
         console.error('Email notification error:', emailError);
       }
     }
 
-    // console.log('✅ Development progress updated successfully');
+    // console.removed.log('✅ Development progress updated successfully');
 
     return successResponse(res, 'Development progress updated successfully', { booking });
 
@@ -817,7 +817,7 @@ exports.updateWebsiteUrls = async (req, res) => {
     const { previewUrl, liveUrl, sourceCodeUrl } = req.body;
     const adminId = req.user.id;
     
-    // console.log('🔗 Updating website URLs:', bookingId, { previewUrl, liveUrl, sourceCodeUrl });
+    // console.removed.log('🔗 Updating website URLs:', bookingId, { previewUrl, liveUrl, sourceCodeUrl });
     
     // Find booking
     const booking = await TemplateBooking.findById(bookingId);
@@ -859,7 +859,7 @@ exports.updateWebsiteUrls = async (req, res) => {
       true
     );
     
-    // console.log('✅ Website URLs updated successfully');
+    // console.removed.log('✅ Website URLs updated successfully');
     
     return successResponse(res, 'Website URLs updated successfully', booking);
     
@@ -877,7 +877,7 @@ exports.setFinalWebsiteUrl = async (req, res) => {
     const { finalUrl, downloadUrl } = req.body;
     const adminId = req.user.id;
 
-    // console.log('🌐 Setting final website URL:', { bookingId, finalUrl });
+    // console.removed.log('🌐 Setting final website URL:', { bookingId, finalUrl });
 
     // Find booking
     const booking = await TemplateBooking.findById(bookingId);
@@ -907,7 +907,7 @@ exports.setFinalWebsiteUrl = async (req, res) => {
       true
     );
 
-    // console.log('✅ Final website URLs set successfully');
+    // console.removed.log('✅ Final website URLs set successfully');
 
     return successResponse(res, 'Project completed! Website delivered successfully.', { booking });
 
@@ -926,7 +926,7 @@ exports.getAvailableMeetingSlots = async (req, res) => {
       return errorResponse(res, 'Date parameter is required', null, 400);
     }
 
-    // console.log('📅 Getting available meeting slots for:', date);
+    // console.removed.log('📅 Getting available meeting slots for:', date);
 
     // Available time slots
     const timeSlots = [
@@ -974,7 +974,7 @@ exports.addCommunication = async (req, res) => {
     const userId = req.user.id;
     const isAdmin = req.user.role === 'admin' || req.user.role === 'secondaryAdmin';
 
-    // console.log('💬 Adding communication:', { bookingId, type, userId, isAdmin });
+    // console.removed.log('💬 Adding communication:', { bookingId, type, userId, isAdmin });
 
     if (!message || !message.trim()) {
       return errorResponse(res, 'Message is required', null, 400);
@@ -994,7 +994,7 @@ exports.addCommunication = async (req, res) => {
     // Add communication
     await booking.addCommunication(type, message.trim(), userId, isAdmin);
 
-    // console.log('✅ Communication added successfully');
+    // console.removed.log('✅ Communication added successfully');
 
     return successResponse(res, 'Message added successfully', { booking });
 
@@ -1011,7 +1011,7 @@ exports.getDashboardStats = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // console.log('📊 Getting dashboard stats for user:', userId);
+    // console.removed.log('📊 Getting dashboard stats for user:', userId);
 
     // Get recent bookings (last 5)
     const recentBookings = await TemplateBooking.find({ userId })
@@ -1091,7 +1091,7 @@ exports.getDashboardStats = async (req, res) => {
       bookingStats
     };
 
-    // console.log('✅ Dashboard stats retrieved successfully');
+    // console.removed.log('✅ Dashboard stats retrieved successfully');
     return successResponse(res, 'Dashboard stats retrieved successfully', dashboardData);
 
   } catch (error) {
@@ -1120,7 +1120,7 @@ exports.deleteBooking = async (req, res) => {
     const { bookingId } = req.params;
     const adminId = req.user.id;
     
-    // console.log('🗑️ Deleting booking:', bookingId, 'by admin:', adminId);
+    // console.removed.log('🗑️ Deleting booking:', bookingId, 'by admin:', adminId);
     
     // Find booking
     const booking = await TemplateBooking.findById(bookingId)
@@ -1141,7 +1141,7 @@ exports.deleteBooking = async (req, res) => {
     // Delete the booking
     await TemplateBooking.findByIdAndDelete(bookingId);
     
-    // console.log('✅ Booking deleted successfully:', bookingId);
+    // console.removed.log('✅ Booking deleted successfully:', bookingId);
     
     return successResponse(res, 'Booking deleted successfully', {
       deletedBooking: {

@@ -16,7 +16,7 @@ const validateUser = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      // console.log('❌ Validation errors:', errors.array());
+      // console.removed.log('❌ Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
@@ -33,7 +33,7 @@ const validateLogin = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      // console.log('❌ Login validation errors:', errors.array());
+      // console.removed.log('❌ Login validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
@@ -105,7 +105,7 @@ const validateTemplate = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      // console.log('❌ Template validation errors:', errors.array());
+      // console.removed.log('❌ Template validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'Template validation failed',

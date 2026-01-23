@@ -68,19 +68,19 @@ const TemplateManager = () => {
   // ✅ FIXED: Proper image URL handling with debugging
   const getTemplateImageUrl = (template) => {
     if (!template?.previewImage) {
-      console.log('⚠️ No preview image for:', template?.name);
+      // console.log('⚠️ No preview image for:', template?.name);
       return fallbackImage;
     }
 
     // ✅ Direct Cloudinary/external URL
     if (typeof template.previewImage === 'string' && template.previewImage.startsWith('http')) {
-      console.log('✅ Cloudinary URL:', template.previewImage);
+      // console.removed.log('✅ Cloudinary URL:', template.previewImage);
       return template.previewImage;
     }
 
     // ✅ Relative path - construct server URL
     const serverUrl = getServerImageUrl(template.previewImage);
-    console.log('🔗 Server URL:', serverUrl);
+    // console.removed.log('🔗 Server URL:', serverUrl);
     return serverUrl;
   };
 
@@ -96,7 +96,7 @@ const TemplateManager = () => {
       const templatesList = response?.data?.templates || response?.templates || response || [];
 
       console.log('📋 Fetched', templatesList.length, 'templates');
-      templatesList.forEach(t => console.log('  -', t.name, ':', t.previewImage));
+      // templatesList.forEach(t => console.log('  -', t.name, ':', t.previewImage));
 
       setTemplates(Array.isArray(templatesList) ? templatesList : []);
       setTotalPages(response?.data?.pagination?.totalPages || response?.pagination?.totalPages || 1);

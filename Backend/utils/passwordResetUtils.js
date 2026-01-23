@@ -74,7 +74,7 @@ exports.sendPasswordResetEmail = async (user, otp) => {
     };
     
     const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Password reset OTP sent to:', user.email);
+    // console.log('✅ Password reset OTP sent to:', user.email);
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('❌ sendPasswordResetEmail Error:', error);
@@ -137,7 +137,7 @@ exports.sendPasswordChangedEmail = async (user) => {
     };
     
     const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Password changed confirmation sent to:', user.email);
+    // console.log('✅ Password changed confirmation sent to:', user.email);
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('❌ sendPasswordChangedEmail Error:', error);

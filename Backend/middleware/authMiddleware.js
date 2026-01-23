@@ -7,8 +7,8 @@ const verifyToken = (req, res, next) => {
   let token = req.header('Authorization');
   
   // Debug logs
-  // console.log('🔍 Authorization header:', token);
-  // console.log('🔍 All headers:', req.headers);
+  // console.removed.log('🔍 Authorization header:', token);
+  // console.removed.log('🔍 All headers:', req.headers);
 
   // Handle different token formats
   if (token && token.startsWith('Bearer ')) {
@@ -21,7 +21,7 @@ const verifyToken = (req, res, next) => {
     token = req.header('x-auth-token') || req.query.token;
   }
 
-  // console.log('🔍 Extracted token:', token ? 'Token present' : 'No token'); // Debug
+  // console.removed.log('🔍 Extracted token:', token ? 'Token present' : 'No token'); // Debug
 
   if (!token) {
     return res.status(401).json({ 
@@ -32,7 +32,7 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // console.log('✅ Token decoded successfully for user:', decoded.id); // Debug
+    // console.removed.log('✅ Token decoded successfully for user:', decoded.id); // Debug
     req.user = decoded;
     next();
   } catch (err) {
@@ -47,13 +47,13 @@ const verifyToken = (req, res, next) => {
 const isAdmin = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
-    // console.log('🔍 Admin check for user:', user?.name, 'Role:', user?.role); // Debug
+    // console.removed.log('🔍 Admin check for user:', user?.name, 'Role:', user?.role); // Debug
     
     if (user && (user.role === 'admin' || user.role === 'secondaryAdmin')) {
-      // console.log('✅ Admin access granted'); // Debug
+      // console.removed.log('✅ Admin access granted'); // Debug
       next();
     } else {
-      // console.log('❌ Admin access denied'); // Debug
+      // console.removed.log('❌ Admin access denied'); // Debug
       res.status(403).json({ 
         success: false,
         message: 'Admin access required' 
@@ -71,13 +71,13 @@ const isAdmin = async (req, res, next) => {
 const isMainAdmin = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
-    // console.log('🔍 Main admin check for user:', user?.name, 'Role:', user?.role); // Debug
+    // console.removed.log('🔍 Main admin check for user:', user?.name, 'Role:', user?.role); // Debug
     
     if (user && user.role === 'admin') {
-      // console.log('✅ Main admin access granted'); // Debug
+      // console.removed.log('✅ Main admin access granted'); // Debug
       next();
     } else {
-      // console.log('❌ Main admin access denied'); // Debug
+      // console.removed.log('❌ Main admin access denied'); // Debug
       res.status(403).json({ 
         success: false,
         message: 'Main Admin access required' 

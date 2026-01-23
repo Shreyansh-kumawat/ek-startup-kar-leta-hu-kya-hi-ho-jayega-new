@@ -47,7 +47,7 @@ const PaymentProgress = ({
         description: `Partial payment for ${templateBooking.templateName}`
       };
 
-      // console.log('💳 Processing partial payment:', orderData);
+      // console.removed.log('💳 Processing partial payment:', orderData);
 
       // Simulate order creation (replace with actual API call)
       const order = {
@@ -69,7 +69,7 @@ const PaymentProgress = ({
         },
         onSuccess: async (response) => {
           try {
-            // console.log('✅ Partial payment successful:', response);
+            // console.removed.log('✅ Partial payment successful:', response);
             showSuccess('Partial payment completed successfully! Development will begin shortly.');
             if (onPaymentComplete) {
               onPaymentComplete('partial', response);
@@ -113,7 +113,7 @@ const PaymentProgress = ({
         description: `Final payment for ${templateBooking.templateName}`
       };
 
-      // console.log('💳 Processing final payment:', orderData);
+      // console.removed.log('💳 Processing final payment:', orderData);
 
       const order = {
         razorpayOrderId: `order_final_${Date.now()}`,
@@ -133,7 +133,7 @@ const PaymentProgress = ({
         },
         onSuccess: async (response) => {
           try {
-            // console.log('✅ Final payment successful:', response);
+            // console.removed.log('✅ Final payment successful:', response);
             showSuccess('Payment completed! Your website is now ready for download.');
             if (onPaymentComplete) {
               onPaymentComplete('final', response);

@@ -11,18 +11,18 @@ const getAPIBaseURL = () => {
   const devURL = 'http://localhost:5000/api';
   
   // Debug logging
-  // console.log('🔍 Environment:', import.meta.env.MODE);
-  // console.log('🔍 VITE_API_BASE_URL:', prodURL);
+  // console.removed.log('🔍 Environment:', import.meta.env.MODE);
+  // console.removed.log('🔍 VITE_API_BASE_URL:', prodURL);
   
   // Return appropriate URL
   if (import.meta.env.PROD && prodURL) {
-    // console.log('✅ Using production URL:', prodURL);
+    // console.removed.log('✅ Using production URL:', prodURL);
     return prodURL;
   } else if (import.meta.env.PROD) {
-    // console.log('⚠️ Using fallback URL:', fallbackURL);
+    // console.removed.log('⚠️ Using fallback URL:', fallbackURL);
     return fallbackURL;
   } else {
-    // console.log('🛠️ Using development URL:', devURL);
+    // console.removed.log('🛠️ Using development URL:', devURL);
     return devURL;
   }
 };
@@ -46,7 +46,7 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // console.log('🚀 API Request:', config.method?.toUpperCase(), config.baseURL + config.url);
+    // console.removed.log('🚀 API Request:', config.method?.toUpperCase(), config.baseURL + config.url);
     return config;
   },
   (error) => {
@@ -58,7 +58,7 @@ apiClient.interceptors.request.use(
 // ✅ FIXED: Better error handling
 apiClient.interceptors.response.use(
   (response) => {
-    // console.log('✅ API Response:', response.status, response.config.url);
+    // console.removed.log('✅ API Response:', response.status, response.config.url);
     return response;
   },
   (error) => {
@@ -156,7 +156,7 @@ export const getServerImageUrl = (imagePath) => {
   const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
   const fullURL = `${serverURL}${cleanPath}`;
   
-  // console.log(`🖼️ Image URL: ${imagePath} → ${fullURL}`);
+  // console.removed.log(`🖼️ Image URL: ${imagePath} → ${fullURL}`);
   return fullURL;
 };
 

@@ -3,12 +3,12 @@ const WebsiteBooking = require('../models/WebsiteBooking');
 
 // ✅ CRON JOB: Runs every 1 minute (for testing) or 54 minutes (production)
 const startProgressUpdater = () => {
-  console.log('🚀 Progress Auto-Updater Started!');
+  // console.log('🚀 Progress Auto-Updater Started!');
   
   // ✅ TESTING: Every 1 minute
   cron.schedule('*/54 * * * *', async () => {
     try {
-      console.log('⏰ Running progress update job at:', new Date().toLocaleTimeString());
+      // console.log('⏰ Running progress update job at:', new Date().toLocaleTimeString());
       
       // ✅ FIX: Use correct status names (no underscores!)
       const bookings = await WebsiteBooking.find({
@@ -17,10 +17,10 @@ const startProgressUpdater = () => {
         approvedAt: { $exists: true, $ne: null }
       });
       
-      console.log(`📊 Found ${bookings.length} booking(s) to check`);
+      // console.log(`📊 Found ${bookings.length} booking(s) to check`);
       
       if (bookings.length === 0) {
-        console.log('✅ No bookings need progress update');
+        // console.log('✅ No bookings need progress update');
         return;
       }
       
@@ -59,14 +59,14 @@ const startProgressUpdater = () => {
           await booking.save();
           updatedCount++;
           
-          console.log(`✅ Updated ${booking.bookingId}: ${oldProgress}% → ${newProgress}% (${elapsedMinutes} min elapsed)`);
+          // console.log(`✅ Updated ${booking.bookingId}: ${oldProgress}% → ${newProgress}% (${elapsedMinutes} min elapsed)`);
         }
       }
       
       if (updatedCount > 0) {
-        console.log(`🎉 Progress update completed! Updated ${updatedCount} booking(s)`);
+        // console.log(`🎉 Progress update completed! Updated ${updatedCount} booking(s)`);
       } else {
-        console.log('ℹ️  No progress changes needed');
+        // console.log('ℹ️  No progress changes needed');
       }
       
     } catch (error) {
@@ -74,9 +74,9 @@ const startProgressUpdater = () => {
     }
   });
   
-  console.log('⏱️  Cron schedule: Every 1 minute (TESTING MODE)');
-  console.log('📈 Progress: 10% → 90% (1% per minute for testing)');
-  console.log('🎯 Production: Change to */54 minutes (54 min per 1%)');
+  // console.log('⏱️  Cron schedule: Every 1 minute (TESTING MODE)');
+  // console.log('📈 Progress: 10% → 90% (1% per minute for testing)');
+  // console.log('🎯 Production: Change to */54 minutes (54 min per 1%)');
 };
 
 module.exports = { startProgressUpdater };

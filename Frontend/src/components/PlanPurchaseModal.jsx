@@ -83,14 +83,14 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
       setSelectedPlan(plan.type);
 
 
-      console.log('💎 Starting plan purchase:', plan.type);
+      // console.log('💎 Starting plan purchase:', plan.type);
 
 
       // Step 1: Create order on backend
       const orderResponse = await createPlanOrder(plan.type);
 
 
-      console.log('✅ Order created:', orderResponse.data);
+      // console.log('✅ Order created:', orderResponse.data);
 
 
       // Step 2: Open Razorpay checkout
@@ -98,7 +98,7 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
         orderResponse.data,
         // Success callback
         (verifyResponse) => {
-          console.log('✅ Payment successful:', verifyResponse);
+          // console.log('✅ Payment successful:', verifyResponse);
           
           addNotification({
             type: 'success',

@@ -39,7 +39,7 @@ exports.purchaseWebsite = async (req, res) => {
 
     // ✅ NEW: Get credits required from template
     const creditsRequired = template.creditsRequired || 1;
-    console.log(`💳 Template "${template.name}" requires ${creditsRequired} credits`);
+    // console.log(`💳 Template "${template.name}" requires ${creditsRequired} credits`);
 
     // ✅ FIXED: Check user exists first
     const user = await User.findById(userId);
@@ -67,7 +67,7 @@ exports.purchaseWebsite = async (req, res) => {
     // ✅ NEW: Deduct correct credits
     user.credits -= creditsRequired;
     await user.save();
-    console.log(`✅ Deducted ${creditsRequired} credits. Remaining: ${user.credits}`);
+    // console.log(`✅ Deducted ${creditsRequired} credits. Remaining: ${user.credits}`);
 
     // ✅ FIXED: Create booking with meeting details
     const bookingData = {

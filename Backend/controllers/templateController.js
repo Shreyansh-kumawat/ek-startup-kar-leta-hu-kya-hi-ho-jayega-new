@@ -1,3 +1,4 @@
+// Backend\controllers\templateController.js
 const Template = require('../models/Template');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../config/cloudinary');
 const fs = require('fs').promises;
@@ -101,20 +102,11 @@ exports.getTemplateById = async (req, res) => {
 exports.createTemplate = async (req, res) => {
   try {
     const {
-      name,
-      description,
-      price,
-      liveDemo,
-      category,
-      tags,
-      withBackend, // ✅ Backend field
-      creditsRequired, // ✅ NEW: Credits field
-      whatsIncluded,
-      templateInfo,
-      developmentProcess
+      name, description, price, liveDemo, category, tags,
+      withBackend, creditsRequired, whatsIncluded,
+      templateInfo, developmentProcess
     } = req.body;
 
-    // Prepare template data
     const templateData = {
       name,
       description,
@@ -122,43 +114,28 @@ exports.createTemplate = async (req, res) => {
       liveDemo,
       category,
       tags: tags ? (Array.isArray(tags) ? tags : [tags]) : [],
-      withBackend: withBackend === true || withBackend === 'true', // ✅ Handle backend field
-      creditsRequired: parseInt(creditsRequired) || 1, // ✅ NEW: Credits (default 1)
+      withBackend: withBackend === true || withBackend === 'true',
+      creditsRequired: parseInt(creditsRequired) || 1,
       createdBy: req.user._id
     };
 
-    // Handle image upload
+    // ✅ FIX: Middleware already uploaded to Cloudinary!
     if (req.file) {
-      try {
-        const result = await uploadToCloudinary(req.file.path, 'templates');
-        templateData.previewImage = result.secure_url;
-
-        // Delete local file
-        await fs.unlink(req.file.path).catch(err => 
-          console.error('Error deleting local file:', err)
-        );
-      } catch (uploadError) {
-        console.error('Image upload error:', uploadError);
-        // Continue without image if upload fails
-      }
+      templateData.previewImage = req.file.path; // Already cloudinary URL
     }
 
-    // Parse and add whatsIncluded
+    // Parse sections
     if (whatsIncluded) {
-      const parsed = typeof whatsIncluded === 'string' ? JSON.parse(whatsIncluded) : whatsIncluded;
-      templateData.whatsIncluded = parsed;
+      templateData.whatsIncluded = typeof whatsIncluded === 'string' 
+        ? JSON.parse(whatsIncluded) : whatsIncluded;
     }
-
-    // Parse and add templateInfo
     if (templateInfo) {
-      const parsed = typeof templateInfo === 'string' ? JSON.parse(templateInfo) : templateInfo;
-      templateData.templateInfo = parsed;
+      templateData.templateInfo = typeof templateInfo === 'string' 
+        ? JSON.parse(templateInfo) : templateInfo;
     }
-
-    // Parse and add developmentProcess
     if (developmentProcess) {
-      const parsed = typeof developmentProcess === 'string' ? JSON.parse(developmentProcess) : developmentProcess;
-      templateData.developmentProcess = parsed;
+      templateData.developmentProcess = typeof developmentProcess === 'string' 
+        ? JSON.parse(developmentProcess) : developmentProcess;
     }
 
     const template = await Template.create(templateData);
@@ -170,14 +147,6 @@ exports.createTemplate = async (req, res) => {
     });
   } catch (error) {
     console.error('Create template error:', error);
-
-    // Delete uploaded file if exists
-    if (req.file && req.file.path) {
-      await fs.unlink(req.file.path).catch(err => 
-        console.error('Error deleting file:', err)
-      );
-    }
-
     res.status(500).json({
       success: false,
       message: 'Error creating template',
@@ -186,21 +155,14 @@ exports.createTemplate = async (req, res) => {
   }
 };
 
+
 // Update template
 exports.updateTemplate = async (req, res) => {
   try {
     const {
-      name,
-      description,
-      price,
-      liveDemo,
-      category,
-      tags,
-      withBackend, // ✅ Backend field
-      creditsRequired, // ✅ NEW: Credits field
-      whatsIncluded,
-      templateInfo,
-      developmentProcess
+      name, description, price, liveDemo, category, tags,
+      withBackend, creditsRequired, whatsIncluded,
+      templateInfo, developmentProcess
     } = req.body;
 
     const template = await Template.findById(req.params.id);
@@ -212,7 +174,6 @@ exports.updateTemplate = async (req, res) => {
       });
     }
 
-    // Prepare update data
     const updateData = {
       name: name || template.name,
       description: description || template.description,
@@ -220,48 +181,31 @@ exports.updateTemplate = async (req, res) => {
       liveDemo: liveDemo || template.liveDemo,
       category: category || template.category,
       tags: tags ? (Array.isArray(tags) ? tags : [tags]) : template.tags,
-      withBackend: withBackend !== undefined ? (withBackend === true || withBackend === 'true') : template.withBackend, // ✅
-      creditsRequired: creditsRequired !== undefined ? parseInt(creditsRequired) : template.creditsRequired // ✅ NEW
+      withBackend: withBackend !== undefined 
+        ? (withBackend === true || withBackend === 'true') 
+        : template.withBackend,
+      creditsRequired: creditsRequired !== undefined 
+        ? parseInt(creditsRequired) 
+        : template.creditsRequired
     };
 
-    // Handle image upload
+    // ✅ FIX: Middleware already uploaded to Cloudinary!
     if (req.file) {
-      try {
-        // Delete old image from Cloudinary if exists
-        if (template.previewImage) {
-          await deleteFromCloudinary(template.previewImage).catch(err =>
-            console.error('Error deleting old image:', err)
-          );
-        }
-
-        const result = await uploadToCloudinary(req.file.path, 'templates');
-        updateData.previewImage = result.secure_url;
-
-        // Delete local file
-        await fs.unlink(req.file.path).catch(err =>
-          console.error('Error deleting local file:', err)
-        );
-      } catch (uploadError) {
-        console.error('Image upload error:', uploadError);
-      }
+      updateData.previewImage = req.file.path; // Already cloudinary URL
     }
 
-    // Update whatsIncluded
+    // Parse sections
     if (whatsIncluded) {
-      const parsed = typeof whatsIncluded === 'string' ? JSON.parse(whatsIncluded) : whatsIncluded;
-      updateData.whatsIncluded = parsed;
+      updateData.whatsIncluded = typeof whatsIncluded === 'string' 
+        ? JSON.parse(whatsIncluded) : whatsIncluded;
     }
-
-    // Update templateInfo
     if (templateInfo) {
-      const parsed = typeof templateInfo === 'string' ? JSON.parse(templateInfo) : templateInfo;
-      updateData.templateInfo = parsed;
+      updateData.templateInfo = typeof templateInfo === 'string' 
+        ? JSON.parse(templateInfo) : templateInfo;
     }
-
-    // Update developmentProcess
     if (developmentProcess) {
-      const parsed = typeof developmentProcess === 'string' ? JSON.parse(developmentProcess) : developmentProcess;
-      updateData.developmentProcess = parsed;
+      updateData.developmentProcess = typeof developmentProcess === 'string' 
+        ? JSON.parse(developmentProcess) : developmentProcess;
     }
 
     const updatedTemplate = await Template.findByIdAndUpdate(
@@ -277,13 +221,6 @@ exports.updateTemplate = async (req, res) => {
     });
   } catch (error) {
     console.error('Update template error:', error);
-
-    if (req.file && req.file.path) {
-      await fs.unlink(req.file.path).catch(err =>
-        console.error('Error deleting file:', err)
-      );
-    }
-
     res.status(500).json({
       success: false,
       message: 'Error updating template',
@@ -304,14 +241,16 @@ exports.deleteTemplate = async (req, res) => {
       });
     }
 
-    // Delete image from Cloudinary if exists
-    if (template.previewImage) {
-      await deleteFromCloudinary(template.previewImage).catch(err =>
-        console.error('Error deleting image from Cloudinary:', err)
+    // ✅ FIX: Comment out Cloudinary delete (optional cleanup)
+    // Delete from database first - most important!
+    await Template.findByIdAndDelete(req.params.id);
+
+    // Optional: Delete from Cloudinary in background (don't await)
+    if (template.previewImage && template.previewImage.includes('cloudinary')) {
+      deleteFromCloudinary(template.previewImage).catch(err =>
+        console.log('⚠️ Cloudinary cleanup failed (non-critical):', err.message)
       );
     }
-
-    await Template.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
       success: true,
@@ -326,6 +265,7 @@ exports.deleteTemplate = async (req, res) => {
     });
   }
 };
+
 
 // Toggle template status (active/inactive)
 exports.toggleTemplateStatus = async (req, res) => {

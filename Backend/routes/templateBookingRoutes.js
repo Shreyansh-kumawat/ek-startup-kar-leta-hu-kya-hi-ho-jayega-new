@@ -199,6 +199,6 @@ router.get('/dashboard-stats', verifyToken, templateBookingController.getDashboa
 // POST /api/template-booking/admin/:bookingId/communication
 router.post('/admin/:bookingId/communication', verifyToken, isAdmin, templateBookingController.addCommunication);
 
-// console.log('✅ Template Booking routes configured successfully');
+// console.removed.log('✅ Template Booking routes configured successfully');
 
 module.exports = router;

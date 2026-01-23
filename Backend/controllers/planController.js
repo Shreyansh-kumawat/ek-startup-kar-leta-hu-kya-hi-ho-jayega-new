@@ -13,7 +13,7 @@ try {
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET
   });
-  console.log('✅ Razorpay initialized for Plan purchases');
+  // // console.log('✅ Razorpay initialized for Plan purchases');
 } catch (error) {
   console.error('❌ Razorpay initialization error:', error);
 }
@@ -36,7 +36,7 @@ const createPlanOrder = async (req, res) => {
     const { planType } = req.body;
     const userId = req.user.id;
 
-    console.log('💎 Creating plan order:', { planType, userId });
+    // // console.log('💎 Creating plan order:', { planType, userId });
 
     // Validate plan type
     if (!planType || !PLAN_CONFIG[planType]) {
@@ -73,9 +73,9 @@ const createPlanOrder = async (req, res) => {
       }
     };
 
-    console.log('🔍 Creating Razorpay order:', razorpayOrderOptions);
+    // // console.log('🔍 Creating Razorpay order:', razorpayOrderOptions);
     const razorpayOrder = await razorpay.orders.create(razorpayOrderOptions);
-    console.log('✅ Razorpay order created:', razorpayOrder.id);
+    // // console.log('✅ Razorpay order created:', razorpayOrder.id);
 
     // Create plan purchase record
     const planPurchaseData = {
@@ -98,7 +98,7 @@ const createPlanOrder = async (req, res) => {
 
     const planPurchase = new PlanPurchase(planPurchaseData);
     await planPurchase.save();
-    console.log('✅ Plan purchase record created:', planPurchase.purchaseId);
+    // console.log('✅ Plan purchase record created:', planPurchase.purchaseId);
 
     return successResponse(res, 'Plan order created successfully', {
       razorpayOrder: {
@@ -139,7 +139,7 @@ const verifyPlanPayment = async (req, res) => {
     } = req.body;
     const userId = req.user.id;
 
-    console.log('🔐 Verifying plan payment:', { razorpay_order_id, userId });
+    // console.log('🔐 Verifying plan payment:', { razorpay_order_id, userId });
 
     // Validate required fields
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -170,7 +170,7 @@ const verifyPlanPayment = async (req, res) => {
       return errorResponse(res, 'Payment verification failed', null, 400);
     }
 
-    console.log('✅ Payment signature verified');
+    // console.log('✅ Payment signature verified');
 
     // Update plan purchase record
     planPurchase.paymentDetails.razorpayPaymentId = razorpay_payment_id;
@@ -183,9 +183,9 @@ const verifyPlanPayment = async (req, res) => {
     });
 
     // Apply credits to user
-    console.log('💳 Applying credits to user...');
+    // console.log('💳 Applying credits to user...');
     const updatedUser = await planPurchase.applyCredits(User);
-    console.log(`✅ Credits applied! New balance: ${updatedUser.credits}`);
+    // console.log(`✅ Credits applied! New balance: ${updatedUser.credits}`);
 
     return successResponse(res, 'Payment verified successfully! Credits added to your account.', {
       payment: {
@@ -214,7 +214,7 @@ const getMyPlans = async (req, res) => {
     const userId = req.user.id;
     const { page = 1, limit = 10 } = req.query;
 
-    console.log('📊 Getting plan purchase history:', userId);
+    // console.log('📊 Getting plan purchase history:', userId);
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
@@ -252,7 +252,7 @@ const getAllPlanPurchases = async (req, res) => {
   try {
     const { status, page = 1, limit = 20 } = req.query;
 
-    console.log('📊 Admin getting all plan purchases');
+    // console.log('📊 Admin getting all plan purchases');
 
     const query = {};
     if (status) query.status = status;

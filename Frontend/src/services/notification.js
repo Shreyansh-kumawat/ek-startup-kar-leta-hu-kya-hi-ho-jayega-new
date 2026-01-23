@@ -239,7 +239,7 @@ export const pushNotifications = {
 
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
-      // console.log('Service worker registered:', registration);
+      // console.removed.log('Service worker registered:', registration);
       return registration;
     } catch (error) {
       console.error('Service worker registration failed:', error);
@@ -260,7 +260,7 @@ export const pushNotifications = {
         applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY,
       });
 
-      // console.log('Push subscription created:', subscription);
+      // console.removed.log('Push subscription created:', subscription);
       return subscription;
     } catch (error) {
       console.error('Push subscription failed:', error);

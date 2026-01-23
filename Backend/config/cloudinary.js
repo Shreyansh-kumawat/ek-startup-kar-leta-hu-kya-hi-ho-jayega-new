@@ -1,3 +1,5 @@
+// Backend\config\cloudinary.js
+
 // const cloudinary = require('cloudinary').v2;
 // const dotenv = require('dotenv');
 
@@ -29,10 +31,10 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // ✅ DEBUGGING: Check environment variables
-// console.log('🔍 Cloudinary Environment Check:');
-// console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME);
-// console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? '✅ Set' : '❌ Missing');
-// console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '✅ Set' : '❌ Missing');
+// console.removed.log('🔍 Cloudinary Environment Check:');
+// console.removed.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME);
+// console.removed.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? '✅ Set' : '❌ Missing');
+// console.removed.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '✅ Set' : '❌ Missing');
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -48,13 +50,13 @@ if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !pr
 
 const uploadToCloudinary = async (filePath) => {
   try {
-    // console.log('🔄 Starting Cloudinary upload for:', filePath);
+    // console.removed.log('🔄 Starting Cloudinary upload for:', filePath);
     
     const result = await cloudinary.uploader.upload(filePath, {
       folder: '3degree-tbs/templates',
     });
     
-    // console.log('✅ Cloudinary upload successful:', result.secure_url);
+    // console.removed.log('✅ Cloudinary upload successful:', result.secure_url);
     return result.secure_url;
   } catch (error) {
     console.error('❌ Cloudinary Upload Error:', error);

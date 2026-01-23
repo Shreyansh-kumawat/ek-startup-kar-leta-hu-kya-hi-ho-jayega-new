@@ -30,7 +30,7 @@ exports.recordTutorialInteraction = async (req, res) => {
 
     await interaction.save();
 
-    console.log(`📊 Tutorial interaction recorded: ${user.email} clicked ${action.toUpperCase()}`);
+    // console.log(`📊 Tutorial interaction recorded: ${user.email} clicked ${action.toUpperCase()}`);
 
     return successResponse(res, 'Tutorial interaction recorded successfully', {
       interactionId: interaction._id,
@@ -74,7 +74,7 @@ exports.updateVideoProgress = async (req, res) => {
 
       await interaction.save();
 
-      console.log(`🎬 Video ${videoNumber}/15 watched by ${interaction.userEmail}`);
+      // console.log(`🎬 Video ${videoNumber}/15 watched by ${interaction.userEmail}`);
     }
 
     return successResponse(res, 'Video progress updated successfully', {

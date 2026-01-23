@@ -26,7 +26,7 @@ export const initializePayment = async (options) => {
 
     // FIXED: Check environment variable
     const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
-    // console.log('🔍 Razorpay Key Check:', razorpayKey ? 'Key Found' : 'Key Missing');
+    // console.removed.log('🔍 Razorpay Key Check:', razorpayKey ? 'Key Found' : 'Key Missing');
     
     if (!razorpayKey) {
       throw new Error('Razorpay key not configured in environment variables');
@@ -57,14 +57,14 @@ export const initializePayment = async (options) => {
         // Modal configuration
         modal: {
           ondismiss: () => {
-            // console.log('💭 Payment cancelled by user');
+            // console.removed.log('💭 Payment cancelled by user');
             reject(new Error('Payment cancelled by user'));
           },
         },
         
         // FIXED: Success callback with correct response format
         handler: (response) => {
-          // console.log('✅ Payment Success:', response);
+          // console.removed.log('✅ Payment Success:', response);
           resolve({
             success: true,
             razorpay_payment_id: response.razorpay_payment_id,
