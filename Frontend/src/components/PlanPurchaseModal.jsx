@@ -186,7 +186,7 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
               Choose Your Plan
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto font-medium">
-              Purchase credits to book templates instantly. Credits never expire!
+               Credits never expire! Purchase credits to book Website templates instantly.
             </p>
           </div>
 

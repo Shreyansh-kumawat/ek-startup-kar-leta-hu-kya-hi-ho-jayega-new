@@ -227,7 +227,7 @@ const Pricing = () => {
       websites: "8",
       bestFor: "Solo freelancers with steady clients",
       features: [
-        "100+ Client Ready Templates",
+        "100+ Client Ready Website Templates",
         "3-day delivery",
         "Fully white-label",
         "Standard customization",
@@ -415,7 +415,7 @@ const Pricing = () => {
                   <div className="grid sm:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
                     {[
                       { text: "Standard website" },
-                      { text: "50+ templates" },
+                      { text: "100+ Website Designs" },
                       { text: "3-day delivery" }
                     ].map((item, index) => (
                       <div key={index} className="flex items-center gap-3 group">

@@ -53,7 +53,7 @@ const About = () => {
 
 
   const targetAudience = [
-    "Freelancers delivering 100+ websites/year",
+    "Freelancers delivering 50-100 websites/year",
     "Small IT Companies (2-10 people)",
     "Digital Marketing Agencies",
     "Web Design Studios",

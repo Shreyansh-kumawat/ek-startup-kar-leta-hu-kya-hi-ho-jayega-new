@@ -448,7 +448,7 @@ const Home = () => {
     {
       number: "3",
       title: "Pick a template with your client",
-      description: "Use our 50+ templates, choose a design with your client, and submit only the Design ID in the dashboard. No heavy forms."
+      description: "Use our 100+ Website Designes, choose a design with your client, and submit only the Design ID in the dashboard. No heavy forms."
     },
     {
       number: "4",
@@ -484,7 +484,7 @@ const Home = () => {
       websites: "8",
       bestFor: "Solo freelancers with steady clients",
       features: [
-        "100+ Client Ready Templates",
+        "100+ Client Ready Website Design",
         "3-day delivery",
         "Fully white-label",
         "Standard customization",
@@ -685,7 +685,7 @@ const Home = () => {
 
             <p className="text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed max-w-4xl mx-auto font-medium">
               3Digree is a website delivery infrastructure for freelancers and agencies. Use{" "}
-              <span className="text-[#6498fe] font-bold">50+ battle-tested templates</span> and a backend dev team so you can stay focused on clients and sales.
+              <span className="text-[#6498fe] font-bold">100+ battle-tested Website Designes</span> and a backend dev team so you can stay focused on clients and sales.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
@@ -721,7 +721,7 @@ const Home = () => {
 
             <div ref={statsRef} className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 max-w-3xl mx-auto px-4">
               {[
-                { number: "50+", label: "Templates", icon: "/svg/lots.svg" },
+                { number: "100+", label: "Website Designes", icon: "/svg/lots.svg" },
                 { number: "3", label: "Days Delivery", icon: "/svg/day.svg" },
                 { number: "100%", label: "White-label", icon: "/svg/happy.svg" }
               ].map((stat, index) => (
@@ -855,7 +855,7 @@ const Home = () => {
                   <div className="grid sm:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
                     {[
                       { text: "Standard website" },
-                      { text: "50+ templates" },
+                      { text: "100+ Website Designes" },
                       { text: "3-day delivery" }
                     ].map((item, index) => (
                       <div key={index} className="flex items-center gap-3 group">
