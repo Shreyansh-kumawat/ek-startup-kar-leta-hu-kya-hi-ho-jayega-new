@@ -5,16 +5,17 @@ import Button from "../components/Button";
 import Card from "../components/Card";
 import Lenis from 'lenis';
 
+
 // ✅ SMART CURRENCY HOOK
 const useSmartCurrency = () => {
   const [rates, setRates] = useState({ USD: 0.012 });
   const [userRegion, setUserRegion] = useState('IN');
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
     const detectRegion = async () => {
       try {
-        // 🧪 TESTING MODE - Check localStorage first
         const debugRegion = localStorage.getItem('debug_region');
         if (debugRegion) {
           console.log('🧪 DEBUG MODE - Region:', debugRegion);
@@ -24,14 +25,12 @@ const useSmartCurrency = () => {
           return;
         }
 
-        // Method 1: IP Geolocation
         const ipResponse = await fetch('https://ipapi.co/json/');
         const ipData = await ipResponse.json();
 
         console.log('🌍 Detected Region:', ipData.country_code, ipData.country_name);
         setUserRegion(ipData.country_code || 'IN');
 
-        // Fetch live exchange rates
         const ratesResponse = await fetch('https://api.exchangerate-api.com/v4/latest/INR');
         const ratesData = await ratesResponse.json();
         setRates(ratesData.rates);
@@ -39,7 +38,6 @@ const useSmartCurrency = () => {
         setLoading(false);
       } catch (error) {
         console.error('❌ Region detection failed:', error);
-        // Fallback: Use browser timezone
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         console.log('⏰ Timezone fallback:', timezone);
 
@@ -55,6 +53,7 @@ const useSmartCurrency = () => {
 
     detectRegion();
   }, []);
+
 
   const getDisplayPrices = (inrAmount) => {
     const usdAmount = Math.round(inrAmount * rates.USD);
@@ -101,6 +100,7 @@ const useSmartCurrency = () => {
   return { getDisplayPrices, userRegion, loading };
 };
 
+
 // Memoized Typewriter Component
 const TypewriterEffect = memo(({ texts, speed = 100, delay = 2000 }) => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
@@ -134,14 +134,15 @@ const TypewriterEffect = memo(({ texts, speed = 100, delay = 2000 }) => {
   }, [charIndex, currentTextIndex, isDeleting, texts, speed, delay]);
 
   return (
-    <span className="relative text-[#000] text-5xl">
+    <span className="relative text-gray-700 text-2xl md:text-3xl">
       {currentText}
-      <span className="animate-pulse ml-1 text-gray-400">|</span>
+      <span className="animate-pulse ml-1 text-gray-400">💻</span>
     </span>
   );
 });
 
 TypewriterEffect.displayName = 'TypewriterEffect';
+
 
 // Memoized Step Card
 const StepCard = memo(({ number, title, description }) => (
@@ -161,6 +162,7 @@ const StepCard = memo(({ number, title, description }) => (
 
 StepCard.displayName = 'StepCard';
 
+
 // Memoized Feature Card
 const FeatureCard = memo(({ title, description, icon }) => (
   <Card className="relative p-8 bg-gradient-to-br from-white via-blue-50 to-purple-50 border-2 border-gray-100 hover:border-[#6498fe] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 group overflow-hidden">
@@ -176,6 +178,7 @@ const FeatureCard = memo(({ title, description, icon }) => (
 ));
 
 FeatureCard.displayName = 'FeatureCard';
+
 
 // FAQ Accordion Item Component
 const FAQItem = memo(({ question, answer }) => {
@@ -217,6 +220,7 @@ const FAQItem = memo(({ question, answer }) => {
 
 FAQItem.displayName = 'FAQItem';
 
+
 // ✅ UPDATED: Pricing Card with Smart Currency
 const PricingCard = memo(({ title, price, websites, bestFor, features, popular, gradient, badge, onGetPlan, getDisplayPrices }) => {
   const pricePerWebsite = Math.round(price / parseInt(websites));
@@ -236,7 +240,6 @@ const PricingCard = memo(({ title, price, websites, bestFor, features, popular, 
           {title}
         </h3>
 
-        {/* SMART PRICE DISPLAY */}
         <div className="relative inline-block mb-4">
           <div className={`text-4xl font-black bg-gradient-to-r ${gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`}>
             {displayPrices.main.symbol}{displayPrices.main.amount.toLocaleString('en-US')}
@@ -304,6 +307,7 @@ const PricingCard = memo(({ title, price, websites, bestFor, features, popular, 
 
 PricingCard.displayName = 'PricingCard';
 
+
 const Home = () => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -311,6 +315,46 @@ const Home = () => {
 
   const [isStatsVisible, setIsStatsVisible] = useState(false);
   const statsRef = useRef(null);
+
+
+  // ✨ UPDATED BUBBLE EFFECT - Kam bubbles, jaldi arrival
+  useEffect(() => {
+    const createBubble = () => {
+      const section = document.getElementById('hero-section');
+      if (!section) return;
+
+      const bubble = document.createElement('div');
+      bubble.className = 'floating-bubble';
+      
+      const size = Math.random() * 12 + 4;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      
+      // Random color - Blue or Green
+      const isBlue = Math.random() > 0.5;
+      bubble.style.background = isBlue ? '#6498fe' : '#10b981';
+      
+      const duration = Math.random() * 8 + 12;
+      bubble.style.animationDuration = `${duration}s`;
+      
+      section.appendChild(bubble);
+      
+      setTimeout(() => {
+        bubble.remove();
+      }, duration * 1000);
+    };
+
+    // ✅ Reduced: 10 initial bubbles (was 20)
+    for (let i = 0; i < 10; i++) {
+      setTimeout(() => createBubble(), i * 100); // ✅ Faster arrival: 100ms (was 200ms)
+    }
+
+    // ✅ Less frequent generation: 2500ms (was 1500ms)
+    const interval = setInterval(createBubble, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -332,6 +376,7 @@ const Home = () => {
     };
   }, []);
 
+
   const scrollToPricing = (e) => {
     e.preventDefault();
     const pricingSection = document.getElementById('pricing');
@@ -342,6 +387,7 @@ const Home = () => {
       });
     }
   };
+
 
   const handleGetPlan = (planTitle, planPrice) => {
     const planToken = {
@@ -357,6 +403,7 @@ const Home = () => {
       navigate('/login');
     }
   };
+
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -379,11 +426,13 @@ const Home = () => {
     };
   }, []);
 
+
   const typewriterTexts = useMemo(() => [
     "without hiring developers",
     "in 3 business days",
     "with predictable pricing"
   ], []);
+
 
   const steps = useMemo(() => [
     {
@@ -408,6 +457,7 @@ const Home = () => {
     }
   ], []);
 
+
   const benefits = useMemo(() => [
     {
       icon: "./jcb.png",
@@ -426,11 +476,12 @@ const Home = () => {
     }
   ], []);
 
+
   const pricingPlans = useMemo(() => [
     {
       title: "Starter",
-      price: 30000,
-      websites: "12",
+      price: 32000,
+      websites: "8",
       bestFor: "Solo freelancers with steady clients",
       features: [
         "100+ Client Ready Templates",
@@ -446,7 +497,7 @@ const Home = () => {
     {
       title: "Growth",
       price: 60000,
-      websites: "30",
+      websites: "20",
       bestFor: "Small teams and boutique agencies",
       features: [
         "Everything in Starter",
@@ -462,7 +513,7 @@ const Home = () => {
     {
       title: "Scale",
       price: 100000,
-      websites: "65",
+      websites: "40",
       bestFor: "High-volume agencies",
       features: [
         "Everything in Growth",
@@ -477,6 +528,7 @@ const Home = () => {
     }
   ], []);
 
+
   const faqs = useMemo(() => [
     {
       question: "Do I pay on the website?",
@@ -487,7 +539,7 @@ const Home = () => {
       answer: "Rollover and usage policies are explained during onboarding, so you know exactly what to expect before you pay."
     },
     {
-      question: "What exactly do I get for ₹3,500 per website?",
+      question: "What exactly do I get for ₹5,000 per website?",
       answer: "A standard marketing website using one of our templates, customized with your client's branding and content, delivered in 3 business days after content is confirmed."
     },
     {
@@ -500,12 +552,15 @@ const Home = () => {
     }
   ], []);
 
+
   const displayName = useMemo(() =>
     user?.name || user?.username,
     [user?.name, user?.username]
   );
 
-  const singleWebsiteDisplay = getDisplayPrices(3500);
+
+  const singleWebsiteDisplay = getDisplayPrices(5000);
+
 
   if (currencyLoading) {
     return (
@@ -515,26 +570,118 @@ const Home = () => {
     );
   }
 
+
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
+      <style jsx>{`
+        @keyframes float-up {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 0.6;
+          }
+          50% {
+            opacity: 0.8;
+          }
+          100% {
+            transform: translateY(-100vh) translateX(calc(sin(1) * 30px));
+            opacity: 0;
+          }
+        }
+
+        .floating-bubble {
+          position: absolute;
+          bottom: -100px;
+          border-radius: 50%;
+          pointer-events: none;
+          opacity: 0.3;
+          animation: float-up linear infinite;
+          box-shadow: 0 0 20px currentColor;
+        }
+
+        #hero-section {
+          position: relative;
+          overflow: hidden;
+        }
+
+        /* ✨ Invisible Text Effect */
+        .invisible-text {
+          position: relative;
+          display: inline-block;
+        }
+
+        .hover-active .invisible-text {
+          color: transparent;
+          text-shadow: none;
+          filter: blur(8px);
+          opacity: 0;
+          transform: scale(0.9);
+        }
+
+        .invisible-text::before {
+          content: '';
+          position: absolute;
+          inset: -10px;
+          background: rgba(100, 152, 254, 0.1);
+          backdrop-filter: blur(10px);
+          border-radius: 12px;
+          opacity: 0;
+          transition: opacity 0.7s ease-in-out;
+          z-index: -1;
+        }
+
+        .hover-active .invisible-text::before {
+          opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+          .hover-active .invisible-text {
+            filter: blur(12px);
+          }
+        }
+
+        @keyframes slideUpScale {
+          0% { opacity: 0; transform: translateY(100px) scale(0.5); }
+          60% { transform: translateY(-20px) scale(1.1); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+      `}</style>
+
       <div className="h-1.5 bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600" aria-hidden="true"></div>
 
-      {/* Hero Section - keeping existing */}
-      <section className="relative bg-gradient-to-br from-blue-50 via-white to-purple-50 py-28 overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-32 left-1/2 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-        </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ✨ UPDATED HERO SECTION */}
+      <section id="hero-section" className="relative bg-white py-28 overflow-hidden min-h-screen flex items-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="text-center max-w-5xl mx-auto">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black mb-10 leading-tight">
-              <span className="text-blue-400 block mb-3">3Digree</span>
-              <span className="block text-black" style={{ minHeight: "1.2em" }}>
-                <TypewriterEffect texts={typewriterTexts} speed={100} delay={4500} />
+            {/* ✅ 3Digree Badge */}
+            <div className="inline-block mb-6">
+              <div className="flex items-center gap-3 bg-gradient-to-r from-[#6498fe] to-[#96b1e8] rounded-full px-8 py-3 shadow-xl">
+                <span className="text-white font-bold text-2xl tracking-wide">3Digree</span>
+              </div>
+            </div>
+
+            {/* Main Heading with Invisible Effect */}
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black mb-8 leading-tight">
+              <span className="block text-gray-900 mb-2">
+                Your{' '}
+                <span 
+                  className="relative inline-block cursor-pointer group"
+                  onMouseEnter={(e) => e.currentTarget.classList.add('hover-active')}
+                  onMouseLeave={(e) => e.currentTarget.classList.remove('hover-active')}
+                  onClick={(e) => e.currentTarget.classList.toggle('hover-active')}
+                >
+                  <span className="invisible-text text-[#6498fe] transition-all duration-700 ease-in-out">
+                    Invisible
+                  </span>
+                </span>
+                {' '}Dev Team
               </span>
             </h1>
+
+            {/* Typewriter - Smaller and below */}
+            <div className="mb-10 font-mono" style={{ minHeight: "2.5em" }} >
+              <TypewriterEffect texts={typewriterTexts} speed={100} delay={4500} />
+            </div>
 
             <p className="text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed max-w-4xl mx-auto font-medium">
               3Digree is a website delivery infrastructure for freelancers and agencies. Use{" "}
@@ -620,7 +767,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ✅ UPDATED: Pricing Section with Smart Currency */}
+
+      {/* Pricing Section - keeping rest unchanged */}
       <section id="pricing" className="py-28 bg-white relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 right-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
@@ -642,11 +790,12 @@ const Home = () => {
               Select the plan that matches your agency's deal flow and scale effortlessly
             </p>
 
-            {/* Debug Badge (Development Only) */}
             {process.env.NODE_ENV === 'development' && (
               <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-green-50 border border-green-200 rounded-full">
                 <span className="text-sm text-gray-600">
                   🌍 Detected Region: <span className="font-bold text-green-600">{userRegion}</span>
+                   
+                  (Only in Development mode)
                 </span>
               </div>
             )}
@@ -723,7 +872,7 @@ const Home = () => {
 
                 <div className="text-center">
                   <button
-                    onClick={() => handleGetPlan('Single Website', 3500)}
+                    onClick={() => handleGetPlan('Single Website', 5000)}
                     className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group cursor-pointer rounded-xl inline-flex items-center justify-center hover:scale-105"
                   >
                     <span className="relative z-10">Get Plan</span>
@@ -735,28 +884,9 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* Continue with rest of sections (unchanged) */}
-      {/* Problem → Solution, How It Works, Templates, Why 3Digree, FAQ, CTA - keeping all existing */}
-
-      <style>{`
-        @keyframes slideUpScale {
-          0% { opacity: 0; transform: translateY(100px) scale(0.5); }
-          60% { transform: translateY(-20px) scale(1.1); }
-          100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(20px, -50px) scale(1.1); }
-          50% { transform: translate(-20px, 20px) scale(0.9); }
-          75% { transform: translate(50px, 50px) scale(1.05); }
-        }
-        .animate-blob { animation: blob 7s infinite; }
-        .animation-delay-2000 { animation-delay: 2s; }
-        .animation-delay-4000 { animation-delay: 4s; }
-      `}</style>
     </div>
   );
 };
+
 
 export default Home;

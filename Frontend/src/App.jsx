@@ -10,6 +10,7 @@ import 'lenis/dist/lenis.css';
 // Layouts
 import MainLayout from './layouts/mainLayout';
 import DashboardLayout from './layouts/DashboardLayout';
+import PrivacyPolicy from './pages/PrivacyPolocy';
 
 
 // Public Pages (Lazy loaded)
@@ -180,6 +181,15 @@ function App() {
                 </PublicRoute>
               } />
               
+              <Route path="privacypolocy" element={
+                <PublicRoute>
+                  <PrivacyPolicy />
+                </PublicRoute>
+              } />
+              
+
+
+
               <Route path="login" element={
                 <PublicRoute>
                   <Login />

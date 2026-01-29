@@ -22,8 +22,8 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
     {
       id: 'starter', // ✅ ADDED id
       type: 'Starter',
-      price: 30000,
-      credits: 12,
+      price: 32000,
+      credits: 8,
       pricePerWebsite: 2500,
       badge: '/silver.png',
       gradient: 'from-blue-600 to-blue-700',
@@ -41,13 +41,13 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
       id: 'growth', // ✅ ADDED id
       type: 'Growth',
       price: 60000,
-      credits: 30,
+      credits: 20,
       pricePerWebsite: 2000,
       badge: '/gold.png',
       gradient: 'from-[#6498fe] to-purple-600',
       bestFor: 'Small teams and boutique agencies',
       features: [
-        '30 website credits',
+        '20 website credits',
         '₹2,000 per website',
         'Priority delivery queue',
         'Advanced customization',
@@ -59,13 +59,13 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
       id: 'scale', // ✅ ADDED id
       type: 'Scale',
       price: 100000,
-      credits: 65,
+      credits: 40,
       pricePerWebsite: 1538,
       badge: '/diamond.png',
       gradient: 'from-purple-600 to-pink-600',
       bestFor: 'High-volume agencies',
       features: [
-        '65 website credits',
+        '40 website credits',
         '~₹1,500 per website',
         'Custom scope flexibility',
         'Account manager assigned',
@@ -304,12 +304,12 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
                 <div className="flex items-center gap-4">
                   <div className="text-right">
                     <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600">
-                      ₹3,500
+                      ₹5,000
                     </div>
                     <div className="text-xs text-gray-500">1 Credit</div>
                   </div>
                   <button
-                    onClick={() => handlePurchasePlan({ type: 'Single Website', price: 3500, credits: 1 })}
+                    onClick={() => handlePurchasePlan({ type: 'Single Website', price: 5000, credits: 1 })}
                     disabled={loading}
                     className="bg-gradient-to-r from-[#6498fe] to-purple-600 text-white font-bold px-6 py-3 rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   >
