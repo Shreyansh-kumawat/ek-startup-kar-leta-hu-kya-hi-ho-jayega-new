@@ -719,7 +719,7 @@ const Home = () => {
               </div>
             )}
 
-            <div ref={statsRef} className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 max-w-3xl mx-auto px-4">
+            <div ref={statsRef} className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 max-w-3xl mx-auto px-4">
               {[
                 { number: "100+", label: "Website Designes", icon: "/svg/lots.svg" },
                 { number: "3", label: "Days Delivery", icon: "/svg/day.svg" },
