@@ -4,6 +4,9 @@ import { useAuth } from "../features/auth/useAuth";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import Lenis from 'lenis';
+import { FaWhatsapp, FaEnvelope, FaPhone, FaRocket, FaShieldAlt, FaCode, FaCheckCircle, FaClock, FaChartLine, FaHandshake } from 'react-icons/fa';
+import SectionTestimonials from "../components/SectionTestimonials"; // ✅ NEW IMPORT
+
 
 
 // ✅ SMART CURRENCY HOOK
@@ -11,7 +14,6 @@ const useSmartCurrency = () => {
   const [rates, setRates] = useState({ USD: 0.012 });
   const [userRegion, setUserRegion] = useState('IN');
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     const detectRegion = async () => {
@@ -54,7 +56,6 @@ const useSmartCurrency = () => {
     detectRegion();
   }, []);
 
-
   const getDisplayPrices = (inrAmount) => {
     const usdAmount = Math.round(inrAmount * rates.USD);
 
@@ -68,7 +69,6 @@ const useSmartCurrency = () => {
         main: { amount: usdAmount, symbol: '$', code: 'USD' },
         secondary: null
       };
-      
     } else {
       const localCurrencyMap = {
         'GB': { rate: rates.GBP || 0.0095, symbol: '£', code: 'GBP' },
@@ -99,6 +99,7 @@ const useSmartCurrency = () => {
 
   return { getDisplayPrices, userRegion, loading };
 };
+
 
 
 // Memoized Typewriter Component
@@ -169,7 +170,7 @@ const FeatureCard = memo(({ title, description, icon }) => (
     <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#6498fe] to-purple-600 opacity-0 group-hover:opacity-10 rounded-full blur-3xl transition-all duration-500 -mr-16 -mt-16"></div>
     <div className="relative z-10">
       <div className="text-5xl mb-5 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 inline-block">
-        <img src={icon} alt="." className="w-20"/>
+        <img src={icon} alt="." className="w-20" />
       </div>
       <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#6498fe] transition-colors duration-300">{title}</h3>
       <p className="text-gray-600 leading-relaxed">{description}</p>
@@ -195,18 +196,14 @@ const FAQItem = memo(({ question, answer }) => {
           {question}
         </h3>
         <div
-          className={`flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-[#6498fe] to-blue-600 flex items-center justify-center text-white font-bold text-2xl transition-all duration-500 shadow-lg group-hover:shadow-xl cursor-cell ${
-            isOpen ? 'rotate-45 scale-110' : 'group-hover:scale-110'
-          }`}
+          className={`flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-[#6498fe] to-blue-600 flex items-center justify-center text-white font-bold text-2xl transition-all duration-500 shadow-lg group-hover:shadow-xl cursor-cell ${isOpen ? 'rotate-45 scale-110' : 'group-hover:scale-110'}`}
         >
           +
         </div>
       </button>
 
       <div
-        className={`transition-all duration-500 ease-in-out ${
-          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        } overflow-hidden`}
+        className={`transition-all duration-500 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}
       >
         <div className="px-7 pb-7 pt-2">
           <div className="pl-5 border-l-4 border-[#6498fe] bg-gradient-to-r from-blue-50 to-purple-50 p-5 rounded-r-xl shadow-inner">
@@ -221,47 +218,74 @@ const FAQItem = memo(({ question, answer }) => {
 FAQItem.displayName = 'FAQItem';
 
 
-// ✅ UPDATED: Pricing Card with Smart Currency
-const PricingCard = memo(({ title, price, websites, bestFor, features, popular, gradient, badge, onGetPlan, getDisplayPrices }) => {
+// ✅ Strike Price Display Sub-Component
+const StrikePriceDisplay = memo(({ strikePrice, getDisplayPrices }) => {
+  const strikeDisplay = getDisplayPrices(strikePrice);
+  return (
+    <div className="flex items-center justify-center gap-2 mb-1">
+      <span className="text-base font-semibold text-red-400 line-through decoration-red-400 decoration-2">
+        {strikeDisplay.main.symbol}{strikeDisplay.main.amount.toLocaleString('en-US')}
+      </span>
+      <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+        SAVE {strikeDisplay.main.symbol}{(strikeDisplay.main.amount - 0).toLocaleString('en-US')}
+      </span>
+    </div>
+  );
+});
+
+StrikePriceDisplay.displayName = 'StrikePriceDisplay';
+
+
+// ✅ Pricing Card - Fully Responsive
+const PricingCard = memo(({ title, price, strikePrice, websites, bestFor, features, popular, gradient, badge, onGetPlan, getDisplayPrices }) => {
   const pricePerWebsite = Math.round(price / parseInt(websites));
   const displayPrices = getDisplayPrices(price);
   const displayPerWebsite = getDisplayPrices(pricePerWebsite);
+  const strikeDisplay = getDisplayPrices(strikePrice);
+
+  const savingsINR = strikePrice - price;
+  const savingsDisplay = getDisplayPrices(savingsINR);
 
   return (
-    <Card className={`relative p-10 border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 group overflow-hidden ${
-      popular 
-        ? 'border-[#6498fe] shadow-2xl scale-105 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50' 
+    <Card className={`relative p-5 sm:p-7 md:p-10 border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 group overflow-hidden ${
+      popular
+        ? 'border-[#6498fe] shadow-2xl scale-105 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
         : 'border-gray-200 hover:border-[#6498fe] bg-white'
     }`}>
       <div className="absolute inset-0 bg-gradient-to-br from-[#6498fe] via-purple-600 to-pink-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
 
-      <div className="relative z-10 text-center mb-8">
-        <h3 className="text-3xl font-extrabold text-gray-900 mb-4 group-hover:text-[#6498fe] transition-colors duration-300">
+      <div className="relative z-10 text-center mb-5 sm:mb-8">
+        <h3 className="text-lg sm:text-xl md:text-3xl font-extrabold text-gray-900 mb-3 sm:mb-4 group-hover:text-[#6498fe] transition-colors duration-300">
           {title}
         </h3>
 
         <div className="relative inline-block mb-4">
-          <div className={`text-4xl font-black bg-gradient-to-r ${gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`}>
-            {displayPrices.main.symbol}{displayPrices.main.amount.toLocaleString('en-US')}
+          <div className="flex flex-col items-center gap-0.5 sm:gap-1 mb-1">
+            <span className="text-xs sm:text-sm md:text-lg font-medium text-gray-400 line-through">
+              {strikeDisplay.main.symbol}{strikeDisplay.main.amount.toLocaleString('en-US')}
+            </span>
+            <div className={`text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r ${gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`}>
+              {displayPrices.main.symbol}{displayPrices.main.amount.toLocaleString('en-US')}
+            </div>
           </div>
 
           {displayPrices.secondary && (
-            <div className="text-base font-semibold text-gray-500 mt-1">
+            <div className="text-xs sm:text-sm md:text-base font-semibold text-gray-500 mt-1">
               ≈ {displayPrices.secondary.symbol}{displayPrices.secondary.amount.toLocaleString('en-US')} {displayPrices.secondary.code}
             </div>
           )}
 
-          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-[#6498fe] to-purple-600 rounded-full"></div>
+          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 sm:w-20 h-1 bg-gradient-to-r from-[#6498fe] to-purple-600 rounded-full"></div>
         </div>
 
-        <p className="text-gray-700 font-semibold text-xl mb-1">
+        <p className="text-gray-700 font-semibold text-base sm:text-lg md:text-xl mb-1">
           <span className="font-bold">{websites}</span> websites
         </p>
 
-        <p className="text-gray-600 font-semibold text-base mb-2">
+        <p className="text-gray-600 font-semibold text-xs sm:text-sm md:text-base mb-2">
           ( {displayPerWebsite.main.symbol}{displayPerWebsite.main.amount.toLocaleString('en-US')} per website
           {displayPerWebsite.secondary && (
-            <span className="text-sm text-gray-500 ml-1">
+            <span className="text-xs text-gray-500 ml-1">
               / {displayPerWebsite.secondary.symbol}{displayPerWebsite.secondary.amount} {displayPerWebsite.secondary.code}
             </span>
           )}
@@ -269,16 +293,16 @@ const PricingCard = memo(({ title, price, websites, bestFor, features, popular, 
         </p>
 
         <br />
-        <p className="text-sm text-gray-500 italic px-4">{bestFor}</p>
+        <p className="text-xs sm:text-sm text-gray-500 italic px-2 sm:px-4">{bestFor}</p>
       </div>
 
-      <div className="relative z-10 space-y-4 mb-10">
+      <div className="relative z-10 space-y-2 sm:space-y-3 md:space-y-4 mb-6 sm:mb-8 md:mb-10">
         {features.map((feature, index) => (
-          <div key={index} className="flex items-start gap-3 group/item">
-            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-md group-hover/item:scale-125 transition-transform duration-300">
+          <div key={index} className="flex items-start gap-2 sm:gap-3 group/item">
+            <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-md group-hover/item:scale-125 transition-transform duration-300">
               <span className="text-white font-bold text-xs">✓</span>
             </div>
-            <span className="text-gray-700 text-sm leading-relaxed font-medium group-hover/item:text-gray-900 transition-colors duration-300">
+            <span className="text-gray-700 text-xs sm:text-sm leading-relaxed font-medium group-hover/item:text-gray-900 transition-colors duration-300">
               {feature}
             </span>
           </div>
@@ -288,7 +312,7 @@ const PricingCard = memo(({ title, price, websites, bestFor, features, popular, 
       <div className="block relative z-10">
         <Button
           onClick={() => onGetPlan(title, price)}
-          className={`w-full font-bold py-5 rounded-xl transition-all duration-300 text-lg relative overflow-hidden group/btn cursor-pointer ${
+          className={`w-full font-bold py-3 sm:py-4 md:py-5 rounded-xl transition-all duration-300 text-sm sm:text-base md:text-lg relative overflow-hidden group/btn cursor-pointer ${
             popular
               ? 'bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white shadow-xl hover:shadow-2xl'
               : 'bg-black text-gray-900 border-2 border-gray-300 hover:bg-gradient-to-r hover:from-[#6498fe] hover:to-purple-600 hover:text-white hover:border-[#6498fe]'
@@ -316,8 +340,7 @@ const Home = () => {
   const [isStatsVisible, setIsStatsVisible] = useState(false);
   const statsRef = useRef(null);
 
-
-  // ✨ UPDATED BUBBLE EFFECT - Kam bubbles, jaldi arrival
+  // ✨ BUBBLE EFFECT
   useEffect(() => {
     const createBubble = () => {
       const section = document.getElementById('hero-section');
@@ -325,32 +348,29 @@ const Home = () => {
 
       const bubble = document.createElement('div');
       bubble.className = 'floating-bubble';
-      
+
       const size = Math.random() * 12 + 4;
       bubble.style.width = `${size}px`;
       bubble.style.height = `${size}px`;
       bubble.style.left = `${Math.random() * 100}%`;
-      
-      // Random color - Blue or Green
+
       const isBlue = Math.random() > 0.5;
       bubble.style.background = isBlue ? '#6498fe' : '#10b981';
-      
+
       const duration = Math.random() * 8 + 12;
       bubble.style.animationDuration = `${duration}s`;
-      
+
       section.appendChild(bubble);
-      
+
       setTimeout(() => {
         bubble.remove();
       }, duration * 1000);
     };
 
-    // ✅ Reduced: 10 initial bubbles (was 20)
     for (let i = 0; i < 10; i++) {
-      setTimeout(() => createBubble(), i * 100); // ✅ Faster arrival: 100ms (was 200ms)
+      setTimeout(() => createBubble(), i * 100);
     }
 
-    // ✅ Less frequent generation: 2500ms (was 1500ms)
     const interval = setInterval(createBubble, 2500);
     return () => clearInterval(interval);
   }, []);
@@ -381,13 +401,12 @@ const Home = () => {
     e.preventDefault();
     const pricingSection = document.getElementById('pricing');
     if (pricingSection) {
-      pricingSection.scrollIntoView({ 
+      pricingSection.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
       });
     }
   };
-
 
   const handleGetPlan = (planTitle, planPrice) => {
     const planToken = {
@@ -480,8 +499,9 @@ const Home = () => {
   const pricingPlans = useMemo(() => [
     {
       title: "Starter",
-      price: 32000,
-      websites: "8",
+      price: 30000,
+      strikePrice: 40000,
+      websites: "5",
       bestFor: "Solo freelancers with steady clients",
       features: [
         "100+ Client Ready Website Design",
@@ -497,7 +517,8 @@ const Home = () => {
     {
       title: "Growth",
       price: 60000,
-      websites: "20",
+      strikePrice: 80000,
+      websites: "12",
       bestFor: "Small teams and boutique agencies",
       features: [
         "Everything in Starter",
@@ -513,7 +534,8 @@ const Home = () => {
     {
       title: "Scale",
       price: 100000,
-      websites: "40",
+      strikePrice: 130000,
+      websites: "25",
       bestFor: "High-volume agencies",
       features: [
         "Everything in Growth",
@@ -531,25 +553,25 @@ const Home = () => {
 
   const faqs = useMemo(() => [
     {
-      question: "Do I pay on the website?",
-      answer: "No. The website is for clarity and booking. We confirm fit and details on a short call, then share a payment link and activate your dashboard access."
+      question: "What if I don't use all websites in my plan?",
+      answer: "No problem, your credits will remain safe in your account as long as you don't forget your account password. And even if that happens, there's no issue — we still keep your data. You can contact our support number, and we will either recover your account or provide you with a new account with the same credit balance."
     },
     {
-      question: "What if I don't use all websites in my yearly plan?",
-      answer: "Rollover and usage policies are explained during onboarding, so you know exactly what to expect before you pay."
-    },
-    {
-      question: "What exactly do I get for ₹5,000 per website?",
-      answer: "A standard marketing website using one of our templates, customized with your client's branding and content, delivered in 3 business days after content is confirmed."
+      question: "What exactly do I get for ₹6,999 per website?",
+      answer: "A standard marketing website using one of our Website Design (which you can select form our 100+ website designes), customized with your client's branding and content, delivered in 3 business days after content is confirmed."
     },
     {
       question: "Who handles hosting?",
-      answer: "We can deploy to Vercel or discuss other options on the call. You stay in control of domains and client relationships."
+      answer: "We can deploy the website on Vercel, or we can provide you with the source code so that you can handle it yourself.. You stay in control of domains and client relationships."
     },
     {
       question: "Can I white-label everything?",
       answer: "Absolutely! Your clients will only see your brand. We stay completely invisible in the background as your delivery infrastructure."
-    }
+    },
+    {
+      question: "Do I pay on the website?",
+      answer: "Yes, you can make the payment on our website — it is secured by Razorpay. If you feel any concern regarding payment security, you can contact us on our support number and pay through various methods such as UPIs, bank transfer or cash… (just kidding, no cash)"
+    },
   ], []);
 
 
@@ -559,7 +581,9 @@ const Home = () => {
   );
 
 
-  const singleWebsiteDisplay = getDisplayPrices(5000);
+  const singleWebsiteDisplay = getDisplayPrices(6999);
+  const singleWebsiteStrikeDisplay = getDisplayPrices(10000);
+  const singleWebsiteSavingsDisplay = getDisplayPrices(10000 - 6999);
 
 
   if (currencyLoading) {
@@ -569,7 +593,6 @@ const Home = () => {
       </div>
     );
   }
-
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
@@ -603,7 +626,6 @@ const Home = () => {
           overflow: hidden;
         }
 
-        /* ✨ Invisible Text Effect */
         .invisible-text {
           position: relative;
           display: inline-block;
@@ -648,23 +670,23 @@ const Home = () => {
 
       <div className="h-1.5 bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600" aria-hidden="true"></div>
 
-
-      {/* ✨ UPDATED HERO SECTION */}
-      <section id="hero-section" className="relative bg-white py-28 overflow-hidden min-h-screen flex items-center">
+      {/* ── HERO SECTION ──────────────────────────────────────────────── */}
+      <section id="hero-section" className="relative bg-white pt-28 pb-20 overflow-hidden min-h-screen flex items-center">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="text-center max-w-5xl mx-auto">
-            {/* ✅ 3Digree Badge */}
+
+            {/* 3Digree Badge */}
             <div className="inline-block mb-6">
               <div className="flex items-center gap-3 bg-gradient-to-r from-[#6498fe] to-[#96b1e8] rounded-full px-8 py-3 shadow-xl">
                 <span className="text-white font-bold text-2xl tracking-wide">3Digree</span>
               </div>
             </div>
 
-            {/* Main Heading with Invisible Effect */}
+            {/* Main Heading */}
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-black mb-8 leading-tight">
               <span className="block text-gray-900 mb-2">
                 Your{' '}
-                <span 
+                <span
                   className="relative inline-block cursor-pointer group"
                   onMouseEnter={(e) => e.currentTarget.classList.add('hover-active')}
                   onMouseLeave={(e) => e.currentTarget.classList.remove('hover-active')}
@@ -678,8 +700,8 @@ const Home = () => {
               </span>
             </h1>
 
-            {/* Typewriter - Smaller and below */}
-            <div className="mb-10 font-mono" style={{ minHeight: "2.5em" }} >
+            {/* Typewriter */}
+            <div className="mb-10 font-mono" style={{ minHeight: "2.5em" }}>
               <TypewriterEffect texts={typewriterTexts} speed={100} delay={4500} />
             </div>
 
@@ -719,21 +741,19 @@ const Home = () => {
               </div>
             )}
 
-            <div ref={statsRef} className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 max-w-3xl mx-auto px-4">
+            <div ref={statsRef} className="mt-28 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 max-w-3xl mx-auto px-4">
               {[
                 { number: "100+", label: "Website Designes", icon: "/svg/lots.svg" },
                 { number: "3", label: "Days Delivery", icon: "/svg/day.svg" },
                 { number: "100%", label: "White-label", icon: "/svg/happy.svg" }
               ].map((stat, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="text-center group"
                   style={{
-                    animation: isStatsVisible 
+                    animation: isStatsVisible
                       ? `slideUpScale 0.8s ease-out ${index * 0.2}s forwards`
                       : 'none',
-                    opacity: isStatsVisible ? 1 : 0,
-                    transform: isStatsVisible ? 'translateY(0) scale(1)' : 'translateY(100px) scale(0.5)'
                   }}
                 >
                   <div className="relative inline-block mb-3">
@@ -754,8 +774,8 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <button 
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <button
             onClick={scrollToPricing}
             className="flex flex-col items-center gap-2 text-gray-400 hover:text-[#6498fe] transition-colors duration-300"
           >
@@ -767,8 +787,7 @@ const Home = () => {
         </div>
       </section>
 
-
-      {/* Pricing Section - keeping rest unchanged */}
+      {/* ── PRICING SECTION ───────────────────────────────────────────── */}
       <section id="pricing" className="py-28 bg-white relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 right-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
@@ -794,7 +813,6 @@ const Home = () => {
               <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-green-50 border border-green-200 rounded-full">
                 <span className="text-sm text-gray-600">
                   🌍 Detected Region: <span className="font-bold text-green-600">{userRegion}</span>
-                   
                   (Only in Development mode)
                 </span>
               </div>
@@ -803,9 +821,9 @@ const Home = () => {
 
           <div className="grid md:grid-cols-3 gap-10 mb-24 max-w-6xl mx-auto">
             {pricingPlans.map((plan) => (
-              <PricingCard 
-                key={plan.title} 
-                {...plan} 
+              <PricingCard
+                key={plan.title}
+                {...plan}
                 onGetPlan={handleGetPlan}
                 getDisplayPrices={getDisplayPrices}
               />
@@ -814,37 +832,44 @@ const Home = () => {
 
           {/* Single Website Card */}
           <div className="max-w-5xl mx-auto">
-            <Card className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-2 border-blue-200 shadow-xl p-8 sm:p-10 relative overflow-hidden hover:shadow-2xl transition-all duration-500">
+            <Card className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-2 border-blue-200 shadow-xl p-6 sm:p-8 md:p-10 relative overflow-hidden hover:shadow-2xl transition-all duration-500">
               <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#6498fe] to-purple-600 opacity-5 rounded-full blur-3xl"></div>
               <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-purple-600 to-pink-600 opacity-5 rounded-full blur-3xl"></div>
 
               <div className="relative z-10">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-[#6498fe] to-purple-600 rounded-xl flex items-center justify-center text-2xl shadow-lg">
+                <div className="flex items-start sm:items-center gap-3 sm:gap-4 mb-6">
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-[#6498fe] to-purple-600 rounded-xl flex items-center justify-center text-xl sm:text-2xl shadow-lg">
                     💡
                   </div>
                   <div>
-                    <h3 className="text-2xl sm:text-3xl font-black text-gray-900">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900">
                       Not ready for a yearly plan?
                     </h3>
-                    <p className="text-gray-600 text-base sm:text-lg font-medium mt-1">
+                    <p className="text-gray-600 text-sm sm:text-base md:text-lg font-medium mt-1">
                       Pay per project with the same quality
                     </p>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-gray-200 mb-6 shadow-md hover:shadow-lg transition-all duration-300">
+                <div className="bg-white rounded-xl p-5 sm:p-6 md:p-8 border-2 border-gray-200 mb-6 shadow-md hover:shadow-lg transition-all duration-300">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                     <div>
-                      <span className="text-xl sm:text-2xl font-bold text-gray-900 block mb-1">Single Website Delivery</span>
-                      <span className="text-sm text-gray-500 font-medium">One-time payment, no commitment</span>
+                      <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 block mb-1">Single Website Delivery</span>
+                      <span className="text-xs sm:text-sm text-gray-500 font-medium">One-time payment, no commitment</span>
                     </div>
+
                     <div className="text-left sm:text-right">
-                      <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600">
-                        {singleWebsiteDisplay.main.symbol}{singleWebsiteDisplay.main.amount.toLocaleString('en-US')}
+                      <div className="flex flex-col items-start sm:items-end gap-0.5 mb-1">
+                        <span className="text-xs sm:text-sm md:text-lg font-medium text-gray-400 line-through">
+                          {singleWebsiteStrikeDisplay.main.symbol}{singleWebsiteStrikeDisplay.main.amount.toLocaleString('en-US')}
+                        </span>
+                        <div className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600">
+                          {singleWebsiteDisplay.main.symbol}{singleWebsiteDisplay.main.amount.toLocaleString('en-US')}
+                        </div>
                       </div>
+
                       {singleWebsiteDisplay.secondary && (
-                        <div className="text-base font-semibold text-gray-500 mt-1">
+                        <div className="text-xs sm:text-sm md:text-base font-semibold text-gray-500 mt-1">
                           ≈ {singleWebsiteDisplay.secondary.symbol}{singleWebsiteDisplay.secondary.amount} {singleWebsiteDisplay.secondary.code}
                         </div>
                       )}
@@ -852,18 +877,18 @@ const Home = () => {
                     </div>
                   </div>
 
-                  <div className="grid sm:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4 border-t border-gray-100">
                     {[
                       { text: "Standard website" },
                       { text: "100+ Website Designes" },
                       { text: "3-day delivery" }
                     ].map((item, index) => (
-                      <div key={index} className="flex items-center gap-3 group">
-                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300">
+                      <div key={index} className="flex items-center gap-2 sm:gap-3 group">
+                        <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300">
                           <span className="text-white font-bold text-xs">✓</span>
                         </div>
                         <div className="flex-1">
-                          <span className="text-sm text-gray-700 font-semibold">{item.text}</span>
+                          <span className="text-xs sm:text-sm text-gray-700 font-semibold">{item.text}</span>
                         </div>
                       </div>
                     ))}
@@ -872,7 +897,7 @@ const Home = () => {
 
                 <div className="text-center">
                   <button
-                    onClick={() => handleGetPlan('Single Website', 5000)}
+                    onClick={() => handleGetPlan('Single Website', 6999)}
                     className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group cursor-pointer rounded-xl inline-flex items-center justify-center hover:scale-105"
                   >
                     <span className="relative z-10">Get Plan</span>
@@ -884,9 +909,117 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* ── HOW IT WORKS ──────────────────────────────────────────────── */}
+      <section className="py-28 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <div className="inline-block mb-6">
+              <div className="flex items-center gap-3 bg-white border-2 border-[#6498fe] rounded-full px-8 py-4 shadow-lg">
+                <span className="text-2xl">⚙️</span>
+                <span className="text-sm font-bold text-[#6498fe]">Simple Process</span>
+              </div>
+            </div>
+            <h2 className="text-5xl md:text-6xl font-black mb-6 text-gray-900">
+              How It Works
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto font-medium">
+              Four simple steps from sign-up to delivered website
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 mt-12">
+            {steps.map((step) => (
+              <StepCard key={step.number} {...step} />
+            ))}
+          </div>
+
+          {/* ✅ READ MORE ABOUT US BUTTON */}
+          <div className="text-center mt-16">
+            <Link
+              to="/about"
+              className="inline-flex items-center gap-3 border-2 border-[#6498fe] text-[#6498fe] font-bold px-10 py-4 rounded-2xl hover:bg-[#6498fe] hover:text-white transition-all duration-300 hover:shadow-xl hover:scale-105 group"
+            >
+              <span>About Us — In 3D</span>
+              <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
+            </Link>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── WHY 3DIGREE EXISTS — Testimonials UPAR, Ye NEECHE ────────── */}
+
+      {/* ✅ TESTIMONIALS SECTION — "Why 3Digree Exists" se UPAR */}
+      <SectionTestimonials />
+
+      {/* ── WHY 3DIGREE EXISTS ────────────────────────────────────────── */}
+      <section className="py-28 bg-white relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/2 left-0 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40"></div>
+          <div className="absolute top-1/2 right-0 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40"></div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <div className="inline-block mb-6">
+              <div className="flex items-center gap-3 bg-gradient-to-r from-[#6498fe] to-purple-600 rounded-full px-8 py-4 shadow-xl">
+                <span className="text-2xl">💡</span>
+                <span className="text-sm font-bold text-white">Our Philosophy</span>
+              </div>
+            </div>
+            <h2 className="text-5xl md:text-6xl font-black mb-6 text-gray-900">
+              Why 3Digree Exists
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-medium">
+              Most freelancers and small agencies lose deals not because they can't sell — but because they can't deliver fast enough.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-10">
+            {benefits.map((benefit) => (
+              <FeatureCard key={benefit.title} {...benefit} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ SECTION ───────────────────────────────────────────────── */}
+      <section className="py-28 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        </div>
+
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-block mb-6">
+              <div className="flex items-center gap-3 bg-white border-2 border-[#6498fe] rounded-full px-8 py-4 shadow-lg">
+                <span className="text-2xl">❓</span>
+                <span className="text-sm font-bold text-[#6498fe]">Got Questions?</span>
+              </div>
+            </div>
+            <h2 className="text-5xl md:text-6xl font-black mb-6 text-gray-900">
+              Frequently Asked
+            </h2>
+          </div>
+
+          <div>
+            {faqs.map((faq, index) => (
+              <FAQItem key={index} {...faq} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+
     </div>
   );
 };
-
 
 export default Home;

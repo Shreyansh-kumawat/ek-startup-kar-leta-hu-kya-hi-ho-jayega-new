@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
 @import "tailwindcss";
 
 .lenis.lenis-smooth [data-lenis-prevent] {
@@ -7,3 +8,37 @@
 body {
   cursor: default;
 }
+
+
+@import "tailwindcss";
+
+/* ── Custom theme tokens ──────────────────────────────────────── */
+@theme {
+  --color-neon:  #00ffab;
+  --color-space: #0a0f1e;
+
+  --font-sans: 'Inter', sans-serif;
+}
+
+/* ── Google Fonts import ──────────────────────────────────────── */
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  background:              #050510;
+  color:                   #ffffff;
+  font-family:             var(--font-sans);
+  -webkit-font-smoothing:  antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x:              hidden;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; }
+::-webkit-scrollbar-track { background: #050510; }
+::-webkit-scrollbar-thumb {
+  background:    #00ffab44;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: #00ffab88; }

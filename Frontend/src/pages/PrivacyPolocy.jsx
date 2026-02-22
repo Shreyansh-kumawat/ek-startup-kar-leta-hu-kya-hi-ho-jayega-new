@@ -8,7 +8,7 @@ const PrivacyPolicy = () => {
         <div className="border-b border-gray-200 pb-6 mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Privacy Policy</h1>
           <p className="text-gray-600">
-            <strong>Effective Date:</strong> January 29, 2026
+            <strong>Effective Date:</strong> April 28, 2025
           </p>
           <p className="text-gray-600">
             <strong>Last Updated:</strong> January 29, 2026
@@ -190,7 +190,7 @@ const PrivacyPolicy = () => {
             <strong>Client Satisfaction:</strong> If you are dissatisfied with our service, you are responsible for evaluating our capabilities before committing to larger plans. We recommend:
           </p>
           <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4 mb-4">
-            <li>Starting with our <strong>Single Website plan (₹5,000)</strong> to test our service quality and delivery</li>
+            <li>Starting with our <strong>Single Website plan (₹6,999)</strong> to test our service quality and delivery</li>
             <li>Reviewing our 100+ client-ready templates before subscribing</li>
             <li>Contacting us at <strong>info.3digree@gmail.com</strong>, <strong>8741967971</strong>, or <strong>7728846516</strong> with any questions or concerns before purchasing</li>
           </ul>

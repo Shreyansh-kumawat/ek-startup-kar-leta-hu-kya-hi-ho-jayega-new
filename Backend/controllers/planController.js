@@ -22,10 +22,10 @@ try {
 // PLAN PRICING CONFIGURATION (IN RUPEES!)
 // ========================================
 const PLAN_CONFIG = {
-  'Starter': { price: 32000, credits: 8 },      // ✅ ₹32,000
-  'Growth': { price: 60000, credits: 20 },       // ✅ ₹60,000
-  'Scale': { price: 100000, credits: 40 },       // ✅ ₹1,00,000
-  'Single Website': { price: 5000, credits: 1 }  // ✅ ₹5,000
+  'Starter': { price: 30000, credits: 5 },      // ✅ ₹30,000
+  'Growth': { price: 60000, credits: 12 },       // ✅ ₹60,000
+  'Scale': { price: 100000, credits: 25 },       // ✅ ₹1,00,000
+  'Single Website': { price: 6999, credits: 1 }  // ✅ ₹6,999
 };
 
 // ========================================
