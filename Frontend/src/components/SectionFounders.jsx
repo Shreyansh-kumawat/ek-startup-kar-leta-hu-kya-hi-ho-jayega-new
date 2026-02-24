@@ -415,7 +415,7 @@ const ClosingLine = () => {
 const founders = [
   {
     image: '/f1.png',
-    name: 'Akshat Kumawat',
+    name: 'Akshat Raj',
     role: 'Co-Founder & CEO',
     tagline: 'Sales-first. Client-obsessed. The one who closes.',
     skills: ['Business Strategy', 'Client Relations', 'Sales', 'Product Vision', 'Operations'],

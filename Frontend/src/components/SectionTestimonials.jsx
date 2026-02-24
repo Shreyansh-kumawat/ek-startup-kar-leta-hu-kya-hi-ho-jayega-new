@@ -16,7 +16,6 @@ const FadeIn = ({ children, delay = 0 }) => {
         </motion.div>
     );
 };
-
 const testimonials = [
     // Agency Founders / CEOs (#1-9)
     {
@@ -24,64 +23,65 @@ const testimonials = [
         role: 'Founder, Advinix Digital Marketing Agency',
         avatar: '/test/1.jpg',
         linkedin: 'https://www.linkedin.com/in/vinay-gupta-912886135',
-        feedback: "3Digree is now our silent delivery engine. We pitch website packages to every marketing client and 3Digree handles it all in 3 days. Our agency revenue jumped 40% without adding a single developer, and That's insane 😆",
+        feedback: "White-label web development became our silent delivery engine. We pitch website packages to every marketing client and our partner handles it all in 3 days. Our agency revenue jumped 40% without adding a single developer — and that's insane 😆",
     },
     {
         name: 'Ayush Tripathi',
         role: 'Co-Founder, Grow Digital Marketing Agency',
         avatar: '/test/2.jpg',
         linkedin: 'https://in.linkedin.com/in/ayush-tripathi740',
-        feedback: "We were managing 23 clients and struggling with website delivery timelines. 3Digree fixed our bottleneck completely. We now close website add-ons confidently every single time.",
+        feedback: "We were managing 23 clients and struggling with website delivery timelines. White-label web development fixed our bottleneck completely. We now close website add-ons confidently every single time.",
     },
     {
         name: 'Anshul H.',
         role: 'Founder & CEO, 7P Digital',
         avatar: '/test/3.jpg',
         linkedin: 'https://in.linkedin.com/in/anshulhitkari',
-        feedback: "White-label delivery used to feel risky. 3Digree changed that. Clean code, proper handoff, source files included — my clients think we built it in-house. That's exactly what I needed.",
+        feedback: "White-label delivery used to feel risky — until I found the right partner. Clean code, proper handoff, source files included — my clients think we built it in-house. That's exactly what I needed.",
     },
     {
         name: 'Vaishali Waghmode',
         role: 'Founder, Shinescript AI Marketing Agency',
         avatar: '/test/4.jpg',
         linkedin: 'https://www.linkedin.com/in/digital-marketing-consultant-pune',
-        feedback: "I run an AI-driven agency so I know what good infrastructure looks like. 3Digree's 3-day white-label delivery is genuinely impressive. My clients have no idea who builds their sites.",
+        feedback: "I run an AI-driven agency so I know what good infrastructure looks like. A solid white-label web dev setup with 3-day delivery is genuinely impressive. My clients have no idea who actually builds their sites.",
     },
     {
         name: 'Ayushi Bansal',
         role: 'Founder & CEO, Social Parindee Agency',
         avatar: '/test/5.jpg',
         linkedin: 'https://in.linkedin.com/in/ayushi-bansal-274844129',
-        feedback: "Three months in and we've already recovered the yearly plan cost multiple times over. The math just works. My only regret is not finding 3Digree when I first launched my agency.",
+        feedback: "Three months into white-label web delivery and we've already recovered the yearly plan cost multiple times over. The math just works. My only regret is not adopting this model when I first launched my agency.",
     },
     {
         name: 'Ram S Aarora',
         role: 'Founder & CEO, Digital Markitors',
         avatar: '/test/6.jpg',
         linkedin: 'https://in.linkedin.com/in/ramsarora',
-        feedback: "Running an agency since 2016, I've tried every outsourcing model. 3Digree is the cleanest white-label setup I've ever used. No drama, no delays, and my brand stays front and center.",
+        feedback: "Running an agency since 2016, I've tried every outsourcing model. White-label web development done right is the cleanest setup I've ever used. No drama, no delays, and my brand stays front and center.",
     },
     {
         name: 'Sandy Sandy',
         role: 'Founder & CEO, MarketingCheff',
         avatar: '/test/7.jpg',
         linkedin: 'https://in.linkedin.com/in/askdigitalsandy',
-        feedback: "We added website delivery to our marketing retainers and it became our highest-margin service overnight. 3Digree handles the build, we handle the client. Perfectly silent partnership.",
+        feedback: "We added white-label website delivery to our marketing retainers and it became our highest-margin service overnight. Our dev partner handles the build, we handle the client. Perfectly silent partnership.",
     },
     {
         name: 'Aman Shishodia',
         role: 'Founder, 360° Digital Marketing Solutions',
         avatar: '/test/8.jpg',
         linkedin: 'https://www.linkedin.com/in/aman-shishodia-a37615241',
-        feedback: "Full-service marketing means clients expect websites too. 3Digree made that possible without hiring a dev team. 3-day turnaround is real — I've tested it across multiple client projects.",
+        feedback: "Full-service marketing means clients expect websites too. White-label web development made that possible without hiring a dev team. The 3-day turnaround is real — I've tested it across multiple client projects.",
     },
     {
         name: 'Gaurav Sharma',
         role: 'Founder & CEO, Attrock',
         avatar: '/test/9.jpg',
         linkedin: 'https://in.linkedin.com/in/marketingwithgaurav',
-        feedback: "Scaling output without scaling headcount was our biggest challenge in Jaipur. 3Digree solved it from day one. The quality is consistent and my team focuses only on what matters — clients.",
+        feedback: "Scaling output without scaling headcount was our biggest challenge. White-label web development solved it from day one. The quality is consistent and my team focuses only on what matters — clients.",
     },
+
 
     // Individual / Freelance Digital Marketers (#10-14)
     {
@@ -89,35 +89,35 @@ const testimonials = [
         role: 'Social Media & Performance Marketer',
         avatar: '/test/10.jpg',
         linkedin: 'https://www.linkedin.com/in/aanchalmehta22',
-        feedback: "My clients always asked for websites alongside ads. I used to say no. Now I say yes to everything, 3Digree builds it, I brand it, and I keep the full margin. Such a Game changer.",
+        feedback: "My clients always asked for websites alongside ads. I used to say no. Now I say yes to everything — my white-label dev partner builds it, I brand it, and I keep the full margin. Such a game changer.",
     },
     {
         name: 'Roma K.',
         role: 'Freelance Digital Marketing Specialist',
         avatar: '/test/11.jpg',
         linkedin: 'https://www.linkedin.com/in/roma-k-4a954985',
-        feedback: "As a freelancer managing close to 10,000 followers and multiple brand clients, I needed a delivery partner I could trust. 3Digree is that partner — invisible, fast, and always on-brand.",
+        feedback: "As a freelancer managing close to 10,000 followers and multiple brand clients, I needed a delivery partner I could trust. White-label web development is exactly that — invisible, fast, and always on-brand.",
     },
     {
         name: 'Himanshu',
         role: 'Freelance Digital Marketer',
         avatar: '/test/12.jpg',
         linkedin: 'https://in.linkedin.com/in/himanshudigitalmarketer',
-        feedback: "Five years of freelancing and website delivery was always my weak spot. 3Digree fixed that permanently. I submit the brief, they deploy in 3 days. My clients think I have a full team.",
+        feedback: "Five years of freelancing and website delivery was always my weak spot. White-label web dev fixed that permanently. I submit the brief, it gets deployed in 3 days. My clients think I have a full team.",
     },
     {
         name: 'Dhrubajit Kundu',
         role: 'Social Media Marketing & SEM Specialist',
         avatar: '/test/13.jpg',
         linkedin: 'https://www.linkedin.com/in/dhrubajitkundu',
-        feedback: "I was skeptical about outsourcing website builds but the quality blew me away. Mobile responsive, clean code, delivered on time. I've now made 3Digree a permanent part of my service stack.",
+        feedback: "I was skeptical about outsourcing website builds but the quality blew me away. Mobile responsive, clean code, delivered on time. White-label web development is now a permanent part of my service stack.",
     },
     {
         name: 'Amit Panchal',
         role: 'Digital Marketing Consultant',
         avatar: '/test/14.jpg',
         linkedin: 'https://www.linkedin.com/in/amithpanchal',
-        feedback: "15 years in digital marketing means clients expect everything from you. Adding website delivery through 3Digree was the smartest business move I made this year. Silent, reliable, and scalable.",
+        feedback: "15 years in digital marketing means clients expect everything from you. Adding website delivery through a white-label model was the smartest business move I made this year. Silent, reliable, and scalable.",
     },
 ];
 

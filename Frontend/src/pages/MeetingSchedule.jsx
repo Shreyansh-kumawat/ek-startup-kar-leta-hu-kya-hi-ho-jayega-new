@@ -324,14 +324,14 @@ const About = () => {
               <div className="relative mb-6 overflow-hidden rounded-xl">
                 <img 
                   src="/f1.png" 
-                  alt="Akshat Kumawat - Co-Founder & CEO" 
+                  alt="Akshat Raj - Co-Founder & CEO" 
                   className="w-full h-80 object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
               
               <div className="text-center">
-                <h3 className="text-2xl font-bold text-black mb-2">Akshat Kumawat</h3>
+                <h3 className="text-2xl font-bold text-black mb-2">Akshat Raj</h3>
                 <p className="text-blue-500 font-semibold mb-4 text-lg">Co-Founder & CEO</p>
                 <p className="text-gray-700 mb-6 leading-relaxed">
                   Visionary leader driving 3Digree's strategic growth and innovation in AI-powered development solutions.
