@@ -1,4 +1,4 @@
-// Frontend\src\features\admin\api.js
+// Frontend/src/features/admin/api.js
 import apiClient from '../../services/apiClient';
 
 
@@ -68,7 +68,20 @@ export const updateUserStatus = async (userId, isActive) => {
 
 export const deleteUser = async (userId) => {
   try {
-    const response = await apiClient.delete(`/admin/users/${userId}`);
+    const response = await apiClient.delete(`/admin/users/${userId}`, {
+      data: { confirmDelete: true }
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+
+// ✅ NEW: Update user credits
+export const updateUserCredits = async (userId, credits) => {
+  try {
+    const response = await apiClient.put(`/admin/users/${userId}/credits`, { credits });
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
@@ -198,9 +211,8 @@ export const addNotification = async (projectId, message, type = 'info') => {
 };
 
 
-// ==================== ✅ NEW: WEBSITE BOOKING MANAGEMENT (B2B) ====================
+// ==================== WEBSITE BOOKING MANAGEMENT (B2B) ====================
 
-// Get all website bookings (Admin)
 export const getAllWebsiteBookings = async (params = {}) => {
   try {
     const response = await apiClient.get('/website-booking/admin/all', { params });
@@ -210,7 +222,6 @@ export const getAllWebsiteBookings = async (params = {}) => {
   }
 };
 
-// Approve website booking (Admin)
 export const approveWebsiteBooking = async (bookingId) => {
   try {
     const response = await apiClient.patch(`/website-booking/admin/${bookingId}/approve`);
@@ -220,7 +231,6 @@ export const approveWebsiteBooking = async (bookingId) => {
   }
 };
 
-// Complete website booking with preview link (Admin)
 export const completeWebsiteBooking = async (bookingId, previewLink) => {
   try {
     const response = await apiClient.patch(`/website-booking/admin/${bookingId}/complete`, {
@@ -232,7 +242,6 @@ export const completeWebsiteBooking = async (bookingId, previewLink) => {
   }
 };
 
-// Get website booking stats (Admin)
 export const getWebsiteBookingStats = async () => {
   try {
     const response = await apiClient.get('/website-booking/admin/stats');
@@ -243,9 +252,8 @@ export const getWebsiteBookingStats = async () => {
 };
 
 
-// ==================== ✅ NEW: CHAT MANAGEMENT ====================
+// ==================== CHAT MANAGEMENT ====================
 
-// Get chat messages for a booking
 export const getChatMessages = async (bookingId) => {
   try {
     const response = await apiClient.get(`/chat/${bookingId}`);
@@ -255,7 +263,6 @@ export const getChatMessages = async (bookingId) => {
   }
 };
 
-// Send chat message
 export const sendChatMessage = async (bookingId, message) => {
   try {
     const response = await apiClient.post(`/chat/${bookingId}`, { message });

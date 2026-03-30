@@ -1,7 +1,5 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
-// ❌ REMOVE THIS LINE - Project model doesn't exist
-// const Project = require('../models/Project');
 const Meeting = require('../models/Meeting');
 const Template = require('../models/Template');
 const TemplateBooking = require('../models/TemplateBooking');
@@ -9,7 +7,7 @@ const WebsiteBooking = require('../models/WebsiteBooking');
 const { successResponse, errorResponse } = require('../utils/responseUtils');
 const { sendWelcomeEmail } = require('../utils/emailUtils');
 
-// ✅ FIXED: Get admin dashboard statistics
+// ✅ Get admin dashboard statistics
 exports.getDashboard = async (req, res) => {
   try {
     const now = new Date();
@@ -17,7 +15,6 @@ exports.getDashboard = async (req, res) => {
     const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    // ✅ FIXED: Removed Project references
     const [
       totalUsers,
       totalOrders,
@@ -106,7 +103,7 @@ exports.getDashboard = async (req, res) => {
     const stats = {
       totalUsers,
       totalOrders,
-      totalProjects: totalOrders, // ✅ Use bookings count
+      totalProjects: totalOrders,
       totalTemplates,
       pendingMeetings,
       activeProjects,
@@ -137,7 +134,7 @@ exports.getDashboard = async (req, res) => {
   }
 };
 
-// ✅ FIXED: Get all users
+// ✅ Get all users
 exports.getAllUsers = async (req, res) => {
   try {
     const { 
@@ -203,7 +200,7 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// ✅ FIXED: Get user by ID (removed Project references)
+// ✅ Get user by ID
 exports.getUserById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -215,7 +212,6 @@ exports.getUserById = async (req, res) => {
       return errorResponse(res, 'User not found', null, 404);
     }
 
-    // ✅ FIXED: Removed Project queries
     const [userOrders, userMeetings] = await Promise.all([
       TemplateBooking.find({ userId: id })
         .populate('templateId', 'name price')
@@ -232,7 +228,7 @@ exports.getUserById = async (req, res) => {
       totalSpent: userOrders
         .filter(order => order.status === 'completed')
         .reduce((sum, order) => sum + (order.templatePrice || 0), 0),
-      totalProjects: userOrders.length, // ✅ Use orders count
+      totalProjects: userOrders.length,
       activeProjects: userOrders.filter(order => 
         ['partial_payment_done', 'development_in_progress', 'website_ready'].includes(order.status)
       ).length,
@@ -243,7 +239,7 @@ exports.getUserById = async (req, res) => {
       user,
       stats: userStats,
       orders: userOrders,
-      projects: userOrders, // ✅ Return orders as projects
+      projects: userOrders,
       meetings: userMeetings
     });
 
@@ -253,7 +249,7 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-// ✅ Create secondary admin (no changes needed)
+// ✅ Create secondary admin
 exports.createSecondaryAdmin = async (req, res) => {
   try {
     const { name, username, email, password, phone } = req.body;
@@ -321,7 +317,7 @@ exports.createSecondaryAdmin = async (req, res) => {
   }
 };
 
-// ✅ Update user status (no changes needed)
+// ✅ Update user status
 exports.updateUserStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -345,7 +341,6 @@ exports.updateUserStatus = async (req, res) => {
     }
 
     const oldStatus = user.isActive;
-
     user.isActive = isActive;
     user.statusReason = reason;
     user.statusUpdatedBy = req.user.id;
@@ -355,10 +350,6 @@ exports.updateUserStatus = async (req, res) => {
 
     if (oldStatus !== isActive) {
       try {
-        const statusMessage = isActive 
-          ? 'Your account has been activated and you can now access all features.'
-          : 'Your account has been temporarily deactivated. Please contact support for more information.';
-
         await sendWelcomeEmail({
           email: user.email,
           subject: `Account ${isActive ? 'Activated' : 'Deactivated'} - 3Digree TBS`,
@@ -366,7 +357,9 @@ exports.updateUserStatus = async (req, res) => {
           data: {
             name: user.name,
             status: isActive ? 'Activated' : 'Deactivated',
-            statusMessage: statusMessage,
+            statusMessage: isActive 
+              ? 'Your account has been activated and you can now access all features.'
+              : 'Your account has been temporarily deactivated. Please contact support for more information.',
             reason: reason || 'No specific reason provided',
             contactEmail: process.env.SUPPORT_EMAIL || 'support@3digree.com'
           }
@@ -392,7 +385,41 @@ exports.updateUserStatus = async (req, res) => {
   }
 };
 
-// ✅ FIXED: Delete user (removed Project checks)
+// ✅ Update user credits (NEW)
+exports.updateUserCredits = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { credits } = req.body;
+
+    if (typeof credits !== 'number' || credits < 0) {
+      return errorResponse(res, 'Credits must be a non-negative number', null, 400);
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return errorResponse(res, 'User not found', null, 404);
+    }
+
+    const oldCredits = user.credits || 0;
+    user.credits = credits;
+    await user.save();
+
+    return successResponse(res, 'Credits updated successfully', {
+      userId: user._id,
+      name: user.name,
+      email: user.email,
+      oldCredits,
+      newCredits: user.credits,
+      diff: user.credits - oldCredits
+    });
+
+  } catch (error) {
+    console.error('Update user credits error:', error);
+    return errorResponse(res, 'Server error while updating user credits', error);
+  }
+};
+
+// ✅ Delete user
 exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -415,7 +442,6 @@ exports.deleteUser = async (req, res) => {
       return errorResponse(res, 'You cannot delete your own account', null, 403);
     }
 
-    // ✅ FIXED: Only check active bookings (no Project)
     const activeOrders = await TemplateBooking.countDocuments({ 
       userId: id, 
       status: { $in: ['meeting_scheduled', 'partial_payment_pending', 'development_in_progress'] }
@@ -469,7 +495,7 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-// ✅ FIXED: Get system statistics (removed Project)
+// ✅ Get system statistics
 exports.getSystemStats = async (req, res) => {
   try {
     const { period = 30 } = req.query;
@@ -484,155 +510,29 @@ exports.getSystemStats = async (req, res) => {
       revenueStats,
       growthStats
     ] = await Promise.all([
-      User.aggregate([
-        {
-          $facet: {
-            total: [{ $count: 'count' }],
-            byRole: [{ $group: { _id: '$role', count: { $sum: 1 } } }],
-            byStatus: [{ $group: { _id: '$isActive', count: { $sum: 1 } } }],
-            recent: [
-              { $match: { createdAt: { $gte: startDate } } },
-              { $count: 'count' }
-            ]
-          }
-        }
-      ]),
-
-      TemplateBooking.aggregate([
-        {
-          $facet: {
-            total: [{ $count: 'count' }],
-            byStatus: [{ $group: { _id: '$status', count: { $sum: 1 } } }],
-            recent: [
-              { $match: { createdAt: { $gte: startDate } } },
-              { $count: 'count' }
-            ]
-          }
-        }
-      ]),
-
-      TemplateBooking.aggregate([
-        {
-          $match: { status: 'meeting_scheduled' }
-        },
-        {
-          $facet: {
-            total: [{ $count: 'count' }],
-            recent: [
-              { $match: { createdAt: { $gte: startDate } } },
-              { $count: 'count' }
-            ]
-          }
-        }
-      ]),
-
-      Template.aggregate([
-        {
-          $facet: {
-            total: [{ $count: 'count' }],
-            active: [
-              { $match: { isActive: true } },
-              { $count: 'count' }
-            ],
-            inactive: [
-              { $match: { isActive: false } },
-              { $count: 'count' }
-            ]
-          }
-        }
-      ]),
-
-      TemplateBooking.aggregate([
-        { 
-          $match: { status: 'completed' }
-        },
-        {
-          $facet: {
-            totalRevenue: [
-              { $group: { _id: null, total: { $sum: '$templatePrice' } } }
-            ],
-            recentRevenue: [
-              { $match: { createdAt: { $gte: startDate } } },
-              { $group: { _id: null, total: { $sum: '$templatePrice' } } }
-            ],
-            dailyRevenue: [
-              { $match: { createdAt: { $gte: startDate } } },
-              {
-                $group: {
-                  _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-                  revenue: { $sum: '$templatePrice' },
-                  orders: { $sum: 1 }
-                }
-              },
-              { $sort: { _id: 1 } }
-            ]
-          }
-        }
-      ]),
-
-      User.aggregate([
-        { $match: { createdAt: { $gte: startDate } } },
-        {
-          $group: {
-            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-            newUsers: { $sum: 1 }
-          }
-        },
-        { $sort: { _id: 1 } }
-      ])
+      User.aggregate([{ $facet: { total: [{ $count: 'count' }], byRole: [{ $group: { _id: '$role', count: { $sum: 1 } } }], byStatus: [{ $group: { _id: '$isActive', count: { $sum: 1 } } }], recent: [{ $match: { createdAt: { $gte: startDate } } }, { $count: 'count' }] } }]),
+      TemplateBooking.aggregate([{ $facet: { total: [{ $count: 'count' }], byStatus: [{ $group: { _id: '$status', count: { $sum: 1 } } }], recent: [{ $match: { createdAt: { $gte: startDate } } }, { $count: 'count' }] } }]),
+      TemplateBooking.aggregate([{ $match: { status: 'meeting_scheduled' } }, { $facet: { total: [{ $count: 'count' }], recent: [{ $match: { createdAt: { $gte: startDate } } }, { $count: 'count' }] } }]),
+      Template.aggregate([{ $facet: { total: [{ $count: 'count' }], active: [{ $match: { isActive: true } }, { $count: 'count' }], inactive: [{ $match: { isActive: false } }, { $count: 'count' }] } }]),
+      TemplateBooking.aggregate([{ $match: { status: 'completed' } }, { $facet: { totalRevenue: [{ $group: { _id: null, total: { $sum: '$templatePrice' } } }], recentRevenue: [{ $match: { createdAt: { $gte: startDate } } }, { $group: { _id: null, total: { $sum: '$templatePrice' } } }], dailyRevenue: [{ $match: { createdAt: { $gte: startDate } } }, { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, revenue: { $sum: '$templatePrice' }, orders: { $sum: 1 } } }, { $sort: { _id: 1 } }] } }]),
+      User.aggregate([{ $match: { createdAt: { $gte: startDate } } }, { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, newUsers: { $sum: 1 } } }, { $sort: { _id: 1 } }])
     ]);
 
-    const systemStats = {
+    return successResponse(res, 'System statistics fetched successfully', {
       users: {
         total: userStats[0].total[0]?.count || 0,
-        byRole: userStats[0].byRole.reduce((acc, item) => {
-          acc[item._id || 'user'] = item.count;
-          return acc;
-        }, {}),
-        byStatus: userStats[0].byStatus.reduce((acc, item) => {
-          acc[item._id ? 'active' : 'inactive'] = item.count;
-          return acc;
-        }, {}),
+        byRole: userStats[0].byRole.reduce((acc, item) => { acc[item._id || 'user'] = item.count; return acc; }, {}),
+        byStatus: userStats[0].byStatus.reduce((acc, item) => { acc[item._id ? 'active' : 'inactive'] = item.count; return acc; }, {}),
         recent: userStats[0].recent[0]?.count || 0
       },
-      orders: {
-        total: orderStats[0].total[0]?.count || 0,
-        byStatus: orderStats[0].byStatus.reduce((acc, item) => {
-          acc[item._id] = item.count;
-          return acc;
-        }, {}),
-        recent: orderStats[0].recent[0]?.count || 0
-      },
-      projects: {
-        total: orderStats[0].total[0]?.count || 0, // ✅ Use bookings
-        byStatus: orderStats[0].byStatus.reduce((acc, item) => {
-          acc[item._id] = item.count;
-          return acc;
-        }, {}),
-        recent: orderStats[0].recent[0]?.count || 0
-      },
-      meetings: {
-        total: meetingStats[0].total[0]?.count || 0,
-        recent: meetingStats[0].recent[0]?.count || 0
-      },
-      templates: {
-        total: templateStats[0].total[0]?.count || 0,
-        active: templateStats[0].active[0]?.count || 0,
-        inactive: templateStats[0].inactive[0]?.count || 0
-      },
-      revenue: {
-        total: revenueStats[0].totalRevenue[0]?.total || 0,
-        recent: revenueStats[0].recentRevenue[0]?.total || 0,
-        daily: revenueStats[0].dailyRevenue
-      },
-      growth: {
-        dailyUsers: growthStats
-      },
+      orders: { total: orderStats[0].total[0]?.count || 0, byStatus: orderStats[0].byStatus.reduce((acc, item) => { acc[item._id] = item.count; return acc; }, {}), recent: orderStats[0].recent[0]?.count || 0 },
+      meetings: { total: meetingStats[0].total[0]?.count || 0, recent: meetingStats[0].recent[0]?.count || 0 },
+      templates: { total: templateStats[0].total[0]?.count || 0, active: templateStats[0].active[0]?.count || 0, inactive: templateStats[0].inactive[0]?.count || 0 },
+      revenue: { total: revenueStats[0].totalRevenue[0]?.total || 0, recent: revenueStats[0].recentRevenue[0]?.total || 0, daily: revenueStats[0].dailyRevenue },
+      growth: { dailyUsers: growthStats },
       period: parseInt(period),
       generatedAt: new Date()
-    };
-
-    return successResponse(res, 'System statistics fetched successfully', systemStats);
+    });
 
   } catch (error) {
     console.error('Get system stats error:', error);
@@ -640,11 +540,10 @@ exports.getSystemStats = async (req, res) => {
   }
 };
 
-// ✅ Get admin activity log (no changes needed)
+// ✅ Get admin activity log
 exports.getAdminActivityLog = async (req, res) => {
   try {
     const { page = 1, limit = 50 } = req.query;
-
     const activities = [];
 
     const userUpdates = await User.find({ 
@@ -659,11 +558,7 @@ exports.getAdminActivityLog = async (req, res) => {
       activities.push({
         type: 'user_status_update',
         admin: user.statusUpdatedBy,
-        target: {
-          id: user._id,
-          name: user.name,
-          email: user.email
-        },
+        target: { id: user._id, name: user.name, email: user.email },
         action: `Updated user status to ${user.isActive ? 'active' : 'inactive'}`,
         timestamp: user.statusUpdatedAt
       });
@@ -673,10 +568,7 @@ exports.getAdminActivityLog = async (req, res) => {
 
     return successResponse(res, 'Admin activity log fetched successfully', {
       activities: activities.slice(0, parseInt(limit)),
-      pagination: {
-        currentPage: parseInt(page),
-        totalActivities: activities.length
-      }
+      pagination: { currentPage: parseInt(page), totalActivities: activities.length }
     });
 
   } catch (error) {

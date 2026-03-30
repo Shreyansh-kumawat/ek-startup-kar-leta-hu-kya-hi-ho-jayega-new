@@ -5,12 +5,12 @@ import { getDashboard } from '../features/admin/api';
 import Card from '../components/Card';
 import Loader from '../components/Loader';
 import { formatCurrency, formatDate } from '../utils/helpers';
-// 🌐 ONLY B2B IMPORT
 import WebsiteBookingsManager from '../features/admin/WebsiteBookingsManager';
+import UserManager from '../features/admin/UserManager';
 
 const AdminPanel = () => {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('users');
   
   const { data: dashboardStats, loading: statsLoading } = useApi(
     getDashboard,
@@ -21,7 +21,6 @@ const AdminPanel = () => {
   const isMainAdmin = user?.role === 'admin' || user?.role === 'mainAdmin';
   const isAnyAdmin = user?.role === 'admin' || user?.role === 'secondaryAdmin' || user?.role === 'mainAdmin';
   
-  // Loading state
   if (authLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -30,7 +29,6 @@ const AdminPanel = () => {
     );
   }
   
-  // Access denied
   if (!isAuthenticated || !isAnyAdmin) {
     return (
       <div className="text-center py-12">
@@ -41,8 +39,8 @@ const AdminPanel = () => {
     );
   }
   
-  // 🌐 ONLY B2B TAB
   const tabs = [
+    { id: 'users', label: 'Users', icon: '👥' },
     { id: 'website-bookings', label: 'Website Bookings (B2B)', icon: '🌐' },
     { id: 'dashboard', label: 'Dashboard', icon: '📊' }
   ];
@@ -55,7 +53,6 @@ const AdminPanel = () => {
         </div>
       ) : (
         <>
-          {/* Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card>
               <div className="text-center">
@@ -65,7 +62,6 @@ const AdminPanel = () => {
                 <div className="text-gray-600">Total Users</div>
               </div>
             </Card>
-            
             <Card>
               <div className="text-center">
                 <div className="text-3xl text-green-600 font-bold">
@@ -74,7 +70,6 @@ const AdminPanel = () => {
                 <div className="text-gray-600">Total Bookings</div>
               </div>
             </Card>
-            
             <Card>
               <div className="text-center">
                 <div className="text-3xl text-yellow-600 font-bold">
@@ -83,7 +78,6 @@ const AdminPanel = () => {
                 <div className="text-gray-600">Pending</div>
               </div>
             </Card>
-            
             <Card>
               <div className="text-center">
                 <div className="text-3xl text-purple-600 font-bold">
@@ -94,30 +88,20 @@ const AdminPanel = () => {
             </Card>
           </div>
           
-          {/* Recent Activity */}
           <div className="grid lg:grid-cols-2 gap-8">
             <Card>
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                Recent Users
-              </h2>
-              
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Users</h2>
               {dashboardStats?.stats?.recentUsers?.length === 0 ? (
                 <p className="text-gray-600 text-center py-4">No recent users</p>
               ) : (
                 <div className="space-y-3">
-                  {dashboardStats?.stats?.recentUsers?.slice(0, 5).map((user) => (
-                    <div key={user._id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  {dashboardStats?.stats?.recentUsers?.slice(0, 5).map((u) => (
+                    <div key={u._id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                       <div>
-                        <div className="font-medium text-gray-900">
-                          {user.name || user.username}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {user.email}
-                        </div>
+                        <div className="font-medium text-gray-900">{u.name || u.username}</div>
+                        <div className="text-sm text-gray-600">{u.email}</div>
                       </div>
-                      <div className="text-sm text-gray-500">
-                        {formatDate(user.createdAt)}
-                      </div>
+                      <div className="text-sm text-gray-500">{formatDate(u.createdAt)}</div>
                     </div>
                   ))}
                 </div>
@@ -125,10 +109,7 @@ const AdminPanel = () => {
             </Card>
             
             <Card>
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                Recent Bookings
-              </h2>
-              
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Bookings</h2>
               {dashboardStats?.stats?.recentOrders?.length === 0 ? (
                 <p className="text-gray-600 text-center py-4">No recent bookings</p>
               ) : (
@@ -139,17 +120,11 @@ const AdminPanel = () => {
                         <div className="font-medium text-gray-900">
                           {order.userId?.name || order.userId?.username || 'Unknown User'}
                         </div>
-                        <div className="text-sm text-gray-600">
-                          {formatDate(order.createdAt)}
-                        </div>
+                        <div className="text-sm text-gray-600">{formatDate(order.createdAt)}</div>
                       </div>
                       <div className="text-right">
-                        <div className="font-medium text-gray-900">
-                          {formatCurrency(order.amount)}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {order.status}
-                        </div>
+                        <div className="font-medium text-gray-900">{formatCurrency(order.amount)}</div>
+                        <div className="text-sm text-gray-600">{order.status}</div>
                       </div>
                     </div>
                   ))}
@@ -164,32 +139,29 @@ const AdminPanel = () => {
   
   const renderTabContent = () => {
     switch (activeTab) {
-       case 'website-bookings':
+      case 'users':
+        return <UserManager />;
+      case 'website-bookings':
         return <WebsiteBookingsManager />;
       case 'dashboard':
         return renderDashboard();
       default:
-        return renderDashboard();
+        return <UserManager />;
     }
   };
   
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">🌐 Admin Panel - B2B Credit System</h1>
-          <p className="text-gray-600 mt-2">
-            Manage website bookings with credit-based system
-          </p>
-          
+          <h1 className="text-3xl font-bold text-gray-900">🌐 Admin Panel - 3Digree</h1>
+          <p className="text-gray-600 mt-2">Manage users, bookings and credits</p>
           <div className="text-xs text-gray-500 mt-2">
             Welcome, {user?.name || user?.username} ({user?.role})
           </div>
         </div>
       </div>
       
-      {/* Tabs */}
       <div className="border-b border-gray-200">
         <nav className="-mb-px flex space-x-8">
           {tabs.map((tab) => (
@@ -211,10 +183,7 @@ const AdminPanel = () => {
         </nav>
       </div>
       
-      {/* Tab Content */}
-      <div>
-        {renderTabContent()}
-      </div>
+      <div>{renderTabContent()}</div>
     </div>
   );
 };
