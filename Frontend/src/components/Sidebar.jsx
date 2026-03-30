@@ -2,325 +2,182 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../features/auth/useAuth';
 
-
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
   const { user } = useAuth();
 
-
   const isActive = (path) => location.pathname === path;
 
-
-  // ✅ USER MENU ITEMS - B2B FOCUSED (Credit-based bookings)
   const userMenuItems = [
-    { 
-      path: '/dashboard', 
-      label: 'Dashboard', 
-      emoji: '📊',
-      color: 'blue',
-      gradient: 'from-blue-500 to-blue-600'
-    },
-   
-    { 
-      path: '/dashboard/bookings', 
-      label: 'My Website Bookings', 
-      emoji: '🎯',
-      color: 'indigo',
-      gradient: 'from-indigo-500 to-purple-600'
-    },
-    { 
-      path: '/pricing', 
-      label: 'Buy Credits', 
-      emoji: '💳',
-      color: 'green',
-      gradient: 'from-green-500 to-emerald-600'
-    },
-    { 
-      path: '/dashboard/account',
-      label: 'My Account', 
-      emoji: '👤',
-      color: 'teal',
-      gradient: 'from-teal-500 to-cyan-600'
-    }
+    { path: '/dashboard', label: 'Dashboard', emoji: '📊', gradient: 'from-blue-500 to-blue-600' },
+    { path: '/dashboard/bookings', label: 'My Website Bookings', emoji: '🎯', gradient: 'from-indigo-500 to-purple-600' },
+    { path: '/pricing', label: 'Buy Credits', emoji: '💳', gradient: 'from-green-500 to-emerald-600' },
+    { path: '/dashboard/account', label: 'My Account', emoji: '👤', gradient: 'from-teal-500 to-cyan-600' },
   ];
-  
-  // ✅ ADMIN MENU ITEMS - B2B FOCUSED (Main + Secondary Admin)
+
   const adminMenuItems = [
-    { 
-      path: '/admin', 
-      label: 'Admin Dashboard', 
-      emoji: '⚡',
-      color: 'indigo',
-      gradient: 'from-indigo-500 to-purple-600'
-    },
-    { 
-      path: '/admin/users', 
-      label: 'User Management', 
-      emoji: '👥',
-      color: 'cyan',
-      gradient: 'from-cyan-500 to-blue-600'
-    },
-    { 
-      path: '/admin/templates', 
-      label: 'Website Templates', 
-      emoji: '🎨',
-      color: 'purple',
-      gradient: 'from-purple-500 to-indigo-600'
-    }
+    { path: '/admin', label: 'Admin Dashboard', emoji: '⚡', gradient: 'from-indigo-500 to-purple-600' },
+    { path: '/admin/users', label: 'User Management', emoji: '👥', gradient: 'from-cyan-500 to-blue-600' },
+    { path: '/admin/templates', label: 'Website Templates', emoji: '🎨', gradient: 'from-purple-500 to-indigo-600' },
   ];
 
-  // ✅ SECONDARY ADMIN RESTRICTED ITEMS (No user management, no admin creation)
   const secondaryAdminMenuItems = [
-    { 
-      path: '/admin', 
-      label: 'Admin Dashboard', 
-      emoji: '⚡',
-      color: 'indigo',
-      gradient: 'from-indigo-500 to-purple-600'
-    },
-    { 
-      path: '/admin/templates', 
-      label: 'Website Templates', 
-      emoji: '🎨',
-      color: 'purple',
-      gradient: 'from-purple-500 to-indigo-600'
-    }
+    { path: '/admin', label: 'Admin Dashboard', emoji: '⚡', gradient: 'from-indigo-500 to-purple-600' },
+    { path: '/admin/templates', label: 'Website Templates', emoji: '🎨', gradient: 'from-purple-500 to-indigo-600' },
   ];
 
-
-  // ✅ ROLE-BASED MENU SELECTION
   const isMainAdmin = user?.role === 'admin';
   const isSecondaryAdmin = user?.role === 'secondaryAdmin';
-  const isAnyAdmin = isMainAdmin || isSecondaryAdmin;
 
   let menuItems = userMenuItems;
-  
-  if (isMainAdmin) {
-    // Main admin gets everything
-    menuItems = [...userMenuItems, { separator: true }, ...adminMenuItems];
-  } else if (isSecondaryAdmin) {
-    // Secondary admin gets restricted menu
-    menuItems = [...userMenuItems, { separator: true }, ...secondaryAdminMenuItems];
-  }
+  if (isMainAdmin) menuItems = [...userMenuItems, { separator: true }, ...adminMenuItems];
+  else if (isSecondaryAdmin) menuItems = [...userMenuItems, { separator: true }, ...secondaryAdminMenuItems];
 
-
-  const getInitials = (name) => {
-    return name ? name.charAt(0).toUpperCase() : 'U';
-  };
-
-
-  const getUserDisplayName = () => {
-    return user?.name || user?.username || 'User';
-  };
-
+  const getInitials = (name) => (name ? name.charAt(0).toUpperCase() : 'U');
+  const getUserDisplayName = () => user?.name || user?.username || 'User';
   const getUserRole = () => {
     if (isMainAdmin) return 'Main Admin';
     if (isSecondaryAdmin) return 'Secondary Admin';
     return 'Client';
   };
 
-
-  // Handle click events inside sidebar to prevent closing
-  const handleSidebarClick = (e) => {
-    e.stopPropagation();
-  };
-
-
   return (
     <>
-      {/* Mobile Overlay - Only shows on small screens when sidebar is open */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
           onClick={onClose}
         />
       )}
 
-
-      {/* Sidebar Container - Prevent click propagation */}
-      <div 
+      <div
         className={`
-          fixed top-0 left-0 h-full z-50 transform transition-all duration-300 ease-in-out
+          fixed top-0 left-0 h-full z-50 flex flex-col
+          transform transition-all duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:relative lg:translate-x-0 
-          w-72 sm:w-80 lg:w-64 xl:w-72
-          lg:flex-shrink-0
-        `} 
+          lg:relative lg:translate-x-0
+          w-64 xl:w-72 flex-shrink-0
+          border-r border-gray-100
+        `}
         style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)' }}
-        onClick={handleSidebarClick}
+        onClick={(e) => e.stopPropagation()}
       >
-
-
-        {/* Header Section - Responsive padding and sizing */}
-        <div className="relative overflow-hidden">
-          <div 
-            className="p-4 sm:p-6 text-white relative"
-            style={{ background: 'linear-gradient(135deg, #6498fe 0%, #5a87f7 100%)' }}
+        {/* ===== LOGO SECTION ===== */}
+        <div className="px-5 py-4 border-b border-gray-100 flex-shrink-0">
+          <a
+            href="https://3digree.in"
+            className="flex items-center gap-2.5 group w-fit"
+            title="Go to 3Digree Home"
           >
-            <div className="absolute inset-0 bg-black/10"></div>
-            <div className="relative flex items-center justify-between">
-              <div className="flex items-center gap-3 sm:gap-4">
-                {/* User Avatar - Responsive sizing */}
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30">
-                  <span className="text-white text-lg sm:text-2xl font-bold">
-                    {getInitials(getUserDisplayName())}
-                  </span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  {/* User Name - Responsive text sizing and truncation */}
-                  <h2 className="text-lg sm:text-xl font-bold truncate">{getUserDisplayName()}</h2>
-                  <p className="text-white/80 text-xs sm:text-sm">
-                    {isMainAdmin ? (
-                      <span className="flex items-center gap-1">
-                        <span className="text-yellow-300">👑</span>
-                        <span className="hidden sm:inline">Main Admin</span>
-                        <span className="sm:hidden">Admin</span>
-                      </span>
-                    ) : isSecondaryAdmin ? (
-                      <span className="flex items-center gap-1">
-                        <span className="text-purple-300">🔐</span>
-                        <span className="hidden sm:inline">Secondary Admin</span>
-                        <span className="sm:hidden">Admin</span>
-                      </span>
-                    ) : (
-                      <span className="hidden sm:inline">Client</span>
-                    )}
-                  </p>
-                </div>
-              </div>
-
-
-              {/* Close Button - Only on mobile/tablet, only cross icon */}
-              <button
-                onClick={onClose}
-                className="lg:hidden p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 flex-shrink-0"
-                aria-label="Close sidebar"
-              >
-                <span className="text-lg">✕</span>
-              </button>
+            {/* Logo mark */}
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
+              style={{ background: 'linear-gradient(135deg, #6498fe 0%, #5a87f7 100%)' }}
+            >
+              <span className="text-white font-extrabold text-base leading-none">3D</span>
             </div>
+            {/* Wordmark */}
+            <div>
+              <span className="text-lg font-extrabold text-gray-900 tracking-tight group-hover:text-blue-600 transition-colors">
+                3Digree
+              </span>
+              <span className="block text-[10px] text-gray-400 font-medium leading-none -mt-0.5">Website Platform</span>
+            </div>
+          </a>
+        </div>
+
+        {/* ===== USER PROFILE SECTION ===== */}
+        <div
+          className="px-4 py-4 flex-shrink-0"
+          style={{ background: 'linear-gradient(135deg, #6498fe 0%, #5a87f7 100%)' }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30 flex-shrink-0">
+                <span className="text-white text-lg font-bold">{getInitials(getUserDisplayName())}</span>
+              </div>
+              <div className="min-w-0">
+                <h2 className="text-sm font-bold text-white truncate">{getUserDisplayName()}</h2>
+                <p className="text-white/75 text-xs flex items-center gap-1">
+                  {isMainAdmin ? <><span>👑</span> Main Admin</> :
+                   isSecondaryAdmin ? <><span>🔐</span> Secondary Admin</> :
+                   'Client'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="lg:hidden p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+            >
+              ✕
+            </button>
           </div>
         </div>
 
-
-        {/* Navigation Section - Responsive scrolling and padding */}
-        <nav className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-          <div className="space-y-1 sm:space-y-2">
-            {menuItems.map((item, index) => {
-              if (item.separator) {
-                return (
-                  <div key={`separator-${index}`} className="my-6 sm:my-8">
-                    <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-4 py-2 sm:py-3">
-                      <div className="h-px bg-gray-300 flex-1"></div>
-                      <div className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 ${
-                        isMainAdmin 
-                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600' 
-                          : 'bg-gradient-to-r from-purple-500 to-pink-500'
-                      } text-white rounded-full`}>
-                        <span className="text-yellow-300 text-xs sm:text-sm">
-                          {isMainAdmin ? '👑' : '🔐'}
-                        </span>
-                        <span className="text-xs font-bold uppercase tracking-wider hidden sm:inline">
-                          {isMainAdmin ? 'Admin Panel' : 'Admin'}
-                        </span>
-                        <span className="text-xs font-bold uppercase tracking-wider sm:hidden">
-                          Admin
-                        </span>
-                      </div>
-                      <div className="h-px bg-gray-300 flex-1"></div>
-                    </div>
-                  </div>
-                );
-              }
-
-
-              const isCurrentActive = isActive(item.path);
-
-
+        {/* ===== NAV ITEMS ===== */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+          {menuItems.map((item, index) => {
+            if (item.separator) {
               return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={onClose} // Close sidebar on navigation
-                  className={`
-                    group flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4 
-                    rounded-xl sm:rounded-2xl transition-all duration-300 relative overflow-hidden
-                    ${isCurrentActive
-                      ? 'text-white shadow-xl transform scale-105'
-                      : 'text-gray-700 hover:text-white hover:shadow-lg hover:scale-105'
-                    }
-                  `}
-                  style={{
-                    background: 'transparent'
-                  }}
-                >
-                  {/* Background gradient for active and hover states */}
-                  <div 
-                    className={`absolute inset-0 rounded-xl sm:rounded-2xl transition-all duration-300 ${
-                      isCurrentActive 
-                        ? 'opacity-100' 
-                        : 'opacity-0 group-hover:opacity-100'
-                    }`}
-                    style={{ 
-                      background: 'linear-gradient(135deg, #6498fe, #5a87f7)'
-                    }}
-                  />
-
-
-                  {/* Icon container - Responsive sizing */}
-                  <div className={`relative z-10 w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
-                    isCurrentActive 
-                      ? 'bg-white/20 backdrop-blur-md border border-white/30' 
-                      : 'bg-gray-100 group-hover:bg-white/20 group-hover:backdrop-blur-md group-hover:border group-hover:border-white/30'
-                  }`}>
-                    <span className={`text-sm sm:text-lg transition-colors duration-300 ${
-                      isCurrentActive 
-                        ? 'text-white' 
-                        : 'group-hover:text-white'
-                    }`}>{item.emoji}</span>
-                  </div>
-
-
-                  {/* Label - Responsive text sizing and truncation */}
-                  <div className="relative z-10 flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-sm sm:text-base truncate">
-                        {item.label}
-                      </span>
+                <div key={`sep-${index}`} className="py-4">
+                  <div className="flex items-center gap-2 px-2">
+                    <div className="h-px bg-gray-200 flex-1" />
+                    <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-white text-xs font-bold ${
+                      isMainAdmin ? 'bg-gradient-to-r from-purple-600 to-indigo-600' : 'bg-gradient-to-r from-purple-500 to-pink-500'
+                    }`}>
+                      <span>{isMainAdmin ? '👑' : '🔐'}</span>
+                      <span>ADMIN PANEL</span>
                     </div>
+                    <div className="h-px bg-gray-200 flex-1" />
                   </div>
-
-
-                  {/* Active indicator */}
-                  {isCurrentActive && (
-                    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-1 h-6 sm:h-8 bg-white rounded-l-full"></div>
-                  )}
-                </Link>
+                </div>
               );
-            })}
-          </div>
+            }
+
+            const active = isActive(item.path);
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={onClose}
+                className={`
+                  group flex items-center gap-3 px-3 py-3 rounded-xl
+                  transition-all duration-200 relative overflow-hidden
+                  ${active ? 'text-white shadow-md' : 'text-gray-600 hover:text-white hover:shadow-md'}
+                `}
+              >
+                <div
+                  className={`absolute inset-0 rounded-xl transition-opacity duration-200 ${
+                    active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  }`}
+                  style={{ background: 'linear-gradient(135deg, #6498fe, #5a87f7)' }}
+                />
+                <div className={`relative z-10 w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                  active ? 'bg-white/20 border border-white/30' : 'bg-gray-100 group-hover:bg-white/20 group-hover:border group-hover:border-white/30'
+                }`}>
+                  <span className="text-base">{item.emoji}</span>
+                </div>
+                <span className="relative z-10 font-medium text-sm">{item.label}</span>
+                {active && (
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-white rounded-l-full" />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
-
-        {/* Footer Section - Responsive text sizing and padding */}
-        <div className="p-4 sm:p-6 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
-          <div className="text-center">
-            <div className="text-xs text-gray-500 mb-1 sm:mb-2 truncate">
-              3Digree Website Booking Platform
+        {/* ===== FOOTER ===== */}
+        <div className="px-4 py-3 border-t border-gray-100 flex-shrink-0 bg-gray-50">
+          {user?.credits !== undefined && (
+            <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full w-fit mx-auto">
+              <span className="text-xs">🎫</span>
+              <span className="text-xs font-bold text-green-700">{user.credits} Credits</span>
             </div>
-            {/* ✅ Credits Display */}
-            {user?.credits !== undefined && (
-              <div className="mt-2 inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full">
-                <span className="text-xs">🎫</span>
-                <span className="text-xs font-bold text-green-700">{user.credits} Credits</span>
-              </div>
-            )}
-          </div>
+          )}
+          <p className="text-center text-[10px] text-gray-400 mt-1.5">3Digree © 2026</p>
         </div>
       </div>
     </>
   );
 };
-
 
 export default Sidebar;

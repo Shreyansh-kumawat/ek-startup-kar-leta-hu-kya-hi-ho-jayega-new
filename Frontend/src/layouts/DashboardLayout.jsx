@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../features/auth/useAuth';
 import { useNotification } from '../hooks/useNotification';
@@ -11,114 +11,113 @@ const DashboardLayout = () => {
   const location = useLocation();
   const { notifications, removeNotification } = useNotification();
 
+  const credits = user?.credits ?? 0;
+
   const getPageTitle = () => {
     const path = location.pathname;
-    if (path.includes('admin')) return 'Admin Panel';
-    if (path.includes('bookings')) return 'My Bookings';
-    if (path.includes('meetings')) return 'My Meetings';
+    if (path === '/admin' || path === '/admin/') return 'Admin Panel';
+    if (path.includes('/admin/users')) return 'User Management';
+    if (path.includes('/admin/templates')) return 'Website Templates';
+    if (path.includes('/admin')) return 'Admin Panel';
+    if (path.includes('bookings')) return 'My Website Bookings';
     if (path.includes('account')) return 'My Account';
+    if (path === '/dashboard' || path === '/dashboard/') return 'Dashboard';
     return 'Dashboard';
   };
 
-  // ✅ NEW: Get credits safely
-  const credits = user?.credits ?? 0;
-
-  // Function to close sidebar
-  const closeSidebar = () => {
-    setSidebarOpen(false);
+  const getPageSubtitle = () => {
+    const path = location.pathname;
+    if (path.includes('admin')) return 'Manage your platform';
+    if (path.includes('bookings')) return 'Track your website projects';
+    if (path.includes('account')) return 'Manage your profile';
+    return `Welcome back, ${user?.name || user?.username || 'there'}`;
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      {/* Mobile menu button - Show hamburger when sidebar closed, hide when open */}
+    <div className="min-h-screen flex" style={{ background: '#f0f4ff' }}>
+
+      {/* Mobile hamburger */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className={`p-2 sm:p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl ${
+          className={`p-2.5 bg-white shadow-md border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 ${
             sidebarOpen ? 'opacity-0 invisible' : 'opacity-100 visible'
           }`}
-          aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
         >
-          <span className="text-base sm:text-lg">☰</span>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
         </button>
       </div>
 
-      {/* Sidebar - Responsive container */}
-      <div className={`${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:translate-x-0 transition-transform duration-300 ease-in-out 
-      fixed lg:static inset-y-0 left-0 z-40 lg:flex lg:flex-shrink-0`}>
-        <Sidebar 
-          isOpen={sidebarOpen} 
-          onClose={closeSidebar} 
-        />
-      </div>
+      {/* Sidebar */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Main content - Add click handler to close sidebar when clicked outside */}
-      <div 
-        className="flex-1 flex flex-col min-w-0 lg:pl-0"
-        onClick={() => {
-          // Close sidebar when clicking on main content area (only on mobile/tablet)
-          if (sidebarOpen && window.innerWidth < 1024) {
-            closeSidebar();
-          }
-        }}
+      {/* Main area */}
+      <div
+        className="flex-1 flex flex-col min-w-0"
+        onClick={() => { if (sidebarOpen && window.innerWidth < 1024) setSidebarOpen(false); }}
       >
-        {/* Header - Enhanced responsive design with CREDITS */}
-        <header className="bg-white shadow-sm border-b border-gray-200 px-4 sm:px-6 py-4 sm:py-5">
-          <div className="flex items-center justify-between">
-            {/* Title section - Responsive margins and text */}
-            <div className="ml-12 sm:ml-14 lg:ml-0 min-w-0 flex-1">
-              <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 truncate">
-                {getPageTitle()}
-              </h1>
-              <p className="text-xs sm:text-sm text-gray-600 truncate">
-                Welcome back, {user?.name || user?.username}
-              </p>
+        {/* ===== HEADER ===== */}
+        <header className="bg-white border-b border-gray-200 px-5 sm:px-8 py-0 flex-shrink-0" style={{ minHeight: '64px' }}>
+          <div className="flex items-center justify-between h-16">
+
+            {/* Left: page title */}
+            <div className="ml-12 lg:ml-0">
+              <h1 className="text-lg font-bold text-gray-900 leading-tight">{getPageTitle()}</h1>
+              <p className="text-xs text-gray-400 leading-tight mt-0.5">{getPageSubtitle()}</p>
             </div>
-            
-            {/* ✅ NEW: CREDITS DISPLAY + User info */}
-            <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-              {/* Credits Badge */}
-              <div className="flex items-center space-x-1 sm:space-x-2">
-                <div className={`px-2 sm:px-3 py-1.5 rounded-full flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium border ${
-                  credits > 0 
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
-                    : 'bg-gray-50 border-gray-200 text-gray-700'
-                }`}>
-                  <span className="text-xs">🎫</span>
-                  <span className="font-semibold">{credits}</span>
-                  <span className="hidden sm:inline">Credits</span>
-                </div>
+
+            {/* Right: credits + avatar */}
+            <div className="flex items-center gap-3">
+
+              {/* Credits pill */}
+              <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border ${
+                credits > 0
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                  : 'bg-gray-50 border-gray-200 text-gray-500'
+              }`}>
+                <span>🎫</span>
+                <span>{credits} Credits</span>
               </div>
 
-              {/* User avatar */}
-              <div className="flex items-center space-x-2">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-medium">
+              {/* Divider */}
+              <div className="hidden sm:block h-8 w-px bg-gray-200" />
+
+              {/* User avatar + name */}
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #6498fe, #5a87f7)' }}
+                >
                   {(user?.name || user?.username || 'U').charAt(0).toUpperCase()}
                 </div>
-                <span className="text-xs sm:text-sm text-gray-700 capitalize hidden sm:inline truncate">
-                  {user?.role === 'user' ? 'Client' : user?.role || 'client'}
-                </span>
+                <div className="hidden sm:block leading-tight">
+                  <div className="text-sm font-semibold text-gray-800">{user?.name || user?.username || 'User'}</div>
+                  <div className="text-[10px] text-gray-400 capitalize">
+                    {user?.role === 'admin' ? 'Main Admin' :
+                     user?.role === 'secondaryAdmin' ? 'Secondary Admin' : 'Client'}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Page content - Responsive padding */}
+        {/* Page content */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           <Outlet />
         </main>
       </div>
 
-      {/* Notifications - Responsive positioning */}
+      {/* Notifications */}
       <div className="fixed top-4 right-4 z-50 space-y-2 max-w-xs sm:max-w-sm">
-        {notifications.map((notification) => (
+        {notifications.map((n) => (
           <Notification
-            key={notification.id}
-            type={notification.type}
-            message={notification.message}
-            onClose={() => removeNotification(notification.id)}
+            key={n.id}
+            type={n.type}
+            message={n.message}
+            onClose={() => removeNotification(n.id)}
           />
         ))}
       </div>
