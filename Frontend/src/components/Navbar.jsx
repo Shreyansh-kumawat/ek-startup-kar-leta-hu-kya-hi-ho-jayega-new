@@ -267,15 +267,15 @@ const Navbar = () => {
                   )}
                 </div>
               ) : (
-                /* Login/Register - Mobile */
-                <div className="space-y-2">
-                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                    <button className="w-full border-2 border-[#6498fe] text-[#6498fe] hover:bg-[#6498fe] hover:text-white rounded-xl font-bold transition-all duration-300 shadow-md py-3 px-4">
+                /* ── Login/Register Mobile — Side by side, compact ── */
+                <div className="flex gap-2 pt-1">
+                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex-1">
+                    <button className="w-full border-2 border-[#6498fe] text-[#6498fe] hover:bg-[#6498fe] hover:text-white rounded-xl font-bold transition-all duration-300 py-2 px-3 text-sm">
                       Login
                     </button>
                   </Link>
-                  <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                    <button className="w-full bg-gradient-to-r from-[#6498fe] to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 py-3 px-4">
+                  <Link to="/register" onClick={() => setIsMobileMenuOpen(false)} className="flex-1">
+                    <button className="w-full bg-gradient-to-r from-[#6498fe] to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-xl font-bold shadow-md hover:shadow-lg transition-all duration-300 py-2 px-3 text-sm">
                       Register
                     </button>
                   </Link>
