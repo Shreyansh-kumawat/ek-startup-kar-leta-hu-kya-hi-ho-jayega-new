@@ -81,10 +81,10 @@ const AdminDashboard = () => {
     { label: 'Total Users', value: s.totalUsers, color: 'blue', icon: '👥' },
     { label: 'Total Bookings', value: s.totalOrders, color: 'green', icon: '📋' },
     { label: 'Active Projects', value: s.activeProjects, color: 'purple', icon: '🚀' },
-    { label: 'Completed', value: s.completedProjects, color: 'teal', icon: '✅' },
-    { label: 'Pending Meetings', value: s.pendingMeetings, color: 'yellow', icon: '📅' },
-    { label: 'Total Templates', value: s.totalTemplates, color: 'indigo', icon: '🎨' },
-    { label: 'This Week Users', value: s.weeklyUsers, color: 'pink', icon: '📈' },
+    { label: 'Completed', value: s.completedProjects, color: 'black', icon: '✅' },
+    { label: 'Pending Meetings', value: s.pendingMeetings, color: 'black', icon: '📅' },
+    { label: 'Total Templates', value: s.totalTemplates, color: 'black', icon: '🎨' },
+    { label: 'This Week Users', value: s.weeklyUsers, color: 'black', icon: '📈' },
     { label: "Today's Orders", value: s.todayOrders, color: 'orange', icon: '🛒' },
   ];
 
