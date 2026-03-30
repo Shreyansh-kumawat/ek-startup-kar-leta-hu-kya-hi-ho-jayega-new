@@ -2,9 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 
-const SERVER = import.meta.env.VITE_SERVER_BASE_URL ||
-  (import.meta.env.PROD ? 'https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com' : 'http://localhost:5000');
-
 const CareerPage = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +33,7 @@ const CareerPage = () => {
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-3">🚀 Join Our Team</h1>
           <p className="text-lg text-blue-100 max-w-2xl mx-auto">
-            Be a part of 3Digree — we’re building the future of web development.
+            Be a part of 3Digree — we're building the future of web development.
           </p>
         </div>
       </div>
@@ -46,7 +43,7 @@ const CareerPage = () => {
           <div className="text-center py-24">
             <div className="text-6xl mb-4">😔</div>
             <h2 className="text-2xl font-bold text-gray-700 mb-2">No openings right now</h2>
-            <p className="text-gray-500">Check back soon! We’re always growing.</p>
+            <p className="text-gray-500">Check back soon! We're always growing.</p>
           </div>
         ) : (
           <>
@@ -64,7 +61,7 @@ const CareerPage = () => {
                   <div className="sm:w-48 sm:flex-shrink-0 h-48 sm:h-auto bg-gradient-to-br from-blue-100 to-indigo-100 overflow-hidden">
                     {job.image ? (
                       <img
-                        src={`${SERVER}${job.image}`}
+                        src={job.image}
                         alt={job.title}
                         className="w-full h-full object-cover"
                       />

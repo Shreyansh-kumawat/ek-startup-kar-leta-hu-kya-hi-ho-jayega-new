@@ -2,9 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 
-const SERVER = import.meta.env.VITE_SERVER_BASE_URL ||
-  (import.meta.env.PROD ? 'https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com' : 'http://localhost:5000');
-
 const emptyForm = { name: '', age: '', gender: '', email: '', phone: '', message: '' };
 
 const CareerJobDetail = () => {
@@ -83,10 +80,10 @@ const CareerJobDetail = () => {
         </Link>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* Image */}
+          {/* Image — job.image is already a full Cloudinary https:// URL */}
           {job.image && (
             <div className="h-64 md:h-80 overflow-hidden">
-              <img src={`${SERVER}${job.image}`} alt={job.title} className="w-full h-full object-cover" />
+              <img src={job.image} alt={job.title} className="w-full h-full object-cover" />
             </div>
           )}
 
@@ -128,7 +125,7 @@ const CareerJobDetail = () => {
               )}
               {submitted && (
                 <div className="flex-1 text-center bg-green-50 border border-green-200 text-green-700 font-semibold py-3 rounded-xl">
-                  ✅ Application Submitted! We’ll be in touch.
+                  ✅ Application Submitted! We'll be in touch.
                 </div>
               )}
               <button
