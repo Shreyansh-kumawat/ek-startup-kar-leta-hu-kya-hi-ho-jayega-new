@@ -59,7 +59,10 @@ const Sidebar = ({ isOpen, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* ===== LOGO SECTION ===== */}
-        <div className="px-5 py-3 border-b border-gray-100 flex-shrink-0 flex items-center justify-center">
+        <div
+          className="px-5 py-4 flex-shrink-0 flex items-center justify-center"
+          style={{ background: 'linear-gradient(135deg, #6498fe 0%, #5a87f7 100%)' }}
+        >
           <a href="https://3digree.in" title="Go to 3Digree Home">
             <img
               src={logo}
