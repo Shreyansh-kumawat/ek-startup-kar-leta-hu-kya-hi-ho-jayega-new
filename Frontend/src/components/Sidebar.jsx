@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../features/auth/useAuth';
-import logo from '../assets/logo2.png';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
@@ -53,23 +52,25 @@ const Sidebar = ({ isOpen, onClose }) => {
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:relative lg:translate-x-0
           w-64 xl:w-72 flex-shrink-0
-          border-r border-gray-200
-          bg-white
+          border-r border-gray-200 bg-white
         `}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ===== LOGO SECTION — white bg, left-aligned ===== */}
+        {/* ===== LOGO SECTION ===== */}
         <div className="px-5 py-4 border-b border-gray-100 flex-shrink-0">
-          <a href="https://3digree.in" title="Go to 3Digree Home" className="block w-fit">
+          <a href="https://3digree.in" title="Go to 3Digree Home" className="flex items-center gap-3 w-fit group">
             <img
-              src={logo}
+              src="/icon5.png"
               alt="3Digree"
-              className="h-9 w-auto object-contain hover:opacity-75 transition-opacity"
+              className="w-10 h-10 rounded-xl object-cover flex-shrink-0 group-hover:opacity-80 transition-opacity"
             />
+            <span className="text-base font-bold text-gray-800 group-hover:text-blue-600 transition-colors tracking-tight">
+              3Digree
+            </span>
           </a>
         </div>
 
-        {/* ===== USER PROFILE SECTION — blue gradient ===== */}
+        {/* ===== USER PROFILE SECTION ===== */}
         <div
           className="px-4 py-4 flex-shrink-0"
           style={{ background: 'linear-gradient(135deg, #6498fe 0%, #5a87f7 100%)' }}
