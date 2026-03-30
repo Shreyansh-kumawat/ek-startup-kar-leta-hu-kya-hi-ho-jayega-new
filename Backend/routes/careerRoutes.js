@@ -26,16 +26,23 @@ const upload = multer({
   },
 });
 
-// ── Public Routes ──
-router.get('/', getActiveJobs);
-router.post('/apply', submitApplication);          // Submit application
-router.get('/:jobId', getJobByJobId);              // MUST be after /apply
+// ─────────────────────────────────────────────────────────────────────────────
+// IMPORTANT: All static/exact-path routes MUST come before /:param routes.
+// Otherwise Express matches e.g. GET /admin/all as /:jobId = 'admin'
+// ─────────────────────────────────────────────────────────────────────────────
 
-// ── Admin Routes ──
-router.get('/admin/all', verifyToken, isAdmin, getAllJobs);
-router.get('/admin/applications/:jobId', verifyToken, isAdmin, getApplicationsByJob);
-router.post('/', verifyToken, isAdmin, upload.single('image'), createJob);
-router.put('/:id', verifyToken, isAdmin, upload.single('image'), updateJob);
-router.delete('/:id', verifyToken, isAdmin, deleteJob);
+// ── Public: exact paths ──
+router.get('/', getActiveJobs);                                               // GET  /
+router.post('/apply', submitApplication);                                     // POST /apply
+
+// ── Admin: exact paths (before /:id wildcards) ──
+router.get('/admin/all', verifyToken, isAdmin, getAllJobs);                   // GET  /admin/all
+router.get('/admin/applications/:jobId', verifyToken, isAdmin, getApplicationsByJob); // GET /admin/applications/:jobId
+router.post('/', verifyToken, isAdmin, upload.single('image'), createJob);   // POST /
+
+// ── Wildcard param routes (MUST be last) ──
+router.get('/:jobId', getJobByJobId);                                         // GET  /:jobId
+router.put('/:id', verifyToken, isAdmin, upload.single('image'), updateJob); // PUT  /:id
+router.delete('/:id', verifyToken, isAdmin, deleteJob);                      // DEL  /:id
 
 module.exports = router;
