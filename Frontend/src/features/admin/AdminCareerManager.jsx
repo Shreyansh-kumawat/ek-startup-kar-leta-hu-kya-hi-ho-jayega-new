@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/apiClient';
 import { useAuth } from '../auth/useAuth';
 
-const API = import.meta.env.VITE_API_URL || 'https://3digree-backend.onrender.com';
+// Server base URL for images (no /api suffix)
+const SERVER = import.meta.env.VITE_SERVER_BASE_URL ||
+  (import.meta.env.PROD ? 'https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com' : 'http://localhost:5000');
 
 const emptyForm = {
   title: '',
@@ -23,12 +25,12 @@ const AdminCareerManager = () => {
   const [submitting, setSubmitting] = useState(false);
   const [preview, setPreview] = useState(null);
 
-  const headers = { Authorization: `Bearer ${token}` };
+  const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
 
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API}/api/careers/admin/all`, { headers });
+      const res = await apiClient.get('/careers/admin/all', authHeaders);
       setJobs(res.data.data || []);
     } catch { setJobs([]); }
     setLoading(false);
@@ -38,8 +40,9 @@ const AdminCareerManager = () => {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === 'image') {
+    if (name === 'image' && files && files[0]) {
       setForm(f => ({ ...f, image: files[0] }));
+      // ✅ FIX: Guard against undefined file
       setPreview(URL.createObjectURL(files[0]));
     } else {
       setForm(f => ({ ...f, [name]: value }));
@@ -51,12 +54,21 @@ const AdminCareerManager = () => {
     setSubmitting(true);
     try {
       const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => { if (v) fd.append(k, v); });
+      Object.entries(form).forEach(([k, v]) => {
+        if (v !== null && v !== undefined && v !== '') fd.append(k, v);
+      });
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      };
 
       if (editId) {
-        await axios.put(`${API}/api/careers/${editId}`, fd, { headers });
+        await apiClient.put(`/careers/${editId}`, fd, config);
       } else {
-        await axios.post(`${API}/api/careers`, fd, { headers });
+        await apiClient.post('/careers', fd, config);
       }
       setForm(emptyForm);
       setEditId(null);
@@ -71,35 +83,37 @@ const AdminCareerManager = () => {
 
   const handleEdit = (job) => {
     setForm({
-      title: job.title,
-      description: job.description,
-      timePeriod: job.timePeriod,
-      experience: job.experience,
-      expiryDate: job.expiryDate?.split('T')[0],
+      title: job.title || '',
+      description: job.description || '',
+      timePeriod: job.timePeriod || '',
+      experience: job.experience || '',
+      expiryDate: job.expiryDate?.split('T')[0] || '',
       image: null,
     });
     setEditId(job._id);
-    setPreview(job.image ? `${API}${job.image}` : null);
+    setPreview(job.image ? `${SERVER}${job.image}` : null);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this job? This cannot be undone.')) return;
-    await axios.delete(`${API}/api/careers/${id}`, { headers });
+    await apiClient.delete(`/careers/${id}`, authHeaders);
     fetchJobs();
   };
 
   const handleToggle = async (job) => {
     const fd = new FormData();
-    fd.append('isActive', !job.isActive);
-    await axios.put(`${API}/api/careers/${job._id}`, fd, { headers });
+    fd.append('isActive', String(!job.isActive));
+    await apiClient.put(`/careers/${job._id}`, fd, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
+    });
     fetchJobs();
   };
 
   const handleShare = (jobId) => {
     navigator.clipboard.writeText(`${window.location.origin}/careers/${jobId}`);
-    alert('Link copied!');
+    alert('Link copied! 🎉');
   };
 
   return (
@@ -131,8 +145,8 @@ const AdminCareerManager = () => {
                   placeholder="e.g. Frontend Developer" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Time Period *</label>
-                <input name="timePeriod" value={form.timePeriod} onChange={handleChange} required
+                <label className="block text-sm font-medium text-gray-700 mb-1">Time Period <span className="text-gray-400">(optional)</span></label>
+                <input name="timePeriod" value={form.timePeriod} onChange={handleChange}
                   className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. Full-time, 3 months" />
               </div>
@@ -157,7 +171,7 @@ const AdminCareerManager = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Job Image</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Job Image <span className="text-gray-400">(optional)</span></label>
               <input type="file" name="image" accept="image/*" onChange={handleChange}
                 className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
               {preview && (
@@ -179,9 +193,11 @@ const AdminCareerManager = () => {
         </div>
       )}
 
-      {/* Jobs Table */}
+      {/* Jobs List */}
       {loading ? (
-        <div className="flex justify-center py-16"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div></div>
+        <div className="flex justify-center py-16">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+        </div>
       ) : jobs.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <div className="text-5xl mb-3">💼</div>
@@ -193,9 +209,8 @@ const AdminCareerManager = () => {
             const expired = new Date(job.expiryDate) < new Date();
             return (
               <div key={job._id} className="bg-white rounded-2xl border border-gray-100 p-5 flex gap-4 items-start hover:shadow-sm transition-shadow">
-                {/* Image */}
                 {job.image ? (
-                  <img src={`${API}${job.image}`} alt={job.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                  <img src={`${SERVER}${job.image}`} alt={job.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
                 ) : (
                   <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
                     <span className="text-2xl">💼</span>
@@ -210,8 +225,8 @@ const AdminCareerManager = () => {
                     {!job.isActive && <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-semibold">INACTIVE</span>}
                   </div>
                   <p className="text-sm text-gray-500 mt-0.5 truncate">{job.description}</p>
-                  <div className="flex gap-3 mt-1.5 text-xs text-gray-400">
-                    <span>⏱️ {job.timePeriod}</span>
+                  <div className="flex gap-3 mt-1.5 text-xs text-gray-400 flex-wrap">
+                    {job.timePeriod && <span>⏱️ {job.timePeriod}</span>}
                     <span>💼 {job.experience}</span>
                     <span>📅 {new Date(job.expiryDate).toLocaleDateString('en-IN')}</span>
                   </div>

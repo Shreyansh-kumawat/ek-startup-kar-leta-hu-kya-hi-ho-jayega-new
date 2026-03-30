@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../services/apiClient';
 
-const API = import.meta.env.VITE_API_URL || 'https://3digree-backend.onrender.com';
+const SERVER = import.meta.env.VITE_SERVER_BASE_URL ||
+  (import.meta.env.PROD ? 'https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com' : 'http://localhost:5000');
 
 const CareerJobDetail = () => {
   const { jobId } = useParams();
@@ -11,7 +12,7 @@ const CareerJobDetail = () => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    axios.get(`${API}/api/careers/${jobId}`)
+    apiClient.get(`/careers/${jobId}`)
       .then(res => setJob(res.data.data))
       .catch(() => setJob(null))
       .finally(() => setLoading(false));
@@ -44,17 +45,15 @@ const CareerJobDetail = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-3xl mx-auto">
-        {/* Back */}
         <Link to="/careers" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 text-sm font-medium">
           ← Back to all openings
         </Link>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* Image */}
           {job.image && (
             <div className="h-64 md:h-80 overflow-hidden">
               <img
-                src={`${API}${job.image}`}
+                src={`${SERVER}${job.image}`}
                 alt={job.title}
                 className="w-full h-full object-cover"
               />
@@ -62,7 +61,6 @@ const CareerJobDetail = () => {
           )}
 
           <div className="p-8">
-            {/* Header */}
             <div className="flex items-start justify-between gap-4 mb-2">
               <div>
                 <span className="inline-block bg-blue-50 text-blue-600 text-xs font-bold px-2 py-1 rounded-full mb-2">
@@ -71,17 +69,16 @@ const CareerJobDetail = () => {
                 <h1 className="text-3xl font-extrabold text-gray-900">{job.title}</h1>
               </div>
               {isExpired && (
-                <span className="bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full flex-shrink-0">
-                  EXPIRED
-                </span>
+                <span className="bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full flex-shrink-0">EXPIRED</span>
               )}
             </div>
 
-            {/* Tags */}
             <div className="flex flex-wrap gap-2 my-5">
-              <span className="flex items-center gap-1 bg-gray-100 text-gray-600 text-sm px-3 py-1.5 rounded-full">
-                ⏱️ {job.timePeriod}
-              </span>
+              {job.timePeriod && (
+                <span className="flex items-center gap-1 bg-gray-100 text-gray-600 text-sm px-3 py-1.5 rounded-full">
+                  ⏱️ {job.timePeriod}
+                </span>
+              )}
               <span className="flex items-center gap-1 bg-gray-100 text-gray-600 text-sm px-3 py-1.5 rounded-full">
                 💼 {job.experience}
               </span>
@@ -92,16 +89,13 @@ const CareerJobDetail = () => {
               </span>
             </div>
 
-            {/* Divider */}
             <hr className="my-6 border-gray-100" />
 
-            {/* Description */}
             <div>
               <h2 className="text-lg font-bold text-gray-800 mb-3">About this role</h2>
               <p className="text-gray-600 leading-relaxed whitespace-pre-line">{job.description}</p>
             </div>
 
-            {/* Actions */}
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               {!isExpired && (
                 <a

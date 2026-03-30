@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../services/apiClient';
 
-const API = import.meta.env.VITE_API_URL || 'https://3digree-backend.onrender.com';
+const SERVER = import.meta.env.VITE_SERVER_BASE_URL ||
+  (import.meta.env.PROD ? 'https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com' : 'http://localhost:5000');
 
 const CareerPage = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${API}/api/careers`)
+    apiClient.get('/careers')
       .then(res => setJobs(res.data.data || []))
       .catch(() => setJobs([]))
       .finally(() => setLoading(false));
@@ -55,11 +56,10 @@ const CareerPage = () => {
             <div className="grid gap-6 md:grid-cols-2">
               {jobs.map(job => (
                 <div key={job._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group">
-                  {/* Image */}
                   {job.image && (
                     <div className="h-48 overflow-hidden">
                       <img
-                        src={`${API}${job.image}`}
+                        src={`${SERVER}${job.image}`}
                         alt={job.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
@@ -67,7 +67,6 @@ const CareerPage = () => {
                   )}
 
                   <div className="p-6">
-                    {/* Job ID Badge */}
                     <span className="inline-block bg-blue-50 text-blue-600 text-xs font-bold px-2 py-1 rounded-full mb-3">
                       #{job.jobId}
                     </span>
@@ -75,11 +74,12 @@ const CareerPage = () => {
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{job.title}</h3>
                     <p className="text-gray-500 text-sm mb-4 line-clamp-2">{job.description}</p>
 
-                    {/* Tags */}
                     <div className="flex flex-wrap gap-2 mb-5">
-                      <span className="flex items-center gap-1 bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">
-                        ⏱️ {job.timePeriod}
-                      </span>
+                      {job.timePeriod && (
+                        <span className="flex items-center gap-1 bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">
+                          ⏱️ {job.timePeriod}
+                        </span>
+                      )}
                       <span className="flex items-center gap-1 bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">
                         💼 {job.experience}
                       </span>
@@ -88,7 +88,6 @@ const CareerPage = () => {
                       </span>
                     </div>
 
-                    {/* Actions */}
                     <div className="flex gap-2">
                       <Link
                         to={`/careers/${job.jobId}`}
