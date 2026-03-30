@@ -62,11 +62,9 @@ const Sidebar = ({ isOpen, onClose }) => {
             <img
               src="/icon5.png"
               alt="3Digree"
-              className="w-10 h-10 rounded-xl object-cover flex-shrink-0 group-hover:opacity-80 transition-opacity"
+              className="w-10 h-10 rounded-xl object-cover flex-shrink-0 group-hover:opacity-80 transition-opacity p-1 bg-[#6e97ff]"
             />
-            <span className="text-base font-bold text-gray-800 group-hover:text-blue-600 transition-colors tracking-tight">
-              3Digree
-            </span>
+           
           </a>
         </div>
 
