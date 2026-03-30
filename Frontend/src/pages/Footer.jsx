@@ -65,7 +65,8 @@ const Footer = () => {
                 { text: "Home", path: "/" },
                 { text: "Pricing", path: "/pricing" },
                 { text: "About Us", path: "/about" },
-                { text: "Contact", path: "/contact" }
+                { text: "Contact", path: "/contact" },
+                { text: "Careers", path: "/careers" },
               ].map((link) => (
                 <Link
                   key={link.text}
@@ -132,7 +133,6 @@ const Footer = () => {
               >
                 Privacy Policy
               </Link>
-              
             </div>
 
             {/* Made with Love */}
