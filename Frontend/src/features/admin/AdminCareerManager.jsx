@@ -141,25 +141,25 @@ const AdminCareerManager = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Job Title *</label>
                 <input name="title" value={form.title} onChange={handleChange} required
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full text-black border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. Frontend Developer" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Time Period <span className="text-gray-400">(optional)</span></label>
                 <input name="timePeriod" value={form.timePeriod} onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full text-black border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. Full-time, 3 months" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Experience *</label>
                 <input name="experience" value={form.experience} onChange={handleChange} required
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full text-black border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. Fresher, 1-2 years" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date *</label>
                 <input type="date" name="expiryDate" value={form.expiryDate} onChange={handleChange} required
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="w-full  text-black border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>
 
@@ -173,7 +173,7 @@ const AdminCareerManager = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Job Image <span className="text-gray-400">(optional)</span></label>
               <input type="file" name="image" accept="image/*" onChange={handleChange}
-                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                className="w-full text-black text-sm  file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
               {preview && (
                 <img src={preview} alt="preview" className="mt-3 h-32 w-auto rounded-xl object-cover border" />
               )}
