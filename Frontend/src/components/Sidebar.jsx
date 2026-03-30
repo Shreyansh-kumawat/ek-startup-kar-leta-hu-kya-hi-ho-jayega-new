@@ -19,11 +19,16 @@ const Sidebar = ({ isOpen, onClose }) => {
     { path: '/admin', label: 'Admin Dashboard', emoji: '⚡' },
     { path: '/admin/users', label: 'User Management', emoji: '👥' },
     { path: '/admin/templates', label: 'Website Templates', emoji: '🎨' },
+    { path: '/admin/bookings', label: 'Bookings', emoji: '📋' },
+    { path: '/admin/meetings', label: 'Meetings', emoji: '📅' },
+    { path: '/admin/careers', label: 'Careers', emoji: '💼' },
+    { path: '/admin/secondary', label: 'Secondary Admin', emoji: '🔐' },
   ];
 
   const secondaryAdminMenuItems = [
     { path: '/admin', label: 'Admin Dashboard', emoji: '⚡' },
     { path: '/admin/templates', label: 'Website Templates', emoji: '🎨' },
+    { path: '/admin/bookings', label: 'Bookings', emoji: '📋' },
   ];
 
   const isMainAdmin = user?.role === 'admin';
@@ -64,7 +69,6 @@ const Sidebar = ({ isOpen, onClose }) => {
               alt="3Digree"
               className="w-10 h-10 rounded-xl object-cover flex-shrink-0 group-hover:opacity-80 transition-opacity p-1 bg-[#6e97ff]"
             />
-           
           </a>
         </div>
 

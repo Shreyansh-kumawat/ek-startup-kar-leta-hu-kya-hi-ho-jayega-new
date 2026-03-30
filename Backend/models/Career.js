@@ -5,7 +5,6 @@ const careerSchema = new mongoose.Schema({
   jobId: {
     type: String,
     unique: true,
-    // Auto-generated: 3di001, 3di002, ...
   },
   title: {
     type: String,
@@ -17,18 +16,16 @@ const careerSchema = new mongoose.Schema({
     required: [true, 'Job description is required'],
   },
   image: {
-    type: String, // URL/path to image
+    type: String,
     default: null,
   },
   timePeriod: {
     type: String,
-    required: [true, 'Time period is required'],
-    // e.g. "Full-time", "Part-time", "3 months", "6 months"
+    default: null, // ✅ Optional
   },
   experience: {
     type: String,
-    required: [true, 'Experience required'],
-    // e.g. "0-1 years", "1-3 years", "Fresher"
+    required: [true, 'Experience is required'],
   },
   expiryDate: {
     type: Date,
@@ -38,7 +35,6 @@ const careerSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-  // Counter for auto-generating jobId
 }, {
   timestamps: true,
 });
