@@ -2,18 +2,10 @@ import React, { useEffect, useState } from 'react';
 import apiClient from '../../services/apiClient';
 import { useAuth } from '../auth/useAuth';
 
-// Server base URL for images (no /api suffix)
 const SERVER = import.meta.env.VITE_SERVER_BASE_URL ||
   (import.meta.env.PROD ? 'https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com' : 'http://localhost:5000');
 
-const emptyForm = {
-  title: '',
-  description: '',
-  timePeriod: '',
-  experience: '',
-  expiryDate: '',
-  image: null,
-};
+const emptyForm = { title: '', description: '', timePeriod: '', experience: '', expiryDate: '', image: null };
 
 const AdminCareerManager = () => {
   const { token } = useAuth();
@@ -24,6 +16,10 @@ const AdminCareerManager = () => {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [preview, setPreview] = useState(null);
+  // Applications viewer
+  const [viewingJob, setViewingJob] = useState(null); // { jobId, title }
+  const [applications, setApplications] = useState([]);
+  const [appsLoading, setAppsLoading] = useState(false);
 
   const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -38,11 +34,20 @@ const AdminCareerManager = () => {
 
   useEffect(() => { fetchJobs(); }, []);
 
+  const fetchApplications = async (jobId, title) => {
+    setViewingJob({ jobId, title });
+    setAppsLoading(true);
+    try {
+      const res = await apiClient.get(`/careers/admin/applications/${jobId}`, authHeaders);
+      setApplications(res.data.data || []);
+    } catch { setApplications([]); }
+    setAppsLoading(false);
+  };
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'image' && files && files[0]) {
       setForm(f => ({ ...f, image: files[0] }));
-      // ✅ FIX: Guard against undefined file
       setPreview(URL.createObjectURL(files[0]));
     } else {
       setForm(f => ({ ...f, [name]: value }));
@@ -54,26 +59,11 @@ const AdminCareerManager = () => {
     setSubmitting(true);
     try {
       const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => {
-        if (v !== null && v !== undefined && v !== '') fd.append(k, v);
-      });
-
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      };
-
-      if (editId) {
-        await apiClient.put(`/careers/${editId}`, fd, config);
-      } else {
-        await apiClient.post('/careers', fd, config);
-      }
-      setForm(emptyForm);
-      setEditId(null);
-      setShowForm(false);
-      setPreview(null);
+      Object.entries(form).forEach(([k, v]) => { if (v !== null && v !== undefined && v !== '') fd.append(k, v); });
+      const config = { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } };
+      if (editId) await apiClient.put(`/careers/${editId}`, fd, config);
+      else await apiClient.post('/careers', fd, config);
+      setForm(emptyForm); setEditId(null); setShowForm(false); setPreview(null);
       fetchJobs();
     } catch (err) {
       alert(err.response?.data?.message || 'Error saving job');
@@ -82,22 +72,16 @@ const AdminCareerManager = () => {
   };
 
   const handleEdit = (job) => {
-    setForm({
-      title: job.title || '',
-      description: job.description || '',
-      timePeriod: job.timePeriod || '',
-      experience: job.experience || '',
-      expiryDate: job.expiryDate?.split('T')[0] || '',
-      image: null,
-    });
+    setForm({ title: job.title || '', description: job.description || '', timePeriod: job.timePeriod || '', experience: job.experience || '', expiryDate: job.expiryDate?.split('T')[0] || '', image: null });
     setEditId(job._id);
     setPreview(job.image ? `${SERVER}${job.image}` : null);
     setShowForm(true);
+    setViewingJob(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this job? This cannot be undone.')) return;
+    if (!window.confirm('Delete this job?')) return;
     await apiClient.delete(`/careers/${id}`, authHeaders);
     fetchJobs();
   };
@@ -105,9 +89,7 @@ const AdminCareerManager = () => {
   const handleToggle = async (job) => {
     const fd = new FormData();
     fd.append('isActive', String(!job.isActive));
-    await apiClient.put(`/careers/${job._id}`, fd, {
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
-    });
+    await apiClient.put(`/careers/${job._id}`, fd, { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } });
     fetchJobs();
   };
 
@@ -116,9 +98,58 @@ const AdminCareerManager = () => {
     alert('Link copied! 🎉');
   };
 
+  // ── Applications Viewer Panel ──
+  if (viewingJob) {
+    return (
+      <div className="p-6 max-w-5xl mx-auto">
+        <button onClick={() => setViewingJob(null)} className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 text-sm font-medium">
+          ← Back to Jobs
+        </button>
+        <h1 className="text-2xl font-extrabold text-gray-900 mb-1">Applications</h1>
+        <p className="text-gray-500 text-sm mb-6">Job: <span className="font-semibold text-gray-700">{viewingJob.title}</span> <span className="text-blue-500">#{viewingJob.jobId}</span></p>
+
+        {appsLoading ? (
+          <div className="flex justify-center py-16"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" /></div>
+        ) : applications.length === 0 ? (
+          <div className="text-center py-16 text-gray-400">
+            <div className="text-5xl mb-3">📩</div>
+            <p className="font-medium">No applications yet for this job.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-500">{applications.length} application(s) received</p>
+            {applications.map((app, i) => (
+              <div key={app._id} className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-sm transition-shadow">
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div>
+                    <span className="text-xs text-gray-400 font-mono">#{i + 1}</span>
+                    <h3 className="font-bold text-gray-900 text-lg">{app.name}</h3>
+                  </div>
+                  <span className="text-xs text-gray-400">{new Date(app.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+                  <div><span className="text-gray-400">Age</span><p className="font-semibold text-gray-800">{app.age}</p></div>
+                  <div><span className="text-gray-400">Gender</span><p className="font-semibold text-gray-800">{app.gender}</p></div>
+                  <div><span className="text-gray-400">Email</span><p className="font-semibold text-gray-800 break-all">{app.email}</p></div>
+                  <div><span className="text-gray-400">Phone</span><p className="font-semibold text-gray-800">{app.phone}</p></div>
+                </div>
+                {app.message && (
+                  <div className="mt-3 bg-gray-50 rounded-xl px-4 py-3">
+                    <p className="text-xs text-gray-400 mb-1">Message</p>
+                    <p className="text-sm text-gray-700">{app.message}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Main Jobs Panel ──
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900">Career Management</h1>
@@ -132,53 +163,48 @@ const AdminCareerManager = () => {
         </button>
       </div>
 
-      {/* Form */}
+      {/* Add/Edit Form */}
       {showForm && (
         <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-8 shadow-sm">
           <h2 className="text-lg font-bold text-gray-800 mb-4">{editId ? 'Edit Job' : 'Add New Job'}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-blue-700 mb-1">Job Title *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Job Title *</label>
                 <input name="title" value={form.title} onChange={handleChange} required
-                  className="w-full text-black border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. Frontend Developer" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Time Period <span className="text-gray-400">(optional)</span></label>
                 <input name="timePeriod" value={form.timePeriod} onChange={handleChange}
-                  className="w-full text-black border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. Full-time, 3 months" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Experience *</label>
                 <input name="experience" value={form.experience} onChange={handleChange} required
-                  className="w-full text-black border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. Fresher, 1-2 years" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date *</label>
                 <input type="date" name="expiryDate" value={form.expiryDate} onChange={handleChange} required
-                  className="w-full  text-black border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
               <textarea name="description" value={form.description} onChange={handleChange} required rows={4}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-black"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 placeholder="Describe the role, responsibilities, requirements..." />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Job Image <span className="text-gray-400">(optional)</span></label>
               <input type="file" name="image" accept="image/*" onChange={handleChange}
-                className="w-full text-black text-sm  file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-              {preview && (
-                <img src={preview} alt="preview" className="mt-3 h-32 w-auto rounded-xl object-cover border" />
-              )}
+                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+              {preview && <img src={preview} alt="preview" className="mt-3 h-32 w-auto rounded-xl object-cover border" />}
             </div>
-
             <div className="flex gap-3 pt-2">
               <button type="submit" disabled={submitting}
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-xl font-semibold hover:opacity-90 disabled:opacity-60 transition-opacity">
@@ -195,9 +221,7 @@ const AdminCareerManager = () => {
 
       {/* Jobs List */}
       {loading ? (
-        <div className="flex justify-center py-16">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-        </div>
+        <div className="flex justify-center py-16"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" /></div>
       ) : jobs.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <div className="text-5xl mb-3">💼</div>
@@ -216,7 +240,6 @@ const AdminCareerManager = () => {
                     <span className="text-2xl">💼</span>
                   </div>
                 )}
-
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">#{job.jobId}</span>
@@ -231,8 +254,11 @@ const AdminCareerManager = () => {
                     <span>📅 {new Date(job.expiryDate).toLocaleDateString('en-IN')}</span>
                   </div>
                 </div>
-
                 <div className="flex flex-col gap-2 flex-shrink-0">
+                  <button onClick={() => fetchApplications(job.jobId, job.title)}
+                    className="text-xs px-3 py-1.5 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 font-medium">
+                    📩 Applications
+                  </button>
                   <button onClick={() => handleEdit(job)} className="text-xs px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 font-medium">Edit</button>
                   <button onClick={() => handleToggle(job)} className={`text-xs px-3 py-1.5 rounded-lg font-medium ${
                     job.isActive ? 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100' : 'bg-green-50 text-green-600 hover:bg-green-100'
