@@ -10,21 +10,21 @@ const Sidebar = ({ isOpen, onClose }) => {
   const isActive = (path) => location.pathname === path;
 
   const userMenuItems = [
-    { path: '/dashboard', label: 'Dashboard', emoji: '📊', gradient: 'from-blue-500 to-blue-600' },
-    { path: '/dashboard/bookings', label: 'My Website Bookings', emoji: '🎯', gradient: 'from-indigo-500 to-purple-600' },
-    { path: '/pricing', label: 'Buy Credits', emoji: '💳', gradient: 'from-green-500 to-emerald-600' },
-    { path: '/dashboard/account', label: 'My Account', emoji: '👤', gradient: 'from-teal-500 to-cyan-600' },
+    { path: '/dashboard', label: 'Dashboard', emoji: '📊' },
+    { path: '/dashboard/bookings', label: 'My Website Bookings', emoji: '🎯' },
+    { path: '/pricing', label: 'Buy Credits', emoji: '💳' },
+    { path: '/dashboard/account', label: 'My Account', emoji: '👤' },
   ];
 
   const adminMenuItems = [
-    { path: '/admin', label: 'Admin Dashboard', emoji: '⚡', gradient: 'from-indigo-500 to-purple-600' },
-    { path: '/admin/users', label: 'User Management', emoji: '👥', gradient: 'from-cyan-500 to-blue-600' },
-    { path: '/admin/templates', label: 'Website Templates', emoji: '🎨', gradient: 'from-purple-500 to-indigo-600' },
+    { path: '/admin', label: 'Admin Dashboard', emoji: '⚡' },
+    { path: '/admin/users', label: 'User Management', emoji: '👥' },
+    { path: '/admin/templates', label: 'Website Templates', emoji: '🎨' },
   ];
 
   const secondaryAdminMenuItems = [
-    { path: '/admin', label: 'Admin Dashboard', emoji: '⚡', gradient: 'from-indigo-500 to-purple-600' },
-    { path: '/admin/templates', label: 'Website Templates', emoji: '🎨', gradient: 'from-purple-500 to-indigo-600' },
+    { path: '/admin', label: 'Admin Dashboard', emoji: '⚡' },
+    { path: '/admin/templates', label: 'Website Templates', emoji: '🎨' },
   ];
 
   const isMainAdmin = user?.role === 'admin';
@@ -53,26 +53,23 @@ const Sidebar = ({ isOpen, onClose }) => {
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:relative lg:translate-x-0
           w-64 xl:w-72 flex-shrink-0
-          border-r border-gray-100
+          border-r border-gray-200
+          bg-white
         `}
-        style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ===== LOGO SECTION ===== */}
-        <div
-          className="px-5 py-4 flex-shrink-0 flex items-center justify-center"
-          style={{ background: 'linear-gradient(135deg, #6498fe 0%, #5a87f7 100%)' }}
-        >
-          <a href="https://3digree.in" title="Go to 3Digree Home">
+        {/* ===== LOGO SECTION — white bg, left-aligned ===== */}
+        <div className="px-5 py-4 border-b border-gray-100 flex-shrink-0">
+          <a href="https://3digree.in" title="Go to 3Digree Home" className="block w-fit">
             <img
               src={logo}
               alt="3Digree"
-              className="h-10 w-auto object-contain hover:opacity-80 transition-opacity"
+              className="h-9 w-auto object-contain hover:opacity-75 transition-opacity"
             />
           </a>
         </div>
 
-        {/* ===== USER PROFILE SECTION ===== */}
+        {/* ===== USER PROFILE SECTION — blue gradient ===== */}
         <div
           className="px-4 py-4 flex-shrink-0"
           style={{ background: 'linear-gradient(135deg, #6498fe 0%, #5a87f7 100%)' }}
