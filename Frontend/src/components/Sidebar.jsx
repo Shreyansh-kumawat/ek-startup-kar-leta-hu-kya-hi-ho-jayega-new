@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../features/auth/useAuth';
+import logo from '../assets/logo2.png';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
@@ -35,11 +36,6 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   const getInitials = (name) => (name ? name.charAt(0).toUpperCase() : 'U');
   const getUserDisplayName = () => user?.name || user?.username || 'User';
-  const getUserRole = () => {
-    if (isMainAdmin) return 'Main Admin';
-    if (isSecondaryAdmin) return 'Secondary Admin';
-    return 'Client';
-  };
 
   return (
     <>
@@ -63,25 +59,13 @@ const Sidebar = ({ isOpen, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* ===== LOGO SECTION ===== */}
-        <div className="px-5 py-4 border-b border-gray-100 flex-shrink-0">
-          <a
-            href="https://3digree.in"
-            className="flex items-center gap-2.5 group w-fit"
-            title="Go to 3Digree Home"
-          >
-            {/* Logo mark */}
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
-              style={{ background: 'linear-gradient(135deg, #6498fe 0%, #5a87f7 100%)' }}
-            >
-              <span className="text-white font-extrabold text-base leading-none">3D</span>
-            </div>
-            {/* Wordmark */}
-            <div>
-              <span className="text-lg font-extrabold text-gray-900 tracking-tight group-hover:text-blue-600 transition-colors">
-                3Digree
-              </span>
-              <span className="block text-[10px] text-gray-400 font-medium leading-none -mt-0.5">Website Platform</span>
-            </div>
+        <div className="px-5 py-3 border-b border-gray-100 flex-shrink-0 flex items-center justify-center">
+          <a href="https://3digree.in" title="Go to 3Digree Home">
+            <img
+              src={logo}
+              alt="3Digree"
+              className="h-10 w-auto object-contain hover:opacity-80 transition-opacity"
+            />
           </a>
         </div>
 
