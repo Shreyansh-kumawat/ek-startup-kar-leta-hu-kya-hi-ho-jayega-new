@@ -8,7 +8,7 @@ const Footer = () => {
     <footer className="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           
           {/* Company Info - Column 1 */}
           <div className="flex flex-col gap-6">
@@ -74,7 +74,7 @@ const Footer = () => {
                   className="text-gray-300 hover:text-white transition-all duration-300 text-base hover:translate-x-2 transform inline-block group"
                 >
                   <span className="flex items-center gap-2">
-                    <span className="text-blue-400 group-hover:text-blue-300">→</span>
+                    <span className="text-blue-400 group-hover:text-blue-300">&rarr;</span>
                     {link.text}
                   </span>
                 </Link>
@@ -82,7 +82,30 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Contact Info - Column 3 */}
+          {/* Labs (Experimental) - Column 3 */}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-xl font-bold text-white mb-2 tracking-wide flex items-center gap-2">
+              <span>Labs</span>
+              <span className="text-xs font-semibold bg-purple-600 text-white px-2 py-0.5 rounded-full tracking-wider">Experimental</span>
+            </h3>
+            <p className="text-gray-400 text-sm leading-relaxed mb-1">
+              Experimental pages and 3D experiences — not part of the main product.
+            </p>
+            <div className="flex flex-col gap-3">
+              <Link
+                to="/labs/about"
+                className="text-gray-300 hover:text-purple-300 transition-all duration-300 text-base hover:translate-x-2 transform inline-block group"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="text-purple-400 group-hover:text-purple-300">&rarr;</span>
+                  3D About Page
+                  <span className="text-xs text-purple-400 font-mono">/labs/about</span>
+                </span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Contact Info - Column 4 */}
           <div className="flex flex-col gap-4">
             <h3 className="text-xl font-bold text-white mb-2 tracking-wide">Contact Us</h3>
             <div className="text-gray-300 text-base space-y-4">
@@ -122,7 +145,7 @@ const Footer = () => {
         <div className="border-t border-gray-700 pt-8 mt-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-gray-400 text-sm text-center md:text-left">
-              © {currentYear} 3Digree. All rights reserved.
+              &copy; {currentYear} 3Digree. All rights reserved.
             </p>
             
             {/* Legal Links */}
@@ -137,7 +160,7 @@ const Footer = () => {
 
             {/* Made with Love */}
             <p className="text-gray-400 text-sm text-center md:text-right flex items-center gap-2">
-              Made with <span className="text-red-500 animate-pulse">❤️</span> by 3Digree Team
+              Made with <span className="text-red-500 animate-pulse">&hearts;</span> by 3Digree Team
             </p>
           </div>
         </div>
