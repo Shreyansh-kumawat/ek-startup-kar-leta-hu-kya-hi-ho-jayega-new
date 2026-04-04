@@ -19,6 +19,7 @@ const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const Templates = lazy(() => import('./pages/Templates'));
 const TemplateDetails = lazy(() => import('./pages/TemplateDetails'));
 const About = lazy(() => import('./pages/About'));
+const LabsAbout = lazy(() => import('./pages/LabsAbout'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const NotFound = lazy(() => import('./pages/NotFound'));
@@ -115,6 +116,9 @@ function App() {
               {/* ✅ Careers - Public */}
               <Route path="careers" element={<PublicRoute><CareerPage /></PublicRoute>} />
               <Route path="careers/:jobId" element={<PublicRoute><CareerJobDetail /></PublicRoute>} />
+
+              {/* ✅ Labs Routes */}
+              <Route path="labs/about" element={<PublicRoute><LabsAbout /></PublicRoute>} />
             </Route>
 
             {/* ========== B2B BOOKING ROUTES ========== */}
