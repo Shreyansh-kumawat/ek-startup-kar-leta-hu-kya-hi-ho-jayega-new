@@ -283,7 +283,7 @@ export default function AdminMailManager() {
               value={subject}
               onChange={e => setSubject(e.target.value)}
               placeholder="Email subject..."
-              className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-black"
             />
           </div>
 
@@ -304,7 +304,7 @@ export default function AdminMailManager() {
               onChange={e => setBody(e.target.value)}
               rows={12}
               placeholder="Write your message here..."
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 resize-y font-mono"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 resize-y font-mono text-black"
             />
           </div>
 
