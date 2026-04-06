@@ -9,36 +9,36 @@ const Sidebar = ({ isOpen, onClose }) => {
   const isActive = (path) => location.pathname === path;
 
   const userMenuItems = [
-    { path: '/dashboard', label: 'Dashboard', emoji: '📊' },
-    { path: '/dashboard/bookings', label: 'My Website Bookings', emoji: '🎯' },
-    { path: '/pricing', label: 'Buy Credits', emoji: '💳' },
-    { path: '/dashboard/account', label: 'My Account', emoji: '👤' },
+    { path: '/dashboard',          label: 'Dashboard',            emoji: '📊' },
+    { path: '/dashboard/bookings', label: 'My Website Bookings',  emoji: '🎯' },
+    { path: '/pricing',            label: 'Buy Credits',          emoji: '💳' },
+    { path: '/dashboard/account',  label: 'My Account',           emoji: '👤' },
   ];
 
   const adminMenuItems = [
-    { path: '/admin', label: 'Admin Dashboard', emoji: '⚡' },
-    { path: '/admin/users', label: 'User Management', emoji: '👥' },
-    { path: '/admin/templates', label: 'Website Templates', emoji: '🎨' },
-    { path: '/admin/bookings', label: 'Bookings', emoji: '📋' },
-    { path: '/admin/meetings', label: 'Meetings', emoji: '📅' },
-    { path: '/admin/careers', label: 'Careers', emoji: '💼' },
-    { path: '/admin/secondary', label: 'Secondary Admin', emoji: '🔐' },
+    { path: '/admin',           label: 'Admin Dashboard',   emoji: '⚡'  },
+    { path: '/admin/users',     label: 'User Management',   emoji: '👥'  },
+    { path: '/admin/templates', label: 'Website Templates', emoji: '🎨'  },
+    { path: '/admin/bookings',  label: 'Bookings',          emoji: '📋'  },
+    { path: '/admin/mail',      label: 'Mail Manager',      emoji: '📧'  }, // ✅ replaces /admin/meetings
+    { path: '/admin/careers',   label: 'Careers',           emoji: '💼'  },
+    { path: '/admin/secondary', label: 'Secondary Admin',   emoji: '🔐'  },
   ];
 
   const secondaryAdminMenuItems = [
-    { path: '/admin', label: 'Admin Dashboard', emoji: '⚡' },
+    { path: '/admin',           label: 'Admin Dashboard',   emoji: '⚡' },
     { path: '/admin/templates', label: 'Website Templates', emoji: '🎨' },
-    { path: '/admin/bookings', label: 'Bookings', emoji: '📋' },
+    { path: '/admin/bookings',  label: 'Bookings',          emoji: '📋' },
   ];
 
-  const isMainAdmin = user?.role === 'admin';
+  const isMainAdmin      = user?.role === 'admin';
   const isSecondaryAdmin = user?.role === 'secondaryAdmin';
 
   let menuItems = userMenuItems;
-  if (isMainAdmin) menuItems = [...userMenuItems, { separator: true }, ...adminMenuItems];
+  if (isMainAdmin)      menuItems = [...userMenuItems, { separator: true }, ...adminMenuItems];
   else if (isSecondaryAdmin) menuItems = [...userMenuItems, { separator: true }, ...secondaryAdminMenuItems];
 
-  const getInitials = (name) => (name ? name.charAt(0).toUpperCase() : 'U');
+  const getInitials       = (name) => (name ? name.charAt(0).toUpperCase() : 'U');
   const getUserDisplayName = () => user?.name || user?.username || 'User';
 
   return (
@@ -61,7 +61,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         `}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ===== LOGO SECTION ===== */}
+        {/* LOGO */}
         <div className="px-5 py-4 border-b border-gray-100 flex-shrink-0">
           <a href="https://3digree.in" title="Go to 3Digree Home" className="flex items-center gap-3 w-fit group">
             <img
@@ -72,7 +72,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           </a>
         </div>
 
-        {/* ===== USER PROFILE SECTION ===== */}
+        {/* USER PROFILE */}
         <div
           className="px-4 py-4 flex-shrink-0"
           style={{ background: 'linear-gradient(135deg, #6498fe 0%, #5a87f7 100%)' }}
@@ -85,7 +85,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               <div className="min-w-0">
                 <h2 className="text-sm font-bold text-white truncate">{getUserDisplayName()}</h2>
                 <p className="text-white/75 text-xs flex items-center gap-1">
-                  {isMainAdmin ? <><span>👑</span> Main Admin</> :
+                  {isMainAdmin      ? <><span>👑</span> Main Admin</> :
                    isSecondaryAdmin ? <><span>🔐</span> Secondary Admin</> :
                    'Client'}
                 </p>
@@ -100,7 +100,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* ===== NAV ITEMS ===== */}
+        {/* NAV ITEMS */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
           {menuItems.map((item, index) => {
             if (item.separator) {
@@ -109,7 +109,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                   <div className="flex items-center gap-2 px-2">
                     <div className="h-px bg-gray-200 flex-1" />
                     <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-white text-xs font-bold ${
-                      isMainAdmin ? 'bg-gradient-to-r from-purple-600 to-indigo-600' : 'bg-gradient-to-r from-purple-500 to-pink-500'
+                      isMainAdmin
+                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600'
+                        : 'bg-gradient-to-r from-purple-500 to-pink-500'
                     }`}>
                       <span>{isMainAdmin ? '👑' : '🔐'}</span>
                       <span>ADMIN PANEL</span>
@@ -139,7 +141,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                   style={{ background: 'linear-gradient(135deg, #6498fe, #5a87f7)' }}
                 />
                 <div className={`relative z-10 w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                  active ? 'bg-white/20 border border-white/30' : 'bg-gray-100 group-hover:bg-white/20 group-hover:border group-hover:border-white/30'
+                  active
+                    ? 'bg-white/20 border border-white/30'
+                    : 'bg-gray-100 group-hover:bg-white/20 group-hover:border group-hover:border-white/30'
                 }`}>
                   <span className="text-base">{item.emoji}</span>
                 </div>
@@ -152,7 +156,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           })}
         </nav>
 
-        {/* ===== FOOTER ===== */}
+        {/* FOOTER */}
         <div className="px-4 py-3 border-t border-gray-100 flex-shrink-0 bg-gray-50">
           {user?.credits !== undefined && (
             <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full w-fit mx-auto">

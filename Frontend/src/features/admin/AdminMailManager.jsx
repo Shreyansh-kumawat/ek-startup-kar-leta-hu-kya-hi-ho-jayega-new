@@ -68,7 +68,21 @@ The 3Digree Team`,
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const interpolate = (text, name) => text.replace(/{{name}}/g, name || 'there');
+const interpolate = (text, name) =>
+  (text || '').replace(/{{name}}/g, name || 'there');
+
+// Safely extract array from any API response shape
+const extractArray = (res) => {
+  if (!res) return [];
+  // Case 1: res itself is array
+  if (Array.isArray(res)) return res;
+  // Case 2: res.data is array
+  if (Array.isArray(res.data)) return res.data;
+  // Case 3: res.data.users or res.users
+  if (Array.isArray(res.data?.users)) return res.data.users;
+  if (Array.isArray(res.users)) return res.users;
+  return [];
+};
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function AdminMailManager() {
@@ -78,35 +92,44 @@ export default function AdminMailManager() {
   const isAdmin = ['admin', 'mainAdmin', 'secondaryAdmin'].includes(user?.role);
 
   // Users
-  const [users, setUsers]           = useState([]);
+  const [users, setUsers]               = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loadError, setLoadError]       = useState(null);
 
   // Mode: 'all' | 'specific'
-  const [mode, setMode]             = useState('all');
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [userSearch, setUserSearch] = useState('');
+  const [mode, setMode]                 = useState('all');
+  const [selectedIds, setSelectedIds]   = useState([]);
+  const [userSearch, setUserSearch]     = useState('');
 
   // Mail content
-  const [templateId, setTemplateId] = useState(TEMPLATES[0].id);
-  const [subject, setSubject]       = useState(TEMPLATES[0].subject);
-  const [body, setBody]             = useState(TEMPLATES[0].body);
+  const [templateId, setTemplateId]     = useState(TEMPLATES[0].id);
+  const [subject, setSubject]           = useState(TEMPLATES[0].subject);
+  const [body, setBody]                 = useState(TEMPLATES[0].body);
 
   // Send state
-  const [sending, setSending]       = useState(false);
-  const [result, setResult]         = useState(null); // { sent, failed, total }
+  const [sending, setSending]           = useState(false);
+  const [result, setResult]             = useState(null);
 
-  // Load users
+  // ─── Load users ────────────────────────────────────────────────────────────
   useEffect(() => {
     (async () => {
       try {
+        setLoadingUsers(true);
+        setLoadError(null);
         const res = await getAllUsers();
-        if (res.success) setUsers(res.data || []);
-      } catch {}
-      finally { setLoadingUsers(false); }
+        const arr = extractArray(res);
+        setUsers(arr);
+      } catch (e) {
+        const msg = e?.message || e?.error || 'Failed to load users';
+        setLoadError(msg);
+        console.error('AdminMailManager: load users error', e);
+      } finally {
+        setLoadingUsers(false);
+      }
     })();
   }, []);
 
-  // When template changes, pre-fill subject+body
+  // ─── Template change ───────────────────────────────────────────────────────
   const handleTemplateChange = (id) => {
     setTemplateId(id);
     setResult(null);
@@ -114,42 +137,52 @@ export default function AdminMailManager() {
     if (tpl) { setSubject(tpl.subject); setBody(tpl.body); }
   };
 
-  // Toggle user selection
-  const toggleUser = (id) => {
+  // ─── User selection ────────────────────────────────────────────────────────
+  const toggleUser = (id) =>
     setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     );
-  };
+
+  const filteredUsers = Array.isArray(users)
+    ? users.filter(u => {
+        if (!userSearch) return true;
+        const s = userSearch.toLowerCase();
+        return (
+          (u.name || '').toLowerCase().includes(s) ||
+          (u.email || '').toLowerCase().includes(s)
+        );
+      })
+    : [];
 
   const toggleAll = () => {
     const visible = filteredUsers.map(u => u._id);
-    const allSelected = visible.every(id => selectedIds.includes(id));
-    setSelectedIds(allSelected
-      ? selectedIds.filter(id => !visible.includes(id))
-      : [...new Set([...selectedIds, ...visible])]
+    const allSel  = visible.every(id => selectedIds.includes(id));
+    setSelectedIds(
+      allSel
+        ? selectedIds.filter(id => !visible.includes(id))
+        : [...new Set([...selectedIds, ...visible])]
     );
   };
 
-  const filteredUsers = users.filter(u => {
-    if (!userSearch) return true;
-    const s = userSearch.toLowerCase();
-    return u.name?.toLowerCase().includes(s) || u.email?.toLowerCase().includes(s);
-  });
+  const recipients = mode === 'all'
+    ? users
+    : users.filter(u => selectedIds.includes(u._id));
 
-  // Recipients for preview count
-  const recipients = mode === 'all' ? users : users.filter(u => selectedIds.includes(u._id));
-
-  // Send
+  // ─── Send ──────────────────────────────────────────────────────────────────
   const handleSend = async () => {
-    if (!subject.trim()) return addNotification({ type: 'error', message: 'Subject is required' });
-    if (!body.trim())    return addNotification({ type: 'error', message: 'Message body is required' });
+    if (!subject.trim())
+      return addNotification({ type: 'error', message: 'Subject is required' });
+    if (!body.trim())
+      return addNotification({ type: 'error', message: 'Message body is required' });
     if (mode === 'specific' && selectedIds.length === 0)
       return addNotification({ type: 'error', message: 'Select at least one user' });
+    if (recipients.length === 0)
+      return addNotification({ type: 'error', message: 'No recipients found' });
 
-    const confirm = window.confirm(
+    const ok = window.confirm(
       `Send mail to ${recipients.length} user${recipients.length !== 1 ? 's' : ''}?\nSubject: "${subject}"`
     );
-    if (!confirm) return;
+    if (!ok) return;
 
     try {
       setSending(true);
@@ -162,12 +195,19 @@ export default function AdminMailManager() {
       };
       const res = await apiClient.post('/admin/mail/send', payload);
       const data = res.data;
-      if (data.success) {
+      if (data?.success) {
         setResult(data.data);
-        addNotification({ type: 'success', message: `✅ Emails sent: ${data.data.sent} success, ${data.data.failed} failed` });
+        addNotification({
+          type: 'success',
+          message: `✅ Emails sent: ${data.data?.sent ?? '?'} success, ${data.data?.failed ?? '?'} failed`,
+        });
+      } else {
+        throw new Error(data?.message || 'Unknown error');
       }
     } catch (e) {
-      addNotification({ type: 'error', message: e.response?.data?.message || e.message || 'Failed to send emails' });
+      const msg = e?.response?.data?.message || e?.message || 'Failed to send emails';
+      addNotification({ type: 'error', message: msg });
+      console.error('AdminMailManager: send error', e);
     } finally {
       setSending(false);
     }
@@ -193,6 +233,20 @@ export default function AdminMailManager() {
           Send follow-up or broadcast emails to your users directly from the admin panel.
         </p>
       </div>
+
+      {/* ── Load error banner ── */}
+      {loadError && (
+        <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-4 flex items-start gap-3">
+          <span className="text-2xl">⚠️</span>
+          <div>
+            <p className="font-bold text-red-800 text-sm">Could not load users</p>
+            <p className="text-red-600 text-xs mt-0.5">{loadError}</p>
+            <p className="text-red-500 text-xs mt-1">
+              Mail-to-all will still work if the backend supports it. Select mode may be limited.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
@@ -221,7 +275,9 @@ export default function AdminMailManager() {
 
           {/* Subject */}
           <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-            <label className="block text-sm font-bold text-gray-700 mb-2">✉️ Subject <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              ✉️ Subject <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               value={subject}
@@ -233,9 +289,15 @@ export default function AdminMailManager() {
 
           {/* Body */}
           <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-            <div className="flex justify-between items-center mb-2">
-              <label className="text-sm font-bold text-gray-700">📝 Message Body <span className="text-red-500">*</span></label>
-              <span className="text-xs text-gray-400">Use <code className="bg-gray-100 px-1 rounded">{'{{name}}'}</code> for personalization</span>
+            <div className="flex flex-wrap justify-between items-center gap-2 mb-2">
+              <label className="text-sm font-bold text-gray-700">
+                📝 Message Body <span className="text-red-500">*</span>
+              </label>
+              <span className="text-xs text-gray-400">
+                Use{' '}
+                <code className="bg-gray-100 px-1 rounded">{'{{name}}'}</code>
+                {' '}for personalization
+              </span>
             </div>
             <textarea
               value={body}
@@ -246,12 +308,12 @@ export default function AdminMailManager() {
             />
           </div>
 
-          {/* Preview */}
+          {/* Live preview */}
           {subject && body && recipients.length > 0 && (
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-5">
               <p className="text-xs font-bold text-blue-700 mb-2">👁️ Preview (first recipient)</p>
               <div className="bg-white rounded-xl p-4 border border-blue-100 text-sm text-gray-700 space-y-1">
-                <p><strong>To:</strong> {recipients[0]?.email}</p>
+                <p><strong>To:</strong> {recipients[0]?.email || '—'}</p>
                 <p><strong>Subject:</strong> {subject}</p>
                 <hr className="my-2" />
                 <pre className="whitespace-pre-wrap text-xs font-sans leading-relaxed">
@@ -278,7 +340,9 @@ export default function AdminMailManager() {
                 }`}
               >
                 📢 All Users
-                <span className="block text-xs font-normal mt-0.5 opacity-80">{users.length} users</span>
+                <span className="block text-xs font-normal mt-0.5 opacity-80">
+                  {loadingUsers ? 'Loading...' : `${users.length} users`}
+                </span>
               </button>
               <button
                 onClick={() => setMode('specific')}
@@ -296,7 +360,7 @@ export default function AdminMailManager() {
             </div>
           </div>
 
-          {/* User picker (only in specific mode) */}
+          {/* User picker — specific mode */}
           {mode === 'specific' && (
             <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
               <div className="flex items-center justify-between mb-3">
@@ -304,8 +368,11 @@ export default function AdminMailManager() {
                 <button
                   onClick={toggleAll}
                   className="text-xs text-blue-600 font-semibold hover:underline"
+                  disabled={filteredUsers.length === 0}
                 >
-                  {filteredUsers.every(u => selectedIds.includes(u._id)) ? 'Deselect All' : 'Select All'}
+                  {filteredUsers.length > 0 && filteredUsers.every(u => selectedIds.includes(u._id))
+                    ? 'Deselect All'
+                    : 'Select All'}
                 </button>
               </div>
               <input
@@ -317,9 +384,11 @@ export default function AdminMailManager() {
               />
               <div className="space-y-2 max-h-64 overflow-y-auto scrollable-element pr-1">
                 {loadingUsers ? (
-                  <p className="text-sm text-gray-400 text-center py-4">Loading users...</p>
+                  <p className="text-sm text-gray-400 text-center py-6">⏳ Loading users...</p>
+                ) : loadError ? (
+                  <p className="text-sm text-red-400 text-center py-6">⚠️ Could not load users</p>
                 ) : filteredUsers.length === 0 ? (
-                  <p className="text-sm text-gray-400 text-center py-4">No users found</p>
+                  <p className="text-sm text-gray-400 text-center py-6">No users found</p>
                 ) : filteredUsers.map(u => (
                   <label
                     key={u._id}
@@ -335,13 +404,16 @@ export default function AdminMailManager() {
                       onChange={() => toggleUser(u._id)}
                       className="w-4 h-4 accent-blue-600"
                     />
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-800 truncate">{u.name || u.username}</p>
-                      <p className="text-xs text-gray-500 truncate">{u.email}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-gray-800 truncate">
+                        {u.name || u.username || 'Unnamed'}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">{u.email || '—'}</p>
                     </div>
-                    <span className={`ml-auto text-xs px-2 py-0.5 rounded-full font-medium ${
+                    <span className={`flex-shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
                       u.role === 'admin' ? 'bg-red-100 text-red-700' :
-                      u.isActive === false ? 'bg-gray-100 text-gray-500' : 'bg-green-100 text-green-700'
+                      u.isActive === false ? 'bg-gray-100 text-gray-500' :
+                      'bg-green-100 text-green-700'
                     }`}>
                       {u.role === 'admin' ? 'Admin' : u.isActive === false ? 'Inactive' : 'Active'}
                     </span>
@@ -357,7 +429,7 @@ export default function AdminMailManager() {
               <div>
                 <p className="text-sm font-bold text-gray-700">Ready to send</p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  {recipients.length} recipient{recipients.length !== 1 ? 's' : ''} •{' '}
+                  {recipients.length} recipient{recipients.length !== 1 ? 's' : ''}{' '}·{' '}
                   {mode === 'all' ? 'Broadcast to all' : 'Targeted send'}
                 </p>
               </div>
@@ -375,35 +447,35 @@ export default function AdminMailManager() {
             >
               {sending
                 ? '⏳ Sending emails...'
-                : `📤 Send to ${recipients.length} User${recipients.length !== 1 ? 's' : ''}`
-              }
+                : `📤 Send to ${recipients.length} User${recipients.length !== 1 ? 's' : ''}`}
             </button>
 
-            {/* Result */}
+            {/* Result card */}
             {result && (
               <div className={`mt-4 p-4 rounded-xl border-2 ${
-                result.failed === 0
+                (result.failed ?? 0) === 0
                   ? 'bg-green-50 border-green-200'
                   : 'bg-yellow-50 border-yellow-200'
               }`}>
-                <p className="text-sm font-bold text-gray-800 mb-1">📊 Send Report</p>
-                <div className="grid grid-cols-3 gap-2 text-center mt-2">
+                <p className="text-sm font-bold text-gray-800 mb-2">📊 Send Report</p>
+                <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="bg-white rounded-lg p-2 border">
-                    <p className="text-lg font-black text-gray-700">{result.total}</p>
+                    <p className="text-lg font-black text-gray-700">{result.total ?? '—'}</p>
                     <p className="text-xs text-gray-500">Total</p>
                   </div>
                   <div className="bg-white rounded-lg p-2 border">
-                    <p className="text-lg font-black text-green-600">{result.sent}</p>
+                    <p className="text-lg font-black text-green-600">{result.sent ?? '—'}</p>
                     <p className="text-xs text-gray-500">Sent ✅</p>
                   </div>
                   <div className="bg-white rounded-lg p-2 border">
-                    <p className="text-lg font-black text-red-500">{result.failed}</p>
+                    <p className="text-lg font-black text-red-500">{result.failed ?? '—'}</p>
                     <p className="text-xs text-gray-500">Failed ❌</p>
                   </div>
                 </div>
               </div>
             )}
           </div>
+
         </div>
       </div>
     </div>
