@@ -4,7 +4,7 @@ import Loader from '../components/Loader';
 import WebsiteBookingsManager from '../features/admin/WebsiteBookingsManager';
 import UserManager from '../features/admin/UserManager';
 import AdminDashboard from '../features/admin/AdminDashboard';
-import AdminMailManager from '../features/admin/AdminMailManager';
+import AdminMailManager from '../features/admin/AdminMailManager'; // ✅
 
 const AdminPanel = () => {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -32,8 +32,8 @@ const AdminPanel = () => {
 
   const tabs = [
     { id: 'users',            label: 'Users',            icon: '👥' },
-    { id: 'website-bookings', label: 'Website Bookings (B2B)', icon: '🌐' },
-    { id: 'mail',             label: 'Mail',             icon: '📧' },
+    { id: 'website-bookings', label: 'Website Bookings', icon: '🌐' },
+    { id: 'mail',             label: 'Mail Manager',     icon: '📧' }, // ✅ replaces meetings
     { id: 'dashboard',        label: 'Dashboard',        icon: '📊' },
   ];
 
@@ -60,7 +60,7 @@ const AdminPanel = () => {
 
       {/* Tabs */}
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex gap-6 overflow-x-auto scrollable-element">
+        <nav className="-mb-px flex gap-6">
           {tabs.map((tab) => (
             <button
               key={tab.id}
