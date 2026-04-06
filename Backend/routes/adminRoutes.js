@@ -8,7 +8,8 @@ const {
   deleteUser,
   getSystemStats,
   getUserById,
-  getAdminActivityLog
+  getAdminActivityLog,
+  sendBulkEmail,
 } = require('../controllers/adminController');
 const { verifyToken, isAdmin, isMainAdmin } = require('../middleware/authMiddleware');
 const { validateUser } = require('../middleware/validationMiddleware');
@@ -27,5 +28,8 @@ router.post('/secondary', verifyToken, isMainAdmin, validateUser, createSecondar
 router.put('/users/:id/status', verifyToken, isMainAdmin, updateUserStatus);
 router.put('/users/:id/credits', verifyToken, isMainAdmin, updateUserCredits);
 router.delete('/users/:id', verifyToken, isMainAdmin, deleteUser);
+
+// ✅ NEW: Bulk email route
+router.post('/mail/send', verifyToken, isAdmin, sendBulkEmail);
 
 module.exports = router;

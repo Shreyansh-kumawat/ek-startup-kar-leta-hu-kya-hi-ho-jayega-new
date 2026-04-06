@@ -45,8 +45,8 @@ const TemplateManager = lazy(() => import('./features/admin/TemplateManager'));
 const UserManager = lazy(() => import('./features/admin/UserManager'));
 const SecondaryAdminPanel = lazy(() => import('./features/admin/SecondaryAdminPanel'));
 const AdminTemplateBookingManager = lazy(() => import('./features/admin/AdminTemplateBookingManager'));
-const AdminMeetingManager = lazy(() => import('./features/admin/AdminMeetingManager'));
-const AdminCareerManager = lazy(() => import('./features/admin/AdminCareerManager')); // ✅ NEW
+const AdminMailManager = lazy(() => import('./features/admin/AdminMailManager')); // ✅ NEW
+const AdminCareerManager = lazy(() => import('./features/admin/AdminCareerManager'));
 
 // Placeholder component
 const PlaceholderPage = ({ title, description }) => (
@@ -142,9 +142,9 @@ function App() {
               <Route path="users" element={<UserManager />} />
               <Route path="templates" element={<TemplateManager />} />
               <Route path="bookings" element={<AdminTemplateBookingManager />} />
-              <Route path="meetings" element={<AdminMeetingManager />} />
+              <Route path="mail" element={<AdminMailManager />} /> {/* ✅ NEW: replaces meetings */}
               <Route path="secondary" element={<SecondaryAdminPanel />} />
-              <Route path="careers" element={<AdminCareerManager />} /> {/* ✅ NEW */}
+              <Route path="careers" element={<AdminCareerManager />} />
             </Route>
 
             {/* ========== SECONDARY ADMIN ROUTES ========== */}
