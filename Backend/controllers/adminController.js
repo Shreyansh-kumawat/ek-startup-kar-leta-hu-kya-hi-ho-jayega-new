@@ -5,7 +5,7 @@ const Template = require('../models/Template');
 const TemplateBooking = require('../models/TemplateBooking');
 const WebsiteBooking = require('../models/WebsiteBooking');
 const { successResponse, errorResponse } = require('../utils/responseUtils');
-const { sendWelcomeEmail } = require('../utils/emailUtils');
+const { sendWelcomeEmail, sendBulkEmailUtil } = require('../utils/emailUtils');
 
 // ✅ Get admin dashboard statistics
 exports.getDashboard = async (req, res) => {
@@ -139,7 +139,7 @@ exports.getAllUsers = async (req, res) => {
   try {
     const { 
       page = 1, 
-      limit = 20, 
+      limit = 50, 
       search, 
       role, 
       status, 
@@ -158,13 +158,8 @@ exports.getAllUsers = async (req, res) => {
       ];
     }
 
-    if (role && role !== 'all') {
-      query.role = role;
-    }
-
-    if (status && status !== 'all') {
-      query.isActive = status === 'active';
-    }
+    if (role && role !== 'all') query.role = role;
+    if (status && status !== 'all') query.isActive = status === 'active';
 
     const users = await User.find(query)
       .select('-password -resetPasswordToken -resetPasswordExpires')
@@ -204,45 +199,25 @@ exports.getAllUsers = async (req, res) => {
 exports.getUserById = async (req, res) => {
   try {
     const { id } = req.params;
-
     const user = await User.findById(id)
       .select('-password -resetPasswordToken -resetPasswordExpires');
-
-    if (!user) {
-      return errorResponse(res, 'User not found', null, 404);
-    }
+    if (!user) return errorResponse(res, 'User not found', null, 404);
 
     const [userOrders, userMeetings] = await Promise.all([
-      TemplateBooking.find({ userId: id })
-        .populate('templateId', 'name price')
-        .sort({ createdAt: -1 })
-        .limit(10),
-      TemplateBooking.find({ userId: id, status: 'meeting_scheduled' })
-        .sort({ createdAt: -1 })
-        .limit(5)
+      TemplateBooking.find({ userId: id }).populate('templateId', 'name price').sort({ createdAt: -1 }).limit(10),
+      TemplateBooking.find({ userId: id, status: 'meeting_scheduled' }).sort({ createdAt: -1 }).limit(5)
     ]);
 
     const userStats = {
       totalOrders: userOrders.length,
-      completedOrders: userOrders.filter(order => order.status === 'completed').length,
-      totalSpent: userOrders
-        .filter(order => order.status === 'completed')
-        .reduce((sum, order) => sum + (order.templatePrice || 0), 0),
+      completedOrders: userOrders.filter(o => o.status === 'completed').length,
+      totalSpent: userOrders.filter(o => o.status === 'completed').reduce((s, o) => s + (o.templatePrice || 0), 0),
       totalProjects: userOrders.length,
-      activeProjects: userOrders.filter(order => 
-        ['partial_payment_done', 'development_in_progress', 'website_ready'].includes(order.status)
-      ).length,
+      activeProjects: userOrders.filter(o => ['partial_payment_done','development_in_progress','website_ready'].includes(o.status)).length,
       totalMeetings: userMeetings.length
     };
 
-    return successResponse(res, 'User details fetched successfully', {
-      user,
-      stats: userStats,
-      orders: userOrders,
-      projects: userOrders,
-      meetings: userMeetings
-    });
-
+    return successResponse(res, 'User details fetched successfully', { user, stats: userStats, orders: userOrders, projects: userOrders, meetings: userMeetings });
   } catch (error) {
     console.error('Get user by ID error:', error);
     return errorResponse(res, 'Server error while fetching user details', error);
@@ -253,33 +228,15 @@ exports.getUserById = async (req, res) => {
 exports.createSecondaryAdmin = async (req, res) => {
   try {
     const { name, username, email, password, phone } = req.body;
-
-    if (!name || !username || !email || !password) {
+    if (!name || !username || !email || !password)
       return errorResponse(res, 'Name, username, email, and password are required', null, 400);
-    }
 
-    const existingUser = await User.findOne({ 
-      $or: [{ email }, { username }] 
-    });
-
-    if (existingUser) {
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser)
       return errorResponse(res, 'User with this email or username already exists', null, 400);
-    }
 
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    const newAdmin = new User({
-      name,
-      username,
-      email,
-      password: hashedPassword,
-      phone: phone || '',
-      role: 'secondaryAdmin',
-      isActive: true,
-      createdBy: req.user.id
-    });
-
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const newAdmin = new User({ name, username, email, password: hashedPassword, phone: phone || '', role: 'secondaryAdmin', isActive: true, createdBy: req.user.id });
     await newAdmin.save();
 
     try {
@@ -287,30 +244,13 @@ exports.createSecondaryAdmin = async (req, res) => {
         email: newAdmin.email,
         subject: 'Welcome to 3Digree TBS - Admin Access Granted',
         template: 'admin_welcome',
-        data: {
-          name: newAdmin.name,
-          username: newAdmin.username,
-          role: 'Secondary Admin',
-          loginUrl: `${process.env.FRONTEND_URL}/login`,
-          createdBy: req.user.name || req.user.username
-        }
+        data: { name: newAdmin.name, username: newAdmin.username, role: 'Secondary Admin', loginUrl: `${process.env.FRONTEND_URL}/login`, createdBy: req.user.name || req.user.username }
       });
-    } catch (emailError) {
-      console.warn('Failed to send welcome email:', emailError.message);
-    }
+    } catch (emailError) { console.warn('Failed to send welcome email:', emailError.message); }
 
     return successResponse(res, 'Secondary admin created successfully', {
-      user: {
-        id: newAdmin._id,
-        name: newAdmin.name,
-        username: newAdmin.username,
-        email: newAdmin.email,
-        role: newAdmin.role,
-        isActive: newAdmin.isActive,
-        createdAt: newAdmin.createdAt
-      }
+      user: { id: newAdmin._id, name: newAdmin.name, username: newAdmin.username, email: newAdmin.email, role: newAdmin.role, isActive: newAdmin.isActive, createdAt: newAdmin.createdAt }
     }, 201);
-
   } catch (error) {
     console.error('Create secondary admin error:', error);
     return errorResponse(res, 'Server error while creating secondary admin', error);
@@ -322,23 +262,15 @@ exports.updateUserStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { isActive, reason } = req.body;
-
-    if (typeof isActive !== 'boolean') {
+    if (typeof isActive !== 'boolean')
       return errorResponse(res, 'isActive must be a boolean value', null, 400);
-    }
 
     const user = await User.findById(id);
-    if (!user) {
-      return errorResponse(res, 'User not found', null, 404);
-    }
-
-    if (user.role === 'admin' && !isActive) {
+    if (!user) return errorResponse(res, 'User not found', null, 404);
+    if (user.role === 'admin' && !isActive)
       return errorResponse(res, 'Cannot deactivate main admin account', null, 403);
-    }
-
-    if (user._id.toString() === req.user.id && !isActive) {
+    if (user._id.toString() === req.user.id && !isActive)
       return errorResponse(res, 'You cannot deactivate your own account', null, 403);
-    }
 
     const oldStatus = user.isActive;
     user.isActive = isActive;
@@ -354,65 +286,34 @@ exports.updateUserStatus = async (req, res) => {
           email: user.email,
           subject: `Account ${isActive ? 'Activated' : 'Deactivated'} - 3Digree TBS`,
           template: 'account_status_update',
-          data: {
-            name: user.name,
-            status: isActive ? 'Activated' : 'Deactivated',
-            statusMessage: isActive 
-              ? 'Your account has been activated and you can now access all features.'
-              : 'Your account has been temporarily deactivated. Please contact support for more information.',
-            reason: reason || 'No specific reason provided',
-            contactEmail: process.env.SUPPORT_EMAIL || 'support@3digree.com'
-          }
+          data: { name: user.name, status: isActive ? 'Activated' : 'Deactivated', statusMessage: isActive ? 'Your account has been activated.' : 'Your account has been temporarily deactivated.', reason: reason || 'No specific reason provided', contactEmail: process.env.SUPPORT_EMAIL || 'support@3digree.com' }
         });
-      } catch (emailError) {
-        console.warn('Failed to send status update email:', emailError.message);
-      }
+      } catch (emailError) { console.warn('Failed to send status update email:', emailError.message); }
     }
 
-    return successResponse(res, `User ${isActive ? 'activated' : 'deactivated'} successfully`, {
-      userId: user._id,
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      isActive: user.isActive,
-      reason: reason,
-      updatedAt: user.updatedAt
-    });
-
+    return successResponse(res, `User ${isActive ? 'activated' : 'deactivated'} successfully`, { userId: user._id, name: user.name, username: user.username, email: user.email, isActive: user.isActive, reason, updatedAt: user.updatedAt });
   } catch (error) {
     console.error('Update user status error:', error);
     return errorResponse(res, 'Server error while updating user status', error);
   }
 };
 
-// ✅ Update user credits (NEW)
+// ✅ Update user credits
 exports.updateUserCredits = async (req, res) => {
   try {
     const { id } = req.params;
     const { credits } = req.body;
-
-    if (typeof credits !== 'number' || credits < 0) {
+    if (typeof credits !== 'number' || credits < 0)
       return errorResponse(res, 'Credits must be a non-negative number', null, 400);
-    }
 
     const user = await User.findById(id);
-    if (!user) {
-      return errorResponse(res, 'User not found', null, 404);
-    }
+    if (!user) return errorResponse(res, 'User not found', null, 404);
 
     const oldCredits = user.credits || 0;
     user.credits = credits;
     await user.save();
 
-    return successResponse(res, 'Credits updated successfully', {
-      userId: user._id,
-      name: user.name,
-      email: user.email,
-      oldCredits,
-      newCredits: user.credits,
-      diff: user.credits - oldCredits
-    });
-
+    return successResponse(res, 'Credits updated successfully', { userId: user._id, name: user.name, email: user.email, oldCredits, newCredits: user.credits, diff: user.credits - oldCredits });
   } catch (error) {
     console.error('Update user credits error:', error);
     return errorResponse(res, 'Server error while updating user credits', error);
@@ -424,71 +325,25 @@ exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
     const { confirmDelete, reason } = req.body;
-
-    if (!confirmDelete) {
+    if (!confirmDelete)
       return errorResponse(res, 'Please confirm deletion by setting confirmDelete to true', null, 400);
-    }
 
     const user = await User.findById(id);
-    if (!user) {
-      return errorResponse(res, 'User not found', null, 404);
-    }
+    if (!user) return errorResponse(res, 'User not found', null, 404);
+    if (user.role === 'admin') return errorResponse(res, 'Cannot delete main admin account', null, 403);
+    if (user._id.toString() === req.user.id) return errorResponse(res, 'You cannot delete your own account', null, 403);
 
-    if (user.role === 'admin') {
-      return errorResponse(res, 'Cannot delete main admin account', null, 403);
-    }
+    const activeOrders = await TemplateBooking.countDocuments({ userId: id, status: { $in: ['meeting_scheduled','partial_payment_pending','development_in_progress'] } });
+    if (activeOrders > 0)
+      return errorResponse(res, `Cannot delete user with ${activeOrders} active booking(s).`, null, 400);
 
-    if (user._id.toString() === req.user.id) {
-      return errorResponse(res, 'You cannot delete your own account', null, 403);
-    }
-
-    const activeOrders = await TemplateBooking.countDocuments({ 
-      userId: id, 
-      status: { $in: ['meeting_scheduled', 'partial_payment_pending', 'development_in_progress'] }
-    });
-
-    if (activeOrders > 0) {
-      return errorResponse(
-        res, 
-        `Cannot delete user with ${activeOrders} active booking(s). Please complete or cancel them first.`,
-        null,
-        400
-      );
-    }
-
-    const userInfo = {
-      id: user._id,
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      role: user.role
-    };
-
+    const userInfo = { id: user._id, name: user.name, username: user.username, email: user.email, role: user.role };
     try {
-      await sendWelcomeEmail({
-        email: user.email,
-        subject: 'Account Deleted - 3Digree TBS',
-        template: 'account_deleted',
-        data: {
-          name: user.name,
-          reason: reason || 'Account deletion requested by administrator',
-          contactEmail: process.env.SUPPORT_EMAIL || 'support@3digree.com',
-          deletedAt: new Date().toDateString()
-        }
-      });
-    } catch (emailError) {
-      console.warn('Failed to send deletion notification email:', emailError.message);
-    }
+      await sendWelcomeEmail({ email: user.email, subject: 'Account Deleted - 3Digree TBS', template: 'account_deleted', data: { name: user.name, reason: reason || 'Account deletion requested by administrator', contactEmail: process.env.SUPPORT_EMAIL || 'support@3digree.com', deletedAt: new Date().toDateString() } });
+    } catch (emailError) { console.warn('Failed to send deletion notification email:', emailError.message); }
 
     await User.deleteOne({ _id: id });
-
-    return successResponse(res, 'User deleted successfully', {
-      deletedUser: userInfo,
-      reason: reason,
-      deletedAt: new Date(),
-      deletedBy: req.user.id
-    });
-
+    return successResponse(res, 'User deleted successfully', { deletedUser: userInfo, reason, deletedAt: new Date(), deletedBy: req.user.id });
   } catch (error) {
     console.error('Delete user error:', error);
     return errorResponse(res, 'Server error while deleting user', error);
@@ -502,14 +357,7 @@ exports.getSystemStats = async (req, res) => {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - parseInt(period));
 
-    const [
-      userStats,
-      orderStats,
-      meetingStats,
-      templateStats,
-      revenueStats,
-      growthStats
-    ] = await Promise.all([
+    const [userStats, orderStats, meetingStats, templateStats, revenueStats, growthStats] = await Promise.all([
       User.aggregate([{ $facet: { total: [{ $count: 'count' }], byRole: [{ $group: { _id: '$role', count: { $sum: 1 } } }], byStatus: [{ $group: { _id: '$isActive', count: { $sum: 1 } } }], recent: [{ $match: { createdAt: { $gte: startDate } } }, { $count: 'count' }] } }]),
       TemplateBooking.aggregate([{ $facet: { total: [{ $count: 'count' }], byStatus: [{ $group: { _id: '$status', count: { $sum: 1 } } }], recent: [{ $match: { createdAt: { $gte: startDate } } }, { $count: 'count' }] } }]),
       TemplateBooking.aggregate([{ $match: { status: 'meeting_scheduled' } }, { $facet: { total: [{ $count: 'count' }], recent: [{ $match: { createdAt: { $gte: startDate } } }, { $count: 'count' }] } }]),
@@ -519,13 +367,8 @@ exports.getSystemStats = async (req, res) => {
     ]);
 
     return successResponse(res, 'System statistics fetched successfully', {
-      users: {
-        total: userStats[0].total[0]?.count || 0,
-        byRole: userStats[0].byRole.reduce((acc, item) => { acc[item._id || 'user'] = item.count; return acc; }, {}),
-        byStatus: userStats[0].byStatus.reduce((acc, item) => { acc[item._id ? 'active' : 'inactive'] = item.count; return acc; }, {}),
-        recent: userStats[0].recent[0]?.count || 0
-      },
-      orders: { total: orderStats[0].total[0]?.count || 0, byStatus: orderStats[0].byStatus.reduce((acc, item) => { acc[item._id] = item.count; return acc; }, {}), recent: orderStats[0].recent[0]?.count || 0 },
+      users: { total: userStats[0].total[0]?.count || 0, byRole: userStats[0].byRole.reduce((a, i) => { a[i._id || 'user'] = i.count; return a; }, {}), byStatus: userStats[0].byStatus.reduce((a, i) => { a[i._id ? 'active' : 'inactive'] = i.count; return a; }, {}), recent: userStats[0].recent[0]?.count || 0 },
+      orders: { total: orderStats[0].total[0]?.count || 0, byStatus: orderStats[0].byStatus.reduce((a, i) => { a[i._id] = i.count; return a; }, {}), recent: orderStats[0].recent[0]?.count || 0 },
       meetings: { total: meetingStats[0].total[0]?.count || 0, recent: meetingStats[0].recent[0]?.count || 0 },
       templates: { total: templateStats[0].total[0]?.count || 0, active: templateStats[0].active[0]?.count || 0, inactive: templateStats[0].inactive[0]?.count || 0 },
       revenue: { total: revenueStats[0].totalRevenue[0]?.total || 0, recent: revenueStats[0].recentRevenue[0]?.total || 0, daily: revenueStats[0].dailyRevenue },
@@ -533,7 +376,6 @@ exports.getSystemStats = async (req, res) => {
       period: parseInt(period),
       generatedAt: new Date()
     });
-
   } catch (error) {
     console.error('Get system stats error:', error);
     return errorResponse(res, 'Server error while fetching system statistics', error);
@@ -545,34 +387,62 @@ exports.getAdminActivityLog = async (req, res) => {
   try {
     const { page = 1, limit = 50 } = req.query;
     const activities = [];
-
-    const userUpdates = await User.find({ 
-      statusUpdatedBy: { $exists: true },
-      statusUpdatedAt: { $exists: true }
-    })
+    const userUpdates = await User.find({ statusUpdatedBy: { $exists: true }, statusUpdatedAt: { $exists: true } })
       .populate('statusUpdatedBy', 'name username')
       .sort({ statusUpdatedAt: -1 })
       .limit(20);
 
     userUpdates.forEach(user => {
-      activities.push({
-        type: 'user_status_update',
-        admin: user.statusUpdatedBy,
-        target: { id: user._id, name: user.name, email: user.email },
-        action: `Updated user status to ${user.isActive ? 'active' : 'inactive'}`,
-        timestamp: user.statusUpdatedAt
-      });
+      activities.push({ type: 'user_status_update', admin: user.statusUpdatedBy, target: { id: user._id, name: user.name, email: user.email }, action: `Updated user status to ${user.isActive ? 'active' : 'inactive'}`, timestamp: user.statusUpdatedAt });
     });
-
     activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-    return successResponse(res, 'Admin activity log fetched successfully', {
-      activities: activities.slice(0, parseInt(limit)),
-      pagination: { currentPage: parseInt(page), totalActivities: activities.length }
-    });
-
+    return successResponse(res, 'Admin activity log fetched successfully', { activities: activities.slice(0, parseInt(limit)), pagination: { currentPage: parseInt(page), totalActivities: activities.length } });
   } catch (error) {
     console.error('Get admin activity log error:', error);
     return errorResponse(res, 'Server error while fetching admin activity log', error);
+  }
+};
+
+// ==================== BULK EMAIL ====================
+
+// ✅ Send bulk/targeted email to users
+exports.sendBulkEmail = async (req, res) => {
+  try {
+    const { mode, userIds = [], subject, body } = req.body;
+
+    // Validate
+    if (!subject || !subject.trim())
+      return errorResponse(res, 'Email subject is required', null, 400);
+    if (!body || !body.trim())
+      return errorResponse(res, 'Email body is required', null, 400);
+    if (!['all', 'specific'].includes(mode))
+      return errorResponse(res, 'mode must be "all" or "specific"', null, 400);
+    if (mode === 'specific' && (!Array.isArray(userIds) || userIds.length === 0))
+      return errorResponse(res, 'At least one userId required for specific mode', null, 400);
+
+    // Fetch recipients
+    let recipients;
+    if (mode === 'all') {
+      recipients = await User.find({ isActive: { $ne: false } }).select('name username email').lean();
+    } else {
+      recipients = await User.find({ _id: { $in: userIds } }).select('name username email').lean();
+    }
+
+    if (!recipients || recipients.length === 0)
+      return errorResponse(res, 'No valid recipients found', null, 400);
+
+    // Send emails with per-recipient name interpolation
+    const results = await sendBulkEmailUtil(recipients, subject, body);
+
+    return successResponse(res, `Bulk email job complete`, {
+      total: results.total,
+      sent: results.sent,
+      failed: results.failed,
+      errors: results.errors.slice(0, 10) // return max 10 error details
+    });
+
+  } catch (error) {
+    console.error('sendBulkEmail controller error:', error);
+    return errorResponse(res, 'Server error while sending bulk email', error);
   }
 };
