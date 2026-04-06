@@ -348,7 +348,7 @@ export default function SectionProblem() {
               fontFamily: "'Inter', system-ui, sans-serif",
               textShadow: '0 0 18px #00ffab66',
             }}>
-              That's exactly where 3Digree steps in 🚀
+              That's exactly where 3Digree steps in 
             </p>
           </motion.div>
         </FadeIn>

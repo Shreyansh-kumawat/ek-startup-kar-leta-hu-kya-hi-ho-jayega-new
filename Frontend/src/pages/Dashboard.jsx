@@ -455,7 +455,7 @@ const Dashboard = () => {
                   placeholder="Paste Website ID here"
                   value={websiteId}
                   onChange={handleWebsiteIdChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base sm:text-lg pr-12"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base sm:text-lg pr-12 text-black"
                   disabled={bookingLoading}
                 />
                 {searchLoading && (
@@ -518,7 +518,7 @@ const Dashboard = () => {
                 onClick={handleBuyClick}
                 className="w-full py-3 sm:py-4 px-6 rounded-2xl font-semibold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
               >
-                <span className="text-xl">🚀</span>
+               
                 Book This Website ({creditsRequired} Credit{creditsRequired > 1 ? 's' : ''})
               </button>
             )}

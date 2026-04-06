@@ -308,7 +308,7 @@ function ProblemPanel({ r }) {
           fontSize:    13,
           margin:      0,
         }}>
-          That's exactly where 3Digree steps in 🚀
+          That's exactly where 3Digree steps in!
         </p>
       </div>
     </div>

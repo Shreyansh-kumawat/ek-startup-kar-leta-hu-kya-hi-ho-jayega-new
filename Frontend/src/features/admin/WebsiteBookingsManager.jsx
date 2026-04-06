@@ -102,7 +102,7 @@ const WebsiteBookingsManager = () => {
 
   // Handle approve booking (START TIMER)
   const handleApprove = async (bookingId) => {
-    if (!window.confirm('🚀 Approve booking? Auto-progress will start: 10% → 90% over 3 business days (54 min per 1%).')) {
+    if (!window.confirm(' Approve booking? Auto-progress will start: 10% → 90% over 3 business days (54 min per 1%).')) {
       return;
     }
 

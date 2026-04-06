@@ -31,7 +31,7 @@ const CareerPage = () => {
       {/* Hero */}
       <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white py-16 px-4">
         <div className="max-w-5xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-3">🚀 Join Our Team</h1>
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-3">Join Our Team</h1>
           <p className="text-lg text-blue-100 max-w-2xl mx-auto">
             Be a part of 3Digree — we're building the future of web development.
           </p>

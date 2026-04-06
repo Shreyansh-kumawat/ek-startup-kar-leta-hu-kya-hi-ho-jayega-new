@@ -623,7 +623,7 @@ export default function SectionWhatYouGet() {
                 e.currentTarget.style.boxShadow  = '0 0 28px #00ffab55';
               }}
             >
-              🚀 Start Partnering With Us
+              Start Partnering With Us
             </a>
           </motion.div>
         </FadeIn>

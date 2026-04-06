@@ -227,7 +227,7 @@ const WebsiteBooking = () => {
                 Processing...
               </span>
             ) : (
-              '🚀 Buy Website (1 Credit)'
+              'Buy Website (1 Credit)'
             )}
           </button>
 
