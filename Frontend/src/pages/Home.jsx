@@ -57,6 +57,13 @@ const useSmartCurrency = () => {
   }, []);
 
   const getDisplayPrices = (inrAmount) => {
+    // ✅ PERMANENT FIX: Safety guard - crash nahi karta jab rates load ho rahe ho
+    if (inrAmount === undefined || inrAmount === null || !rates || !rates.USD) {
+      return {
+        main: { amount: inrAmount || 0, symbol: '₹', code: 'INR' },
+        secondary: null
+      };
+    }
     const usdAmount = Math.round(inrAmount * rates.USD);
 
     if (userRegion === 'IN') {
@@ -566,11 +573,6 @@ const Home = () => {
   );
 
 
-  const singleWebsiteDisplay = getDisplayPrices(4999);
-  const singleWebsiteStrikeDisplay = getDisplayPrices(10000);
-  const singleWebsiteSavingsDisplay = getDisplayPrices(10000 - 4999);
-
-
   if (currencyLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -578,6 +580,10 @@ const Home = () => {
       </div>
     );
   }
+
+  const singleWebsiteDisplay = getDisplayPrices(4999);
+  const singleWebsiteStrikeDisplay = getDisplayPrices(10000);
+  const singleWebsiteSavingsDisplay = getDisplayPrices(10000 - 4999);
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
@@ -655,19 +661,15 @@ const Home = () => {
 
       <div className="h-1.5 bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600" aria-hidden="true"></div>
 
-      {/* ── HERO SECTION ──────────────────────────────────────────────── */}
       <section id="hero-section" className="relative bg-white pt-28 pb-20 overflow-hidden min-h-screen flex items-center">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="text-center max-w-5xl mx-auto">
-
-            {/* 3Digree Badge */}
             <div className="inline-block mb-6">
               <div className="flex items-center gap-3 bg-gradient-to-r from-[#6498fe] to-[#96b1e8] rounded-full px-8 py-3 shadow-xl">
                 <span className="text-white font-bold text-2xl tracking-wide">3Digree</span>
               </div>
             </div>
 
-            {/* Main Heading */}
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-black mb-8 leading-tight">
               <span className="block text-gray-900 mb-2">
                 Your{' '}
@@ -685,7 +687,6 @@ const Home = () => {
               </span>
             </h1>
 
-            {/* Typewriter */}
             <div className="mb-10 font-mono" style={{ minHeight: "2.5em" }}>
               <TypewriterEffect texts={typewriterTexts} speed={100} delay={4500} />
             </div>
@@ -771,238 +772,6 @@ const Home = () => {
           </button>
         </div>
       </section>
-
-      {/* ── PRICING SECTION ───────────────────────────────────────────── */}
-      <section id="pricing" className="py-28 bg-white relative overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 right-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-          <div className="absolute bottom-20 left-0 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse animation-delay-2000"></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <div className="inline-block mb-6">
-              <div className="flex items-center gap-3 bg-gradient-to-r from-blue-600 via-blue-700 to-purple-600 rounded-full px-8 py-4 shadow-xl">
-                <span className="text-2xl">💎</span>
-                <span className="text-sm font-bold text-white">Transparent Pricing</span>
-              </div>
-            </div>
-            <h2 className="text-5xl md:text-6xl font-black mb-6 text-gray-900">
-              Choose Your Plan
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-medium">
-              Select the plan that matches your agency's deal flow and scale effortlessly
-            </p>
-
-            {process.env.NODE_ENV === 'development' && (
-              <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-green-50 border border-green-200 rounded-full">
-                <span className="text-sm text-gray-600">
-                  🌍 Detected Region: <span className="font-bold text-green-600">{userRegion}</span>
-                  (Only in Development mode)
-                </span>
-              </div>
-            )}
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-10 mb-24 max-w-6xl mx-auto">
-            {pricingPlans.map((plan) => (
-              <PricingCard
-                key={plan.title}
-                {...plan}
-                onGetPlan={handleGetPlan}
-                getDisplayPrices={getDisplayPrices}
-              />
-            ))}
-          </div>
-
-          {/* Single Website Card */}
-          <div className="max-w-5xl mx-auto">
-            <Card className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-2 border-blue-200 shadow-xl p-6 sm:p-8 md:p-10 relative overflow-hidden hover:shadow-2xl transition-all duration-500">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#6498fe] to-purple-600 opacity-5 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-purple-600 to-pink-600 opacity-5 rounded-full blur-3xl"></div>
-
-              <div className="relative z-10">
-                <div className="flex items-start sm:items-center gap-3 sm:gap-4 mb-6">
-                  <div className="flex-shrink-0 w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-[#6498fe] to-purple-600 rounded-xl flex items-center justify-center text-xl sm:text-2xl shadow-lg">
-                    💡
-                  </div>
-                  <div>
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900">
-                      Not ready for a yearly plan?
-                    </h3>
-                    <p className="text-gray-600 text-sm sm:text-base md:text-lg font-medium mt-1">
-                      Pay per project with the same quality
-                    </p>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-xl p-5 sm:p-6 md:p-8 border-2 border-gray-200 mb-6 shadow-md hover:shadow-lg transition-all duration-300">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                    <div>
-                      <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 block mb-1">Single Website Delivery</span>
-                      <span className="text-xs sm:text-sm text-gray-500 font-medium">One-time payment, no commitment</span>
-                    </div>
-
-                    <div className="text-left sm:text-right">
-                      <div className="flex flex-col items-start sm:items-end gap-0.5 mb-1">
-                        <span className="text-xs sm:text-sm md:text-lg font-medium text-gray-400 line-through">
-                          {singleWebsiteStrikeDisplay.main.symbol}{singleWebsiteStrikeDisplay.main.amount.toLocaleString('en-US')}
-                        </span>
-                        <div className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600">
-                          {singleWebsiteDisplay.main.symbol}{singleWebsiteDisplay.main.amount.toLocaleString('en-US')}
-                        </div>
-                      </div>
-
-                      {singleWebsiteDisplay.secondary && (
-                        <div className="text-xs sm:text-sm md:text-base font-semibold text-gray-500 mt-1">
-                          ≈ {singleWebsiteDisplay.secondary.symbol}{singleWebsiteDisplay.secondary.amount} {singleWebsiteDisplay.secondary.code}
-                        </div>
-                      )}
-                      <div className="text-xs text-gray-500 mt-1 font-semibold">Single Website</div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4 border-t border-gray-100">
-                    {[
-                      { text: "Standard website" },
-                      { text: "100+ Website Designes" },
-                      { text: "3-day delivery" }
-                    ].map((item, index) => (
-                      <div key={index} className="flex items-center gap-2 sm:gap-3 group">
-                        <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300">
-                          <span className="text-white font-bold text-xs">✓</span>
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-xs sm:text-sm text-gray-700 font-semibold">{item.text}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <button
-                    onClick={() => handleGetPlan('Single Website', 4999)}
-                    className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group cursor-pointer rounded-xl inline-flex items-center justify-center hover:scale-105"
-                  >
-                    <span className="relative z-10">Get Plan</span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </button>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* ── HOW IT WORKS ──────────────────────────────────────────────── */}
-      <section className="py-28 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 relative overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <div className="inline-block mb-6">
-              <div className="flex items-center gap-3 bg-white border-2 border-[#6498fe] rounded-full px-8 py-4 shadow-lg">
-                <span className="text-2xl">⚙️</span>
-                <span className="text-sm font-bold text-[#6498fe]">Simple Process</span>
-              </div>
-            </div>
-            <h2 className="text-5xl md:text-6xl font-black mb-6 text-gray-900">
-              How It Works
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto font-medium">
-              Four simple steps from sign-up to delivered website
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 mt-12">
-            {steps.map((step) => (
-              <StepCard key={step.number} {...step} />
-            ))}
-          </div>
-
-          {/* ✅ READ MORE ABOUT US BUTTON */}
-          <div className="text-center mt-16">
-            <Link
-              to="/about"
-              className="inline-flex items-center gap-3 border-2 border-[#6498fe] text-[#6498fe] font-bold px-10 py-4 rounded-2xl hover:bg-[#6498fe] hover:text-white transition-all duration-300 hover:shadow-xl hover:scale-105 group"
-            >
-              <span>About Us — In 3D</span>
-              <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
-            </Link>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ── WHY 3DIGREE EXISTS — Testimonials UPAR, Ye NEECHE ────────── */}
-
-      {/* ✅ TESTIMONIALS SECTION — "Why 3Digree Exists" se UPAR */}
-      <SectionTestimonials />
-
-      {/* ── WHY 3DIGREE EXISTS ────────────────────────────────────────── */}
-      <section className="py-28 bg-white relative overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/2 left-0 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40"></div>
-          <div className="absolute top-1/2 right-0 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40"></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <div className="inline-block mb-6">
-              <div className="flex items-center gap-3 bg-gradient-to-r from-[#6498fe] to-purple-600 rounded-full px-8 py-4 shadow-xl">
-                <span className="text-2xl">💡</span>
-                <span className="text-sm font-bold text-white">Our Philosophy</span>
-              </div>
-            </div>
-            <h2 className="text-5xl md:text-6xl font-black mb-6 text-gray-900">
-              Why 3Digree Exists
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-medium">
-              Most freelancers and small agencies lose deals not because they can't sell — but because they can't deliver fast enough.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-10">
-            {benefits.map((benefit) => (
-              <FeatureCard key={benefit.title} {...benefit} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── FAQ SECTION ───────────────────────────────────────────────── */}
-      <section className="py-28 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 relative overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-        </div>
-
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-block mb-6">
-              <div className="flex items-center gap-3 bg-white border-2 border-[#6498fe] rounded-full px-8 py-4 shadow-lg">
-                <span className="text-2xl">❓</span>
-                <span className="text-sm font-bold text-[#6498fe]">Got Questions?</span>
-              </div>
-            </div>
-            <h2 className="text-5xl md:text-6xl font-black mb-6 text-gray-900">
-              Frequently Asked
-            </h2>
-          </div>
-
-          <div>
-            {faqs.map((faq, index) => (
-              <FAQItem key={index} {...faq} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-
     </div>
   );
 };
