@@ -19,61 +19,43 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
 
   // Plan configuration
   const plans = [
-    {
-      id: 'starter', // ✅ ADDED id
-      type: 'Starter',
-      price: 30000,
-      credits: 5,
-      pricePerWebsite: 6000,
-      badge: '/silver.png',
-      gradient: 'from-blue-600 to-blue-700',
-      bestFor: 'Solo freelancers with steady clients',
-      features: [
-        '12 website credits',
-        '₹2,500 per website',
-        '3-day delivery',
-        'Fully white-label',
-        'Email support'
-      ],
-      popular: false
-    },
-    {
-      id: 'growth', // ✅ ADDED id
-      type: 'Growth',
-      price: 60000,
-      credits: 12,
-      pricePerWebsite: 5000,
-      badge: '/gold.png',
-      gradient: 'from-[#6498fe] to-purple-600',
-      bestFor: 'Small teams and boutique agencies',
-      features: [
-        '20 website credits',
-        '₹2,000 per website',
-        'Priority delivery queue',
-        'Advanced customization',
-        'Dedicated support channel'
-      ],
-      popular: true
-    },
-    {
-      id: 'scale', // ✅ ADDED id
-      type: 'Scale',
-      price: 100000,
-      credits: 25,
-      pricePerWebsite: 4000,
-      badge: '/diamond.png',
-      gradient: 'from-purple-600 to-pink-600',
-      bestFor: 'High-volume agencies',
-      features: [
-        '40 website credits',
-        '~₹1,500 per website',
-        'Custom scope flexibility',
-        'Account manager assigned',
-        '24/7 priority support'
-      ],
-      popular: false
-    }
-  ];
+  { 
+    id: 'growth',
+    type: 'Growth',
+    price: 11999,
+    credits: 3,
+    pricePerWebsite: 3999,
+    badge: '/gold.png',
+    gradient: 'from-[#6498fe] to-purple-600',
+    bestFor: 'Small teams and boutique agencies',
+    features: [
+      '3 website credits',
+      '₹3,999 per website',
+      'Priority delivery queue',
+      'Advanced customization',
+      'Dedicated support channel'
+    ],
+    popular: true
+  },
+  {
+    id: 'scale',
+    type: 'Scale',
+    price: 29999,
+    credits: 9,
+    pricePerWebsite: 3333,
+    badge: '/diamond.png',
+    gradient: 'from-purple-600 to-pink-600',
+    bestFor: 'High-volume agencies',
+    features: [
+      '9 website credits',
+      '~₹3,333 per website',
+      'Custom scope flexibility',
+      'Account manager assigned',
+      '24/7 priority support'
+    ],
+    popular: false
+  }
+];
 
 
   // Handle plan purchase
@@ -304,12 +286,12 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
                 <div className="flex items-center gap-4">
                   <div className="text-right">
                     <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600">
-                      ₹6,999
+                      ₹4,999
                     </div>
                     <div className="text-xs text-gray-500">1 Credit</div>
                   </div>
                   <button
-                    onClick={() => handlePurchasePlan({ type: 'Single Website', price: 6999, credits: 1 })}
+                    onClick={() => handlePurchasePlan({ type: 'Single Website', price: 4999, credits: 1 })}
                     disabled={loading}
                     className="bg-gradient-to-r from-[#6498fe] to-purple-600 text-white font-bold px-6 py-3 rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   >

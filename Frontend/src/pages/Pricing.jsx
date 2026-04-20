@@ -221,54 +221,42 @@ const Pricing = () => {
   }, []);
 
   const pricingPlans = useMemo(() => [
-    {
-      title: "Starter",
-      price: 30000,
-      websites: "5",
-      bestFor: "Solo freelancers with steady clients",
-      features: [
-        "100+ Client Ready Website Templates",
-        "3-day delivery",
-        "Fully white-label",
-        "Standard customization",
-        "Email support"
-      ],
-      popular: false,
-      gradient: "from-blue-600 to-blue-700",
-      badge: "/silver.png"
-    },
-    {
-      title: "Growth",
-      price: 60000,
-      websites: "12",
-      bestFor: "Small teams and boutique agencies",
-      features: [
-        "Everything in Starter",
-        "Priority delivery queue",
-        "Advanced customization",
-        "Dedicated support channel",
-        "Free rollover websites"
-      ],
-      popular: true,
-      gradient: "from-[#6498fe] to-purple-600",
-      badge: "/gold.png"
-    },
-    {
-      title: "Scale",
-      price: 100000,
-      websites: "25",
-      bestFor: "High-volume agencies",
-      features: [
-        "Everything in Growth",
-        "Custom scope flexibility",
-        "Account manager assigned",
-        "24/7 priority support",
-        "Custom contract terms"
-      ],
-      popular: false,
-      gradient: "from-purple-600 to-pink-600",
-      badge: "/diamond.png"
-    }
+    { 
+    id: 'growth',
+    type: 'Growth',
+    price: 11999,
+    credits: 3,
+    pricePerWebsite: 3999,
+    badge: '/gold.png',
+    gradient: 'from-[#6498fe] to-purple-600',
+    bestFor: 'Small teams and boutique agencies',
+    features: [
+      '3 website credits',
+      '₹3,999 per website',
+      'Priority delivery queue',
+      'Advanced customization',
+      'Dedicated support channel'
+    ],
+    popular: true
+  },
+  {
+    id: 'scale',
+    type: 'Scale',
+    price: 29999,
+    credits: 9,
+    pricePerWebsite: 3333,
+    badge: '/diamond.png',
+    gradient: 'from-purple-600 to-pink-600',
+    bestFor: 'High-volume agencies',
+    features: [
+      '9 website credits',
+      '~₹3,333 per website',
+      'Custom scope flexibility',
+      'Account manager assigned',
+      '24/7 priority support'
+    ],
+    popular: false
+  }
   ], []);
 
   const handleGetPlan = async (planTitle, planPrice) => {
@@ -313,7 +301,7 @@ const Pricing = () => {
     }
   };
 
-  const singleWebsiteDisplay = getDisplayPrices(6999);
+  const singleWebsiteDisplay = getDisplayPrices(4999);
 
   if (currencyLoading) {
     return (
@@ -432,7 +420,7 @@ const Pricing = () => {
 
                 <div className="text-center">
                   <button
-                    onClick={() => handleGetPlan('Single Website', 6999)}
+                    onClick={() => handleGetPlan('Single Website', 4999)}
                     disabled={loading && selectedPlan === 'Single Website'}
                     className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group cursor-pointer rounded-xl inline-flex items-center justify-center hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
