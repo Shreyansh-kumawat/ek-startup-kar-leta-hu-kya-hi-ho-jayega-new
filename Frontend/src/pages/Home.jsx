@@ -566,11 +566,6 @@ const Home = () => {
   );
 
 
-  const singleWebsiteDisplay = getDisplayPrices(4999);
-  const singleWebsiteStrikeDisplay = getDisplayPrices(10000);
-  const singleWebsiteSavingsDisplay = getDisplayPrices(10000 - 4999);
-
-
   if (currencyLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -578,6 +573,10 @@ const Home = () => {
       </div>
     );
   }
+
+  const singleWebsiteDisplay = getDisplayPrices(4999);
+  const singleWebsiteStrikeDisplay = getDisplayPrices(10000);
+  const singleWebsiteSavingsDisplay = getDisplayPrices(10000 - 4999);
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
