@@ -373,7 +373,7 @@ const Pricing = () => {
                   </div>
                   <div>
                     <h3 className="text-2xl sm:text-3xl font-black text-gray-900">
-                      Not ready for a yearly plan?
+                      Not ready for a Bulk Plan?
                     </h3>
                     <p className="text-gray-600 text-base sm:text-lg font-medium mt-1">
                       Pay per project with the same quality

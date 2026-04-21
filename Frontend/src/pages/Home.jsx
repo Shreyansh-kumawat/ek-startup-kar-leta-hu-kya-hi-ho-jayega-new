@@ -785,7 +785,7 @@ const Home = () => {
                     💡
                   </div>
                   <div>
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900">Not ready for a yearly plan?</h3>
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900">Not ready for a Bulk Plan?</h3>
                     <p className="text-gray-600 text-sm sm:text-base md:text-lg font-medium mt-1">Pay per project with the same quality</p>
                   </div>
                 </div>
