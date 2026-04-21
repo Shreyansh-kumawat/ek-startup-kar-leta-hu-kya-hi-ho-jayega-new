@@ -6,7 +6,7 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import { createPlanOrder, openRazorpayCheckout } from '../services/planApi';
 
-// ✅ SMART CURRENCY HOOK - NO LIBRARY NEEDED
+// ✅ SMART CURRENCY HOOK
 const useSmartCurrency = () => {
   const [rates, setRates] = useState({ USD: 0.012 });
   const [userRegion, setUserRegion] = useState('IN');
@@ -15,57 +15,39 @@ const useSmartCurrency = () => {
   useEffect(() => {
     const detectRegion = async () => {
       try {
-        // Method 1: IP Geolocation (Most Reliable)
         const ipResponse = await fetch('https://ipapi.co/json/');
         const ipData = await ipResponse.json();
-
-        console.log('🌍 Detected Region:', ipData.country_code, ipData.country_name);
         setUserRegion(ipData.country_code || 'IN');
-
-        // Fetch live exchange rates
         const ratesResponse = await fetch('https://api.exchangerate-api.com/v4/latest/INR');
         const ratesData = await ratesResponse.json();
         setRates(ratesData.rates);
-
         setLoading(false);
       } catch (error) {
-        console.error('❌ Region detection failed:', error);
-        // Fallback: Use browser timezone to guess region
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        console.log('⏰ Timezone fallback:', timezone);
-
-        // Guess region from timezone
         if (timezone.includes('America')) setUserRegion('US');
         else if (timezone.includes('Europe')) setUserRegion('GB');
         else if (timezone.includes('Asia/Kolkata') || timezone.includes('Asia/Calcutta')) setUserRegion('IN');
-        else setUserRegion('US'); // Default to US
-
-        setRates({ USD: 0.012 }); // Fallback rate
+        else setUserRegion('US');
+        setRates({ USD: 0.012 });
         setLoading(false);
       }
     };
-
     detectRegion();
   }, []);
 
-  // Smart currency display logic
   const getDisplayPrices = (inrAmount) => {
-    const usdAmount = Math.round(inrAmount * rates.USD);
-
+    const usdAmount = Math.round(inrAmount * (rates.USD || 0.012));
     if (userRegion === 'IN') {
-      // India: INR big, USD small
       return {
         main: { amount: inrAmount, symbol: '₹', code: 'INR' },
         secondary: { amount: usdAmount, symbol: '$', code: 'USD' }
       };
     } else if (userRegion === 'US') {
-      // USA: Only USD
       return {
         main: { amount: usdAmount, symbol: '$', code: 'USD' },
         secondary: null
       };
     } else {
-      // Other regions: USD big, Local small
       const localCurrencyMap = {
         'GB': { rate: rates.GBP || 0.0095, symbol: '£', code: 'GBP' },
         'CA': { rate: rates.CAD || 0.016, symbol: 'CA$', code: 'CAD' },
@@ -75,82 +57,77 @@ const useSmartCurrency = () => {
         'IT': { rate: rates.EUR || 0.011, symbol: '€', code: 'EUR' },
         'ES': { rate: rates.EUR || 0.011, symbol: '€', code: 'EUR' },
       };
-
       const localCurrency = localCurrencyMap[userRegion];
-
       if (localCurrency) {
         const localAmount = Math.round(inrAmount * localCurrency.rate);
         return {
           main: { amount: usdAmount, symbol: '$', code: 'USD' },
           secondary: { amount: localAmount, symbol: localCurrency.symbol, code: localCurrency.code }
         };
-      } else {
-        // Unknown region: Only USD
-        return {
-          main: { amount: usdAmount, symbol: '$', code: 'USD' },
-          secondary: null
-        };
       }
+      return { main: { amount: usdAmount, symbol: '$', code: 'USD' }, secondary: null };
     }
   };
 
   return { getDisplayPrices, userRegion, loading };
 };
 
-// ✅ PRICING CARD WITH SMART CURRENCY
-const PricingCard = memo(({ 
-  title, 
-  price, 
-  websites, 
-  bestFor, 
-  features, 
-  popular, 
-  gradient, 
-  badge, 
-  onGetPlan, 
-  loading, 
+// ✅ PRICING CARD — NaN FIXED (using credits number directly)
+const PricingCard = memo(({
+  title,
+  price,
+  credits,
+  bestFor,
+  features,
+  popular,
+  gradient,
+  onGetPlan,
+  loading,
   selectedPlan,
-  getDisplayPrices 
+  getDisplayPrices
 }) => {
-  const pricePerWebsite = Math.round(price / parseInt(websites));
+  // FIX: use credits (number) instead of parseInt(websites) which was NaN
+  const websiteCount = Number(credits) || 1;
+  const pricePerWebsite = Math.round(price / websiteCount);
   const displayPrices = getDisplayPrices(price);
   const displayPerWebsite = getDisplayPrices(pricePerWebsite);
 
   return (
-    <Card className={`relative p-10 border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 group overflow-hidden ${
-      popular 
-        ? 'border-[#6498fe] shadow-2xl scale-105 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50' 
+    <Card className={`relative p-8 sm:p-10 border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 group overflow-hidden ${
+      popular
+        ? 'border-[#6498fe] shadow-2xl scale-105 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
         : 'border-gray-200 hover:border-[#6498fe] bg-white'
     }`}>
       <div className="absolute inset-0 bg-gradient-to-br from-[#6498fe] via-purple-600 to-pink-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
 
       <div className="relative z-10 text-center mb-8">
-        <h3 className="text-3xl font-extrabold text-gray-900 mb-4 group-hover:text-[#6498fe] transition-colors duration-300">
+        {popular && (
+          <div className="inline-block mb-3">
+            <span className="bg-gradient-to-r from-[#6498fe] to-purple-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
+              ⭐ Most Popular
+            </span>
+          </div>
+        )}
+        <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-4 group-hover:text-[#6498fe] transition-colors duration-300">
           {title}
         </h3>
 
-        {/* SMART PRICE DISPLAY */}
         <div className="relative inline-block mb-4">
-          {/* Main Price (Big) */}
-          <div className={`text-4xl font-black bg-gradient-to-r ${gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`}>
+          <div className={`text-4xl sm:text-5xl font-black bg-gradient-to-r ${gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`}>
             {displayPrices.main.symbol}{displayPrices.main.amount.toLocaleString('en-US')}
           </div>
-
-          {/* Secondary Price (Small) - Only if exists */}
           {displayPrices.secondary && (
             <div className="text-base font-semibold text-gray-500 mt-1">
               ≈ {displayPrices.secondary.symbol}{displayPrices.secondary.amount.toLocaleString('en-US')} {displayPrices.secondary.code}
             </div>
           )}
-
           <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-[#6498fe] to-purple-600 rounded-full"></div>
         </div>
 
-        <p className="text-gray-700 font-semibold text-xl mb-1">
-          <span className="font-bold">{websites}</span> websites
+        <p className="text-gray-700 font-semibold text-xl mb-1 mt-2">
+          <span className="font-bold">{websiteCount}</span> websites
         </p>
 
-        {/* Per Website Price */}
         <p className="text-gray-600 font-semibold text-base mb-2">
           ( {displayPerWebsite.main.symbol}{displayPerWebsite.main.amount.toLocaleString('en-US')} per website
           {displayPerWebsite.secondary && (
@@ -221,42 +198,38 @@ const Pricing = () => {
   }, []);
 
   const pricingPlans = useMemo(() => [
-    { 
-    id: 'growth',
-    type: 'Growth',
-    price: 11999,
-    credits: 3,
-    pricePerWebsite: 3999,
-    badge: '/gold.png',
-    gradient: 'from-[#6498fe] to-purple-600',
-    bestFor: 'Small teams and boutique agencies',
-    features: [
-      '3 website credits',
-      '₹3,999 per website',
-      'Priority delivery queue',
-      'Advanced customization',
-      'Dedicated support channel'
-    ],
-    popular: true
-  },
-  {
-    id: 'scale',
-    type: 'Scale',
-    price: 29999,
-    credits: 9,
-    pricePerWebsite: 3333,
-    badge: '/diamond.png',
-    gradient: 'from-purple-600 to-pink-600',
-    bestFor: 'High-volume agencies',
-    features: [
-      '9 website credits',
-      '~₹3,333 per website',
-      'Custom scope flexibility',
-      'Account manager assigned',
-      '24/7 priority support'
-    ],
-    popular: false
-  }
+    {
+      id: 'growth',
+      title: 'Growth',
+      price: 11999,
+      credits: 3,
+      gradient: 'from-[#6498fe] to-purple-600',
+      bestFor: 'Small teams and boutique agencies',
+      features: [
+        '3 website credits',
+        '₹3,999 per website',
+        'Priority delivery queue',
+        'Advanced customization',
+        'Dedicated support channel'
+      ],
+      popular: true
+    },
+    {
+      id: 'scale',
+      title: 'Scale',
+      price: 29999,
+      credits: 9,
+      gradient: 'from-purple-600 to-pink-600',
+      bestFor: 'High-volume agencies',
+      features: [
+        '9 website credits',
+        '~₹3,333 per website',
+        'Custom scope flexibility',
+        'Account manager assigned',
+        '24/7 priority support'
+      ],
+      popular: false
+    }
   ], []);
 
   const handleGetPlan = async (planTitle, planPrice) => {
@@ -264,44 +237,32 @@ const Pricing = () => {
       navigate('/login', { state: { from: '/pricing' } });
       return;
     }
-
     try {
       setLoading(true);
       setSelectedPlan(planTitle);
-
       const orderResponse = await createPlanOrder(planTitle);
-
       await openRazorpayCheckout(
         orderResponse.data,
         (verifyResponse) => {
-          addNotification({
-            type: 'success',
-            message: `🎉 ${planTitle} plan activated! Credits added to your account.`
-          });
+          addNotification({ type: 'success', message: `🎉 ${planTitle} plan activated! Credits added to your account.` });
           updateCredits(verifyResponse.data.user.credits);
           setTimeout(() => navigate('/dashboard'), 1500);
         },
         (error) => {
-          addNotification({
-            type: 'error',
-            message: error.message || 'Payment failed. Please try again.'
-          });
+          addNotification({ type: 'error', message: error.message || 'Payment failed. Please try again.' });
           setLoading(false);
           setSelectedPlan(null);
         }
       );
-
     } catch (error) {
-      addNotification({
-        type: 'error',
-        message: error.message || 'Failed to initiate payment'
-      });
+      addNotification({ type: 'error', message: error.message || 'Failed to initiate payment' });
       setLoading(false);
       setSelectedPlan(null);
     }
   };
 
   const singleWebsiteDisplay = getDisplayPrices(4999);
+  const singleWebsiteStrikeDisplay = getDisplayPrices(9999);
 
   if (currencyLoading) {
     return (
@@ -335,8 +296,6 @@ const Pricing = () => {
             <p className="text-xl text-gray-600 max-w-3xl mx-auto font-medium">
               Select the plan that matches your agency's deal flow and scale effortlessly
             </p>
-
-            {/* Region Detection Debug Badge (Only in development) */}
             {process.env.NODE_ENV === 'development' && (
               <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-green-50 border border-green-200 rounded-full">
                 <span className="text-sm text-gray-600">
@@ -346,12 +305,12 @@ const Pricing = () => {
             )}
           </div>
 
-          {/* 3 PRICING CARDS */}
-          <div className="grid md:grid-cols-3 gap-10 mb-24 max-w-6xl mx-auto">
+          {/* ✅ FIXED: 2-column grid (was 3, only 2 plans exist) */}
+          <div className="grid md:grid-cols-2 gap-10 mb-24 max-w-4xl mx-auto">
             {pricingPlans.map((plan) => (
-              <PricingCard 
-                key={plan.title} 
-                {...plan} 
+              <PricingCard
+                key={plan.id}
+                {...plan}
                 onGetPlan={handleGetPlan}
                 loading={loading}
                 selectedPlan={selectedPlan}
@@ -388,6 +347,9 @@ const Pricing = () => {
                       <span className="text-sm text-gray-500 font-medium">One-time payment, no commitment</span>
                     </div>
                     <div className="text-left sm:text-right">
+                      <div className="text-sm font-medium text-gray-400 line-through mb-0.5">
+                        {singleWebsiteStrikeDisplay.main.symbol}{singleWebsiteStrikeDisplay.main.amount.toLocaleString('en-US')}
+                      </div>
                       <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600">
                         {singleWebsiteDisplay.main.symbol}{singleWebsiteDisplay.main.amount.toLocaleString('en-US')}
                       </div>
