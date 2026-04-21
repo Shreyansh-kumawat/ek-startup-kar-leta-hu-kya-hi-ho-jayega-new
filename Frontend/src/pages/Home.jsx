@@ -1,22 +1,20 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useMemo, memo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/useAuth";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import Lenis from "lenis";
 import {
-  FaArrowRight,
-  FaCheckCircle,
-  FaClock,
-  FaCode,
+  FaWhatsapp,
   FaEnvelope,
-  FaGlobe,
-  FaHandshake,
-  FaLayerGroup,
   FaPhone,
   FaRocket,
   FaShieldAlt,
-  FaWhatsapp,
+  FaCode,
+  FaCheckCircle,
+  FaClock,
+  FaChartLine,
+  FaHandshake,
 } from "react-icons/fa";
 import SectionTestimonials from "../components/SectionTestimonials";
 
@@ -28,20 +26,32 @@ const useSmartCurrency = () => {
   useEffect(() => {
     const detectRegion = async () => {
       try {
+        const debugRegion = typeof localStorage !== "undefined" ? localStorage.getItem("debug_region") : null;
+        if (debugRegion) {
+          setUserRegion(debugRegion);
+          setRates({ USD: 0.012, GBP: 0.0095, EUR: 0.011, CAD: 0.016, AUD: 0.018 });
+          setLoading(false);
+          return;
+        }
+
         const ipResponse = await fetch("https://ipapi.co/json/");
         const ipData = await ipResponse.json();
         setUserRegion(ipData?.country_code || "IN");
 
         const ratesResponse = await fetch("https://api.exchangerate-api.com/v4/latest/INR");
         const ratesData = await ratesResponse.json();
-        setRates(ratesData?.rates || { USD: 0.012 });
+        setRates(ratesData?.rates || { USD: 0.012, GBP: 0.0095, EUR: 0.011, CAD: 0.016, AUD: 0.018 });
+
+        setLoading(false);
       } catch (error) {
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
         if (timezone.includes("America")) setUserRegion("US");
         else if (timezone.includes("Europe")) setUserRegion("GB");
-        else setUserRegion("IN");
+        else if (timezone.includes("Asia/Kolkata") || timezone.includes("Asia/Calcutta")) setUserRegion("IN");
+        else setUserRegion("US");
+
         setRates({ USD: 0.012, GBP: 0.0095, EUR: 0.011, CAD: 0.016, AUD: 0.018 });
-      } finally {
         setLoading(false);
       }
     };
@@ -50,14 +60,14 @@ const useSmartCurrency = () => {
   }, []);
 
   const getDisplayPrices = (inrAmount) => {
-    if (inrAmount === undefined || inrAmount === null) {
+    if (inrAmount === undefined || inrAmount === null || !rates || !rates.USD) {
       return {
-        main: { amount: 0, symbol: "₹", code: "INR" },
+        main: { amount: inrAmount || 0, symbol: "₹", code: "INR" },
         secondary: null,
       };
     }
 
-    const usdAmount = Math.round(inrAmount * (rates?.USD || 0.012));
+    const usdAmount = Math.round(inrAmount * rates.USD);
 
     if (userRegion === "IN") {
       return {
@@ -74,151 +84,129 @@ const useSmartCurrency = () => {
     }
 
     const localCurrencyMap = {
-      GB: { rate: rates?.GBP || 0.0095, symbol: "£", code: "GBP" },
-      CA: { rate: rates?.CAD || 0.016, symbol: "CA$", code: "CAD" },
-      AU: { rate: rates?.AUD || 0.018, symbol: "A$", code: "AUD" },
-      DE: { rate: rates?.EUR || 0.011, symbol: "€", code: "EUR" },
-      FR: { rate: rates?.EUR || 0.011, symbol: "€", code: "EUR" },
-      IT: { rate: rates?.EUR || 0.011, symbol: "€", code: "EUR" },
-      ES: { rate: rates?.EUR || 0.011, symbol: "€", code: "EUR" },
+      GB: { rate: rates.GBP || 0.0095, symbol: "£", code: "GBP" },
+      CA: { rate: rates.CAD || 0.016, symbol: "CA$", code: "CAD" },
+      AU: { rate: rates.AUD || 0.018, symbol: "A$", code: "AUD" },
+      DE: { rate: rates.EUR || 0.011, symbol: "€", code: "EUR" },
+      FR: { rate: rates.EUR || 0.011, symbol: "€", code: "EUR" },
+      IT: { rate: rates.EUR || 0.011, symbol: "€", code: "EUR" },
+      ES: { rate: rates.EUR || 0.011, symbol: "€", code: "EUR" },
     };
 
     const localCurrency = localCurrencyMap[userRegion];
 
-    if (!localCurrency) {
+    if (localCurrency) {
+      const localAmount = Math.round(inrAmount * localCurrency.rate);
       return {
         main: { amount: usdAmount, symbol: "$", code: "USD" },
-        secondary: null,
+        secondary: { amount: localAmount, symbol: localCurrency.symbol, code: localCurrency.code },
       };
     }
 
     return {
       main: { amount: usdAmount, symbol: "$", code: "USD" },
-      secondary: {
-        amount: Math.round(inrAmount * localCurrency.rate),
-        symbol: localCurrency.symbol,
-        code: localCurrency.code,
-      },
+      secondary: null,
     };
   };
 
   return { getDisplayPrices, userRegion, loading };
 };
 
-const TypewriterEffect = memo(({ texts, speed = 90, hold = 1800 }) => {
-  const [textIndex, setTextIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
+const TypewriterEffect = memo(({ texts, speed = 100, delay = 2000 }) => {
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [currentText, setCurrentText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [charIndex, setCharIndex] = useState(0);
 
   useEffect(() => {
-    const current = texts[textIndex] || "";
-    const isDoneTyping = charIndex === current.length;
-    const isDoneDeleting = charIndex === 0;
+    const fullText = texts[currentTextIndex] || "";
 
-    const timeout = setTimeout(
-      () => {
-        if (!isDeleting && !isDoneTyping) {
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        if (charIndex < fullText.length) {
+          setCurrentText(fullText.substring(0, charIndex + 1));
           setCharIndex((prev) => prev + 1);
-          return;
+        } else {
+          setTimeout(() => setIsDeleting(true), delay);
         }
-
-        if (!isDeleting && isDoneTyping) {
-          setIsDeleting(true);
-          return;
-        }
-
-        if (isDeleting && !isDoneDeleting) {
-          setCharIndex((prev) => prev - 1);
-          return;
-        }
-
+      } else if (charIndex > 0) {
+        setCurrentText(fullText.substring(0, charIndex - 1));
+        setCharIndex((prev) => prev - 1);
+      } else {
         setIsDeleting(false);
-        setTextIndex((prev) => (prev + 1) % texts.length);
-      },
-      !isDeleting && isDoneTyping ? hold : isDeleting ? speed / 2 : speed
-    );
+        setCurrentTextIndex((prev) => (prev + 1) % texts.length);
+      }
+    }, isDeleting ? speed / 2 : speed);
 
     return () => clearTimeout(timeout);
-  }, [charIndex, hold, isDeleting, speed, textIndex, texts]);
+  }, [charIndex, currentTextIndex, isDeleting, texts, speed, delay]);
 
   return (
-    <span className="inline-flex min-h-[2.5rem] items-center text-lg font-semibold text-slate-700 sm:text-2xl">
-      {texts[textIndex]?.slice(0, charIndex)}
-      <span className="ml-1 animate-pulse text-[#6498fe]">|</span>
+    <span className="relative text-gray-700 text-2xl md:text-3xl">
+      {currentText}
+      <span className="animate-pulse ml-1 text-gray-400">💻</span>
     </span>
   );
 });
 
 TypewriterEffect.displayName = "TypewriterEffect";
 
-const SectionHeader = memo(({ badge, title, description }) => (
-  <div className="mx-auto mb-14 max-w-3xl text-center">
-    <div className="mb-4 inline-flex items-center rounded-full border border-[#6498fe]/20 bg-[#6498fe]/10 px-4 py-2 text-sm font-semibold text-[#3b6fe0]">
-      {badge}
-    </div>
-    <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
-      {title}
-    </h2>
-    <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-      {description}
-    </p>
-  </div>
-));
-
-SectionHeader.displayName = "SectionHeader";
-
-const StatCard = memo(({ value, label }) => (
-  <div className="rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-    <div className="text-3xl font-black text-slate-900 sm:text-4xl">{value}</div>
-    <p className="mt-2 text-sm font-medium text-slate-600 sm:text-base">{label}</p>
-  </div>
-));
-
-StatCard.displayName = "StatCard";
-
-const BenefitCard = memo(({ icon: Icon, title, description }) => (
-  <Card className="h-full rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#6498fe]/30 hover:shadow-xl">
-    <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#6498fe]/10 text-xl text-[#3b6fe0]">
-      <Icon />
-    </div>
-    <h3 className="text-xl font-bold text-slate-900">{title}</h3>
-    <p className="mt-3 leading-7 text-slate-600">{description}</p>
-  </Card>
-));
-
-BenefitCard.displayName = "BenefitCard";
-
 const StepCard = memo(({ number, title, description }) => (
-  <Card className="relative h-full rounded-3xl border border-slate-200 bg-white p-7 pt-10 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#6498fe]/30 hover:shadow-xl">
-    <div className="absolute left-6 top-0 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-2xl bg-slate-900 text-lg font-black text-white shadow-lg">
+  <Card className="relative p-6 sm:p-7 bg-white border-2 border-gray-100 hover:border-[#6498fe] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 group backdrop-blur-sm h-full">
+    <div className="absolute -top-5 sm:-top-6 left-5 sm:left-6 bg-gradient-to-br from-[#6498fe] via-blue-600 to-purple-600 text-white w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center font-bold text-lg sm:text-xl shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
       {number}
     </div>
-    <h3 className="text-xl font-bold text-slate-900">{title}</h3>
-    <p className="mt-3 leading-7 text-slate-600">{description}</p>
+    <h3 className="text-lg font-bold text-gray-900 mb-3 mt-4 group-hover:text-[#6498fe] transition-colors duration-300">
+      {title}
+    </h3>
+    <p className="text-gray-600 text-sm leading-relaxed">{description}</p>
+    <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-[#6498fe] to-purple-600 group-hover:w-full transition-all duration-500"></div>
   </Card>
 ));
 
 StepCard.displayName = "StepCard";
 
+const FeatureCard = memo(({ title, description, icon }) => (
+  <Card className="relative p-6 sm:p-8 bg-gradient-to-br from-white via-blue-50 to-purple-50 border-2 border-gray-100 hover:border-[#6498fe] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 group overflow-hidden h-full">
+    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#6498fe] to-purple-600 opacity-0 group-hover:opacity-10 rounded-full blur-3xl transition-all duration-500 -mr-16 -mt-16"></div>
+    <div className="relative z-10">
+      <div className="text-5xl mb-5 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 inline-block">
+        <img src={icon} alt={title} className="w-16 sm:w-20" />
+      </div>
+      <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#6498fe] transition-colors duration-300">{title}</h3>
+      <p className="text-gray-600 leading-relaxed">{description}</p>
+    </div>
+  </Card>
+));
+
+FeatureCard.displayName = "FeatureCard";
+
 const FAQItem = memo(({ question, answer }) => {
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Card className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <Card className="mb-5 overflow-hidden border-2 border-gray-200 hover:border-[#6498fe] transition-all duration-300 hover:shadow-xl">
       <button
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition-colors duration-200 hover:bg-slate-50"
-        aria-expanded={open}
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full p-5 sm:p-7 flex items-center justify-between text-left hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 group"
+        aria-expanded={isOpen}
       >
-        <span className="text-base font-bold text-slate-900 sm:text-lg">{question}</span>
-        <span className={`text-2xl font-light text-[#6498fe] transition-transform duration-300 ${open ? "rotate-45" : "rotate-0"}`}>
+        <h3 className="text-base sm:text-lg font-bold text-gray-900 pr-4 sm:pr-8 group-hover:text-[#6498fe] transition-colors duration-300">
+          {question}
+        </h3>
+        <div
+          className={`flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#6498fe] to-blue-600 flex items-center justify-center text-white font-bold text-2xl transition-all duration-500 shadow-lg group-hover:shadow-xl ${isOpen ? "rotate-45 scale-110" : "group-hover:scale-110"}`}
+        >
           +
-        </span>
+        </div>
       </button>
-      <div className={`grid transition-all duration-300 ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-        <div className="overflow-hidden">
-          <div className="border-t border-slate-100 px-6 py-5 text-slate-600">{answer}</div>
+
+      <div className={`transition-all duration-500 ease-in-out ${isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"} overflow-hidden`}>
+        <div className="px-5 sm:px-7 pb-5 sm:pb-7 pt-2">
+          <div className="pl-4 sm:pl-5 border-l-4 border-[#6498fe] bg-gradient-to-r from-blue-50 to-purple-50 p-4 sm:p-5 rounded-r-xl shadow-inner">
+            <p className="text-gray-700 leading-relaxed font-medium">{answer}</p>
+          </div>
         </div>
       </div>
     </Card>
@@ -227,69 +215,99 @@ const FAQItem = memo(({ question, answer }) => {
 
 FAQItem.displayName = "FAQItem";
 
-const PricingCard = memo(({ title, websites, price, strikePrice, bestFor, features, popular, onGetPlan, getDisplayPrices }) => {
-  const main = getDisplayPrices(price);
-  const strike = getDisplayPrices(strikePrice);
-  const perWebsite = getDisplayPrices(Math.round(price / websites));
+const PricingCard = memo(({ title, price, strikePrice, websites, bestFor, features, popular, gradient, onGetPlan, getDisplayPrices }) => {
+  const pricePerWebsite = Math.round(price / parseInt(websites, 10));
+  const displayPrices = getDisplayPrices(price);
+  const displayPerWebsite = getDisplayPrices(pricePerWebsite);
+  const strikeDisplay = getDisplayPrices(strikePrice);
 
   return (
     <Card
-      className={`relative h-full rounded-3xl border p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
+      className={`relative p-5 sm:p-7 md:p-10 border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 group overflow-hidden ${
         popular
-          ? "border-[#6498fe] bg-slate-900 text-white"
-          : "border-slate-200 bg-white text-slate-900"
+          ? "border-[#6498fe] shadow-2xl scale-100 md:scale-105 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
+          : "border-gray-200 hover:border-[#6498fe] bg-white"
       }`}
     >
-      {popular && (
-        <div className="absolute right-6 top-6 rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white">
-          Most popular
-        </div>
-      )}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#6498fe] via-purple-600 to-pink-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
 
-      <div className="mb-8">
-        <h3 className="text-2xl font-black">{title}</h3>
-        <p className={`mt-2 text-sm ${popular ? "text-slate-300" : "text-slate-500"}`}>{bestFor}</p>
+      <div className="relative z-10 text-center mb-5 sm:mb-8">
+        <h3 className="text-lg sm:text-xl md:text-3xl font-extrabold text-gray-900 mb-3 sm:mb-4 group-hover:text-[#6498fe] transition-colors duration-300">
+          {title}
+        </h3>
+
+        <div className="relative inline-block mb-4">
+          <div className="flex flex-col items-center gap-0.5 sm:gap-1 mb-1">
+            <span className="text-xs sm:text-sm md:text-lg font-medium text-gray-400 line-through">
+              {strikeDisplay.main.symbol}
+              {strikeDisplay.main.amount.toLocaleString("en-US")}
+            </span>
+            <div className={`text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r ${gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`}>
+              {displayPrices.main.symbol}
+              {displayPrices.main.amount.toLocaleString("en-US")}
+            </div>
+          </div>
+
+          {displayPrices.secondary && (
+            <div className="text-xs sm:text-sm md:text-base font-semibold text-gray-500 mt-1">
+              ≈ {displayPrices.secondary.symbol}
+              {displayPrices.secondary.amount.toLocaleString("en-US")} {displayPrices.secondary.code}
+            </div>
+          )}
+
+          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 sm:w-20 h-1 bg-gradient-to-r from-[#6498fe] to-purple-600 rounded-full"></div>
+        </div>
+
+        <p className="text-gray-700 font-semibold text-base sm:text-lg md:text-xl mb-1">
+          <span className="font-bold">{websites}</span> websites
+        </p>
+
+        <p className="text-gray-600 font-semibold text-xs sm:text-sm md:text-base mb-2">
+          ({" "}
+          {displayPerWebsite.main.symbol}
+          {displayPerWebsite.main.amount.toLocaleString("en-US")} per website
+          {displayPerWebsite.secondary && (
+            <span className="text-xs text-gray-500 ml-1">
+              / {displayPerWebsite.secondary.symbol}
+              {displayPerWebsite.secondary.amount} {displayPerWebsite.secondary.code}
+            </span>
+          )}
+          )
+        </p>
+
+        <br />
+        <p className="text-xs sm:text-sm text-gray-500 italic px-2 sm:px-4">{bestFor}</p>
       </div>
 
-      <div className="mb-6">
-        <div className={`text-sm line-through ${popular ? "text-slate-400" : "text-slate-400"}`}>
-          {strike.main.symbol}
-          {strike.main.amount.toLocaleString("en-US")}
-        </div>
-        <div className="mt-1 flex items-end gap-2">
-          <span className="text-4xl font-black">
-            {main.main.symbol}
-            {main.main.amount.toLocaleString("en-US")}
-          </span>
-          <span className={`pb-1 text-sm ${popular ? "text-slate-300" : "text-slate-500"}`}>
-            / plan
-          </span>
-        </div>
-        <div className={`mt-2 text-sm ${popular ? "text-slate-300" : "text-slate-500"}`}>
-          {websites} websites · {perWebsite.main.symbol}
-          {perWebsite.main.amount.toLocaleString("en-US")} per website
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        {features.map((feature) => (
-          <div key={feature} className="flex items-start gap-3">
-            <FaCheckCircle className={`mt-1 shrink-0 ${popular ? "text-[#8fb2ff]" : "text-[#3b6fe0]"}`} />
-            <span className={`${popular ? "text-slate-200" : "text-slate-600"}`}>{feature}</span>
+      <div className="relative z-10 space-y-2 sm:space-y-3 md:space-y-4 mb-6 sm:mb-8 md:mb-10">
+        {features.map((feature, index) => (
+          <div key={index} className="flex items-start gap-2 sm:gap-3 group/item">
+            <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-md group-hover/item:scale-125 transition-transform duration-300">
+              <span className="text-white font-bold text-xs">✓</span>
+            </div>
+            <span className="text-gray-700 text-xs sm:text-sm leading-relaxed font-medium group-hover/item:text-gray-900 transition-colors duration-300">
+              {feature}
+            </span>
           </div>
         ))}
       </div>
 
-      <Button
-        onClick={() => onGetPlan(title, price)}
-        className={`mt-8 w-full rounded-2xl px-6 py-4 font-bold transition-all duration-300 ${
-          popular
-            ? "bg-white text-slate-900 hover:bg-slate-100"
-            : "bg-slate-900 text-white hover:bg-[#3b6fe0]"
-        }`}
-      >
-        Choose {title}
-      </Button>
+      <div className="block relative z-10">
+        <Button
+          onClick={() => onGetPlan(title, price)}
+          className={`w-full font-bold py-3 sm:py-4 md:py-5 rounded-xl transition-all duration-300 text-sm sm:text-base md:text-lg relative overflow-hidden group/btn cursor-pointer ${
+            popular
+              ? "bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white shadow-xl hover:shadow-2xl"
+              : "bg-black text-white border-2 border-gray-300 hover:bg-gradient-to-r hover:from-[#6498fe] hover:to-purple-600 hover:border-[#6498fe]"
+          }`}
+        >
+          <span className="relative z-10 flex items-center justify-center gap-2">
+            <span>Get Plan</span>
+            <span className="group-hover/btn:translate-x-1 transition-transform duration-300">→</span>
+          </span>
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+        </Button>
+      </div>
     </Card>
   );
 });
@@ -297,63 +315,131 @@ const PricingCard = memo(({ title, websites, price, strikePrice, bestFor, featur
 PricingCard.displayName = "PricingCard";
 
 const Home = () => {
-  const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
-  const { getDisplayPrices, loading: currencyLoading } = useSmartCurrency();
-  const heroRef = useRef(null);
+  const navigate = useNavigate();
+  const { getDisplayPrices, userRegion, loading: currencyLoading } = useSmartCurrency();
+
+  const [isStatsVisible, setIsStatsVisible] = useState(false);
+  const statsRef = useRef(null);
 
   useEffect(() => {
-    const lenis = new Lenis({ duration: 1.05, smoothWheel: true });
+    const createBubble = () => {
+      const section = document.getElementById("hero-section");
+      if (!section) return;
 
-    let frame;
-    const raf = (time) => {
-      lenis.raf(time);
-      frame = requestAnimationFrame(raf);
+      const bubble = document.createElement("div");
+      bubble.className = "floating-bubble";
+
+      const size = Math.random() * 12 + 4;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.background = Math.random() > 0.5 ? "#6498fe" : "#10b981";
+      const duration = Math.random() * 8 + 12;
+      bubble.style.animationDuration = `${duration}s`;
+
+      section.appendChild(bubble);
+      setTimeout(() => bubble.remove(), duration * 1000);
     };
 
-    frame = requestAnimationFrame(raf);
+    for (let i = 0; i < 10; i += 1) {
+      setTimeout(() => createBubble(), i * 100);
+    }
+
+    const interval = setInterval(createBubble, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      smoothTouch: false,
+    });
+
+    let rafId;
+    const raf = (time) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+
+    rafId = requestAnimationFrame(raf);
 
     return () => {
-      cancelAnimationFrame(frame);
+      if (rafId) cancelAnimationFrame(rafId);
       lenis.destroy();
     };
   }, []);
 
+  const scrollToPricing = (e) => {
+    if (e) e.preventDefault();
+    const pricingSection = document.getElementById("pricing");
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleGetPlan = (planTitle, planPrice) => {
+    const planToken = {
+      plan: planTitle,
+      price: planPrice,
+      timestamp: new Date().toISOString(),
+    };
+
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("selectedPlan", JSON.stringify(planToken));
+    }
+
+    navigate(isAuthenticated ? "/dashboard" : "/login");
+  };
+
   useEffect(() => {
-    const section = heroRef.current;
-    if (!section) return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setIsStatsVisible(true);
+      },
+      { threshold: 0.3 }
+    );
 
-    const interval = setInterval(() => {
-      const bubble = document.createElement("span");
-      bubble.className = "hero-bubble";
-      bubble.style.left = `${Math.random() * 100}%`;
-      bubble.style.width = `${Math.random() * 18 + 8}px`;
-      bubble.style.height = bubble.style.width;
-      bubble.style.animationDuration = `${Math.random() * 6 + 8}s`;
-      section.appendChild(bubble);
+    if (statsRef.current) observer.observe(statsRef.current);
 
-      setTimeout(() => bubble.remove(), 10000);
-    }, 1400);
-
-    return () => clearInterval(interval);
+    return () => {
+      if (statsRef.current) observer.unobserve(statsRef.current);
+    };
   }, []);
 
-  const displayName = user?.name || user?.username;
-
   const typewriterTexts = useMemo(
-    () => [
-      "without hiring a full-time dev team",
-      "in 3 business days",
-      "without breaking your margins",
-    ],
+    () => ["without hiring developers", "in 3 business days", "with predictable pricing"],
     []
   );
 
-  const stats = useMemo(
+  const steps = useMemo(
     () => [
-      { value: "100+", label: "Ready website designs" },
-      { value: "3 days", label: "Typical delivery time" },
-      { value: "100%", label: "White-label friendly" },
+      {
+        number: "1",
+        title: "Choose a plan & book a call",
+        description:
+          "Pick the plan that fits your pipeline (or go per-website), then jump on a quick call to align expectations.",
+      },
+      {
+        number: "2",
+        title: "Get your partner dashboard",
+        description:
+          "After onboarding, you get access to a simple dashboard showing your plan, remaining websites, and template/design IDs.",
+      },
+      {
+        number: "3",
+        title: "Pick a template with your client",
+        description:
+          "Use our 100+ Website Designs, choose a design with your client, and submit only the Design ID in the dashboard. No heavy forms.",
+      },
+      {
+        number: "4",
+        title: "Website delivered in 3 business days",
+        description:
+          "Once content is clear, we deliver the website in 3 business days. You present it to your client under your own brand.",
+      },
     ],
     []
   );
@@ -361,52 +447,22 @@ const Home = () => {
   const benefits = useMemo(
     () => [
       {
-        icon: FaLayerGroup,
-        title: "Delivery infrastructure, not another tool",
+        icon: "./jcb.png",
+        title: "Infrastructure, not another tool",
         description:
-          "Tum design choose karo, client ka content do, aur build hum handle karein. No builder learning curve, no random freelancer chasing.",
+          "No need to learn new tools or drag-and-drop builders. You just pick a template and share a Design ID — we handle the build.",
       },
       {
-        icon: FaHandshake,
-        title: "Pure white-label backend partner",
+        icon: "./hand.png",
+        title: "No client conflict",
         description:
-          "Client relation tumhari rahegi. Pricing tumhari, branding tumhari, credit tumhara. Hum background mein invisible delivery team ki tarah kaam karte hain.",
+          "We never compete with you for clients. You own the relationship, pricing, and credit; we stay invisible in the background.",
       },
       {
-        icon: FaShieldAlt,
-        title: "Predictable cost, scalable margin",
+        icon: "./money.png",
+        title: "Predictable costs, zero hiring",
         description:
-          "Hiring, HR, revision chaos aur uneven freelancer quality ki tension kam. Clear pricing ke saath website delivery ko system bana do.",
-      },
-    ],
-    []
-  );
-
-  const steps = useMemo(
-    () => [
-      {
-        number: "01",
-        title: "Plan choose karo",
-        description:
-          "Apni agency ke flow ke hisaab se yearly plan ya single website option choose karo.",
-      },
-      {
-        number: "02",
-        title: "Dashboard access lo",
-        description:
-          "Tumhe ek simple dashboard milta hai jahan se credits, submissions aur project flow manage hota hai.",
-      },
-      {
-        number: "03",
-        title: "Template + content submit karo",
-        description:
-          "Client ke saath website design choose karo, content finalize karo, aur details bhej do.",
-      },
-      {
-        number: "04",
-        title: "Website deliver lo",
-        description:
-          "3 business days ke around polished marketing website ready mil jaati hai jo tum apne brand ke naam se present kar sakte ho.",
+          "Forget salaries, HR, or managing multiple freelancers. Use simple yearly plans or per-website pricing to keep your margins healthy.",
       },
     ],
     []
@@ -415,30 +471,38 @@ const Home = () => {
   const pricingPlans = useMemo(
     () => [
       {
+        id: "growth",
         title: "Growth",
-        websites: 3,
         price: 11999,
         strikePrice: 15000,
+        websites: 3,
+        pricePerWebsite: 3999,
+        gradient: "from-[#6498fe] to-purple-600",
         bestFor: "Small teams and boutique agencies",
         features: [
           "3 website credits",
+          "₹3,999 per website",
           "Priority delivery queue",
-          "Better unit economics from day one",
-          "Customization support",
+          "Advanced customization",
+          "Dedicated support channel",
         ],
         popular: true,
       },
       {
+        id: "scale",
         title: "Scale",
-        websites: 9,
         price: 29999,
         strikePrice: 45000,
-        bestFor: "Agencies handling regular monthly volume",
+        websites: 9,
+        pricePerWebsite: 3333,
+        gradient: "from-purple-600 to-pink-600",
+        bestFor: "High-volume agencies",
         features: [
           "9 website credits",
-          "Lower per-site cost",
-          "Flexible scope handling",
-          "Priority support + faster coordination",
+          "~₹3,333 per website",
+          "Custom scope flexibility",
+          "Account manager assigned",
+          "24/7 priority support",
         ],
         popular: false,
       },
@@ -449,397 +513,466 @@ const Home = () => {
   const faqs = useMemo(
     () => [
       {
-        question: "Agar plan ke saare website credits use na ho to?",
+        question: "What if I don't use all websites in my plan?",
         answer:
-          "Credits tumhare account mein safe rehte hain. Agar access issue aaye to support se recover karwa sakte ho.",
+          "No problem, your credits will remain safe in your account as long as you don't forget your account password. And even if that happens, there is no issue — we still keep your data. You can contact our support number, and we will either recover your account or provide you with a new account with the same credit balance.",
       },
       {
-        question: "Single website mein exactly kya milta hai?",
+        question: "What exactly do I get for ₹4,999 per website?",
         answer:
-          "A branded marketing website, selected design reference ke basis par, client content ke saath customized build aur delivery timeline ke andar handoff.",
+          "A standard marketing website using one of our Website Designs, customized with your client's branding and content, delivered in 3 business days after content is confirmed.",
       },
       {
-        question: "Hosting kaun handle karega?",
+        question: "Who handles hosting?",
         answer:
-          "Deployment hum help kar sakte hain, ya source code handoff kar sakte hain. Domain aur client relationship tumhare control mein rehti hai.",
+          "We can deploy the website on Vercel, or we can provide you with the source code so that you can handle it yourself. You stay in control of domains and client relationships.",
       },
       {
-        question: "Kya yeh fully white-label hai?",
+        question: "Can I white-label everything?",
         answer:
-          "Haan. Client side par tumhari agency hi visible rahegi. Hum backend execution partner ki tarah kaam karte hain.",
+          "Absolutely. Your clients will only see your brand. We stay completely invisible in the background as your delivery infrastructure.",
+      },
+      {
+        question: "Do I pay on the website?",
+        answer:
+          "Yes, you can make the payment on our website — it is secured by Razorpay. If you have any concern regarding payment security, you can contact our support number and pay through various methods such as UPI or bank transfer.",
       },
     ],
     []
   );
 
-  const handleGetPlan = (plan, price) => {
-    const payload = { plan, price, timestamp: new Date().toISOString() };
-    localStorage.setItem("selectedPlan", JSON.stringify(payload));
-    navigate(isAuthenticated ? "/dashboard" : "/login");
-  };
-
-  const scrollToPricing = () => {
-    const pricingSection = document.getElementById("pricing");
-    pricingSection?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  const displayName = useMemo(() => user?.name || user?.username, [user?.name, user?.username]);
 
   if (currencyLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-[#6498fe]" />
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
-  const singleWebsite = getDisplayPrices(4999);
-  const singleStrike = getDisplayPrices(7999);
+  const singleWebsiteDisplay = getDisplayPrices(4999);
+  const singleWebsiteStrikeDisplay = getDisplayPrices(10000);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#f8fafc] text-slate-900">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       <style>{`
-        .hero-bubble {
-          position: absolute;
-          bottom: -30px;
-          border-radius: 9999px;
-          pointer-events: none;
-          background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(100,152,254,0.45));
-          box-shadow: 0 10px 30px rgba(100,152,254,0.18);
-          animation: floatBubble linear forwards;
-          opacity: 0.7;
-        }
-
-        @keyframes floatBubble {
+        @keyframes float-up {
           0% {
-            transform: translateY(0) translateX(0) scale(0.9);
-            opacity: 0;
+            transform: translateY(0) translateX(0);
+            opacity: 0.6;
           }
-          20% {
-            opacity: 0.75;
+          50% {
+            opacity: 0.8;
           }
           100% {
-            transform: translateY(-110vh) translateX(40px) scale(1.2);
+            transform: translateY(-100vh) translateX(30px);
             opacity: 0;
           }
+        }
+
+        .floating-bubble {
+          position: absolute;
+          bottom: -100px;
+          border-radius: 50%;
+          pointer-events: none;
+          opacity: 0.3;
+          animation: float-up linear infinite;
+          box-shadow: 0 0 20px currentColor;
+        }
+
+        #hero-section {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .invisible-text {
+          position: relative;
+          display: inline-block;
+        }
+
+        .hover-active .invisible-text {
+          color: transparent;
+          text-shadow: none;
+          filter: blur(8px);
+          opacity: 0;
+          transform: scale(0.9);
+        }
+
+        .invisible-text::before {
+          content: '';
+          position: absolute;
+          inset: -10px;
+          background: rgba(100, 152, 254, 0.1);
+          backdrop-filter: blur(10px);
+          border-radius: 12px;
+          opacity: 0;
+          transition: opacity 0.7s ease-in-out;
+          z-index: -1;
+        }
+
+        .hover-active .invisible-text::before {
+          opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+          .hover-active .invisible-text {
+            filter: blur(12px);
+          }
+        }
+
+        @keyframes slideUpScale {
+          0% { opacity: 0; transform: translateY(100px) scale(0.5); }
+          60% { transform: translateY(-20px) scale(1.1); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
         }
       `}</style>
 
-      <section ref={heroRef} className="relative isolate overflow-hidden border-b border-slate-200 bg-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(100,152,254,0.10),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(59,111,224,0.10),transparent_30%)]" />
-        <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-24 sm:px-6 lg:px-8 lg:pb-24 lg:pt-28">
-          <div className="grid items-center gap-14 lg:grid-cols-[1.2fr_0.8fr]">
-            <div>
-              <div className="inline-flex items-center rounded-full border border-[#6498fe]/20 bg-[#6498fe]/10 px-4 py-2 text-sm font-semibold text-[#3b6fe0]">
-                3Digree · White-label website delivery partner
-              </div>
+      <div className="h-1.5 bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600" aria-hidden="true"></div>
 
-              <h1 className="mt-6 max-w-4xl text-4xl font-black leading-tight text-slate-900 sm:text-5xl lg:text-7xl">
-                Agencies ke liye
-                <span className="block text-[#3b6fe0]">invisible dev team</span>
-                jo websites deliver kare
-              </h1>
-
-              <div className="mt-5">
-                <TypewriterEffect texts={typewriterTexts} />
-              </div>
-
-              <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                Paste reference ke content ko clean karke yahan ek proper homepage banaya gaya hai — clearer messaging, better hierarchy, stronger CTAs aur mobile-friendly layout ke saath.
-              </p>
-
-              <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                <button
-                  type="button"
-                  onClick={scrollToPricing}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-7 py-4 text-base font-bold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#3b6fe0]"
-                >
-                  View pricing plans
-                  <FaArrowRight />
-                </button>
-                <Link
-                  to="/templates"
-                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-7 py-4 text-base font-bold text-slate-800 transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-900 hover:text-slate-900"
-                >
-                  Explore website designs
-                </Link>
-              </div>
-
-              {isAuthenticated && displayName && (
-                <div className="mt-6 inline-flex rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-medium text-slate-700 shadow-sm">
-                  Welcome back, <span className="ml-1 font-black text-slate-900">{displayName}</span>
-                </div>
-              )}
-
-              <div className="mt-12 grid gap-4 sm:grid-cols-3">
-                {stats.map((stat) => (
-                  <StatCard key={stat.label} {...stat} />
-                ))}
+      <section id="hero-section" className="relative bg-white pt-24 sm:pt-28 pb-20 overflow-hidden min-h-screen flex items-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="text-center max-w-5xl mx-auto">
+            <div className="inline-block mb-6">
+              <div className="flex items-center gap-3 bg-gradient-to-r from-[#6498fe] to-[#96b1e8] rounded-full px-6 sm:px-8 py-3 shadow-xl">
+                <span className="text-white font-bold text-xl sm:text-2xl tracking-wide">3Digree</span>
               </div>
             </div>
 
-            <div className="relative">
-              <div className="rounded-[2rem] border border-slate-200 bg-slate-900 p-6 text-white shadow-2xl">
-                <div className="flex items-center justify-between border-b border-white/10 pb-5">
-                  <div>
-                    <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Agency workflow</p>
-                    <h3 className="mt-2 text-2xl font-black">Client se delivery tak sorted flow</h3>
-                  </div>
-                  <div className="rounded-2xl bg-white/10 p-3 text-xl">
-                    <FaCode />
-                  </div>
-                </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-8 leading-tight">
+              <span className="block text-gray-900 mb-2">
+                Your{" "}
+                <span
+                  className="relative inline-block cursor-pointer group"
+                  onMouseEnter={(e) => e.currentTarget.classList.add("hover-active")}
+                  onMouseLeave={(e) => e.currentTarget.classList.remove("hover-active")}
+                  onClick={(e) => e.currentTarget.classList.toggle("hover-active")}
+                >
+                  <span className="invisible-text text-[#6498fe] transition-all duration-700 ease-in-out">Invisible</span>
+                </span>{" "}
+                Dev Team
+              </span>
+            </h1>
 
-                <div className="mt-6 space-y-4">
-                  {[
-                    ["Template selected", "Client ne design approve kiya"],
-                    ["Content submitted", "Branding, copy aur assets lock hue"],
-                    ["Build in progress", "Backend team execution handle kar rahi hai"],
-                    ["Ready to present", "Tum apne brand ke under client ko dikhate ho"],
-                  ].map(([title, desc]) => (
-                    <div key={title} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                      <div className="flex items-start gap-3">
-                        <FaCheckCircle className="mt-1 shrink-0 text-[#8fb2ff]" />
-                        <div>
-                          <p className="font-bold text-white">{title}</p>
-                          <p className="mt-1 text-sm leading-6 text-slate-300">{desc}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            <div className="mb-10 font-mono min-h-[2.5em] sm:min-h-[3em] flex items-center justify-center px-2">
+              <TypewriterEffect texts={typewriterTexts} speed={100} delay={4500} />
+            </div>
 
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl bg-white px-4 py-4 text-slate-900">
-                    <p className="text-sm text-slate-500">Single website</p>
-                    <p className="mt-1 text-2xl font-black">
-                      {singleWebsite.main.symbol}
-                      {singleWebsite.main.amount.toLocaleString("en-US")}
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed max-w-4xl mx-auto font-medium px-2">
+              3Digree is a website delivery infrastructure for freelancers and agencies. Use{" "}
+              <span className="text-[#6498fe] font-bold">100+ battle-tested Website Designs</span> and a backend dev team so you can stay focused on clients and sales.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12 px-2">
+              <button
+                type="button"
+                onClick={scrollToPricing}
+                className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-8 sm:px-12 py-4 sm:py-6 shadow-2xl hover:scale-105 transition-all duration-300 text-base sm:text-lg relative overflow-hidden group inline-flex items-center justify-center rounded-2xl"
+              >
+                <span className="relative z-10 flex items-center gap-3">
+                  <span>View Pricing Plans</span>
+                  <span className="group-hover:rotate-90 transition-transform duration-300">💎</span>
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
+            </div>
+
+            {isAuthenticated && displayName && (
+              <div className="mb-12 inline-block px-2">
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-[#6498fe] via-purple-600 to-pink-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                  <div className="relative bg-white border-2 border-gray-200 rounded-2xl px-6 sm:px-10 py-4 sm:py-5 shadow-xl">
+                    <p className="text-gray-700 font-medium text-base sm:text-lg">
+                      Welcome back,{" "}
+                      <span className="font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600 text-lg sm:text-xl">
+                        {displayName}
+                      </span>
+                      ! 👋
                     </p>
                   </div>
-                  <div className="rounded-2xl bg-white/10 px-4 py-4">
-                    <p className="text-sm text-slate-400">Delivery target</p>
-                    <p className="mt-1 text-2xl font-black text-white">3 business days</p>
-                  </div>
                 </div>
               </div>
+            )}
+
+            <div ref={statsRef} className="mt-20 sm:mt-28 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 max-w-3xl mx-auto px-4">
+              {[
+                { number: "100+", label: "Website Designs", icon: "/svg/lots.svg" },
+                { number: "3", label: "Days Delivery", icon: "/svg/day.svg" },
+                { number: "100%", label: "White-label", icon: "/svg/happy.svg" },
+              ].map((stat, index) => (
+                <div
+                  key={index}
+                  className="text-center group"
+                  style={{
+                    animation: isStatsVisible ? `slideUpScale 0.8s ease-out ${index * 0.2}s forwards` : "none",
+                  }}
+                >
+                  <div className="relative inline-block mb-3">
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#6498fe] to-purple-600 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
+                    <div className="relative text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600 group-hover:scale-110 transition-transform duration-500">
+                      {stat.number}
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-600 font-bold flex items-center justify-center gap-2">
+                    <span>{stat.label}</span>
+                    <span className="text-lg group-hover:scale-125 transition-transform duration-300">
+                      <img src={stat.icon} alt={stat.label} className="w-8 sm:w-10" />
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
+          </div>
+        </div>
+
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <button
+            type="button"
+            onClick={scrollToPricing}
+            className="flex flex-col items-center gap-2 text-gray-400 hover:text-[#6498fe] transition-colors duration-300"
+          >
+            <span className="text-xs font-semibold">See Pricing</span>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </button>
+        </div>
+      </section>
+
+      <section id="pricing" className="py-20 sm:py-28 bg-white relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+          <div className="absolute bottom-20 left-0 w-72 sm:w-96 h-72 sm:h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 sm:mb-20">
+            <div className="inline-block mb-6">
+              <div className="flex items-center gap-3 bg-gradient-to-r from-blue-600 via-blue-700 to-purple-600 rounded-full px-6 sm:px-8 py-4 shadow-xl">
+                <span className="text-2xl">💎</span>
+                <span className="text-sm font-bold text-white">Transparent Pricing</span>
+              </div>
+            </div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 text-gray-900">Choose Your Plan</h2>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto font-medium px-2">
+              Select the plan that matches your agency's deal flow and scale effortlessly
+            </p>
+
+            {process.env.NODE_ENV === "development" && (
+              <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-green-50 border border-green-200 rounded-full">
+                <span className="text-sm text-gray-600">
+                  🌍 Detected Region: <span className="font-bold text-green-600">{userRegion}</span>
+                  (Only in Development mode)
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 sm:gap-10 mb-16 sm:mb-24 max-w-6xl mx-auto">
+            {pricingPlans.map((plan) => (
+              <PricingCard key={plan.title} {...plan} onGetPlan={handleGetPlan} getDisplayPrices={getDisplayPrices} />
+            ))}
+          </div>
+
+          <div className="max-w-5xl mx-auto">
+            <Card className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-2 border-blue-200 shadow-xl p-6 sm:p-8 md:p-10 relative overflow-hidden hover:shadow-2xl transition-all duration-500">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#6498fe] to-purple-600 opacity-5 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-purple-600 to-pink-600 opacity-5 rounded-full blur-3xl"></div>
+
+              <div className="relative z-10">
+                <div className="flex items-start sm:items-center gap-3 sm:gap-4 mb-6">
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-[#6498fe] to-purple-600 rounded-xl flex items-center justify-center text-xl sm:text-2xl shadow-lg">
+                    💡
+                  </div>
+                  <div>
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900">Not ready for a yearly plan?</h3>
+                    <p className="text-gray-600 text-sm sm:text-base md:text-lg font-medium mt-1">Pay per project with the same quality</p>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl p-5 sm:p-6 md:p-8 border-2 border-gray-200 mb-6 shadow-md hover:shadow-lg transition-all duration-300">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                      <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 block mb-1">Single Website Delivery</span>
+                      <span className="text-xs sm:text-sm text-gray-500 font-medium">One-time payment, no commitment</span>
+                    </div>
+
+                    <div className="text-left sm:text-right">
+                      <div className="flex flex-col items-start sm:items-end gap-0.5 mb-1">
+                        <span className="text-xs sm:text-sm md:text-lg font-medium text-gray-400 line-through">
+                          {singleWebsiteStrikeDisplay.main.symbol}
+                          {singleWebsiteStrikeDisplay.main.amount.toLocaleString("en-US")}
+                        </span>
+                        <div className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600">
+                          {singleWebsiteDisplay.main.symbol}
+                          {singleWebsiteDisplay.main.amount.toLocaleString("en-US")}
+                        </div>
+                      </div>
+
+                      {singleWebsiteDisplay.secondary && (
+                        <div className="text-xs sm:text-sm md:text-base font-semibold text-gray-500 mt-1">
+                          ≈ {singleWebsiteDisplay.secondary.symbol}
+                          {singleWebsiteDisplay.secondary.amount} {singleWebsiteDisplay.secondary.code}
+                        </div>
+                      )}
+                      <div className="text-xs text-gray-500 mt-1 font-semibold">Single Website</div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4 border-t border-gray-100">
+                    {[
+                      { text: "Standard website" },
+                      { text: "100+ Website Designs" },
+                      { text: "3-day delivery" },
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-center gap-2 sm:gap-3 group">
+                        <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300">
+                          <span className="text-white font-bold text-xs">✓</span>
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-xs sm:text-sm text-gray-700 font-semibold">{item.text}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => handleGetPlan("Single Website", 4999)}
+                    className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group rounded-xl inline-flex items-center justify-center hover:scale-105"
+                  >
+                    <span className="relative z-10">Get Plan</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </button>
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <SectionHeader
-          badge="Why agencies use this"
-          title="Homepage ko proper business pitch mein convert kiya"
-          description="Reference content ka core idea same rakha gaya hai, but messy visuals, inconsistent cards aur broken hierarchy hata ke ek structured landing experience banaya gaya hai."
-        />
-        <div className="grid gap-6 md:grid-cols-3">
-          {benefits.map((benefit) => (
-            <BenefitCard key={benefit.title} {...benefit} />
-          ))}
+      <section className="py-20 sm:py-28 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
         </div>
-      </section>
 
-      <section className="border-y border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <SectionHeader
-            badge="How it works"
-            title="Simple process, kam friction"
-            description="Freelancers aur agencies ko extra operations load na aaye, isliye flow ko intentionally lean rakha gaya hai."
-          />
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            {steps.map((step) => (
-              <StepCard key={step.number} {...step} />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 sm:mb-20">
+            <div className="inline-block mb-6">
+              <div className="flex items-center gap-3 bg-white border-2 border-[#6498fe] rounded-full px-6 sm:px-8 py-4 shadow-lg">
+                <span className="text-2xl">⚙️</span>
+                <span className="text-sm font-bold text-[#6498fe]">Simple Process</span>
+              </div>
+            </div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 text-gray-900">How It Works</h2>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto font-medium px-2">
+              From first order to final delivery — a smooth white-label workflow for your agency
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-10 pt-6">
+            {steps.map((step, index) => (
+              <div key={step.number} style={{ animationDelay: `${index * 0.15}s` }}>
+                <StepCard {...step} />
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="pricing" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <SectionHeader
-          badge="Pricing"
-          title="Clear pricing, better conversion"
-          description="Pricing cards ko clean kiya gaya hai taaki value instantly samajh aaye aur CTA direct lage."
-        />
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          {pricingPlans.map((plan) => (
-            <PricingCard
-              key={plan.title}
-              {...plan}
-              onGetPlan={handleGetPlan}
-              getDisplayPrices={getDisplayPrices}
-            />
-          ))}
+      <section className="py-20 sm:py-28 bg-white relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-5">
+          <div className="absolute top-1/4 left-1/4 text-9xl animate-pulse">💼</div>
+          <div className="absolute bottom-1/4 right-1/4 text-8xl animate-pulse">🚀</div>
         </div>
 
-        <div className="mt-8 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
-          <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#3b6fe0]">Single website option</p>
-              <h3 className="mt-3 text-3xl font-black text-slate-900">Not ready for a plan yet?</h3>
-              <p className="mt-3 max-w-2xl leading-7 text-slate-600">
-                Ek project ke basis par bhi start kar sakte ho. Same white-label quality, same delivery intent, no yearly commitment.
-              </p>
-            </div>
-
-            <div className="text-left lg:text-right">
-              <div className="text-sm text-slate-400 line-through">
-                {singleStrike.main.symbol}
-                {singleStrike.main.amount.toLocaleString("en-US")}
-              </div>
-              <div className="mt-1 text-4xl font-black text-slate-900">
-                {singleWebsite.main.symbol}
-                {singleWebsite.main.amount.toLocaleString("en-US")}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 sm:mb-20">
+            <div className="inline-block mb-6">
+              <div className="flex items-center gap-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full px-6 sm:px-8 py-4 shadow-xl">
+                <span className="text-2xl">✨</span>
+                <span className="text-sm font-bold text-white">Why Choose 3Digree</span>
               </div>
             </div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 text-gray-900">Why Agencies Love Us</h2>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto font-medium px-2">
+              We help you fulfill more websites without hiring, managing freelancers, or losing control over your client relationships.
+            </p>
           </div>
 
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-wrap gap-3">
-              {[
-                "Standard business website",
-                "Reference design based build",
-                "Fast delivery flow",
-              ].map((item) => (
-                <span key={item} className="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700">
-                  {item}
-                </span>
-              ))}
-            </div>
-
-            <Button
-              onClick={() => handleGetPlan("Single Website", 4999)}
-              className="rounded-2xl bg-slate-900 px-7 py-4 font-bold text-white transition-all duration-300 hover:bg-[#3b6fe0]"
-            >
-              Get single website
-            </Button>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {benefits.map((benefit, index) => (
+              <div key={benefit.title} style={{ animationDelay: `${index * 0.2}s` }}>
+                <FeatureCard {...benefit} />
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="border-y border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <SectionHeader
-            badge="Trust + support"
-            title="Operational confidence bhi visible hona chahiye"
-            description="Homepage mein sales ke saath trust signals aur support channels ka section bhi add kiya gaya hai."
-          />
-
-          <div className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
-            <Card className="rounded-[2rem] border border-slate-200 bg-slate-900 p-8 text-white shadow-sm">
-              <h3 className="text-2xl font-black">What agencies care about</h3>
-              <div className="mt-6 space-y-5">
-                {[
-                  {
-                    icon: FaClock,
-                    title: "Faster turnaround",
-                    desc: "Client wait time kam hota hai aur tum more deals close kar paate ho.",
-                  },
-                  {
-                    icon: FaGlobe,
-                    title: "Consistent delivery quality",
-                    desc: "Har project ko random freelancer dependency ke bina system se nikaala ja sakta hai.",
-                  },
-                  {
-                    icon: FaRocket,
-                    title: "Better scaling path",
-                    desc: "Sales pe focus maintain karte hue backend execution outsource jaisa nahin, process-driven lagta hai.",
-                  },
-                ].map(({ icon: Icon, title, desc }) => (
-                  <div key={title} className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <div className="rounded-2xl bg-white/10 p-3 text-[#8fb2ff]">
-                      <Icon />
-                    </div>
-                    <div>
-                      <p className="font-bold">{title}</p>
-                      <p className="mt-1 text-sm leading-6 text-slate-300">{desc}</p>
-                    </div>
-                  </div>
-                ))}
+      <section className="py-20 sm:py-28 bg-gradient-to-br from-gray-50 to-blue-50 relative overflow-hidden">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 sm:mb-20">
+            <div className="inline-block mb-6">
+              <div className="flex items-center gap-3 bg-white border-2 border-orange-300 rounded-full px-6 sm:px-8 py-4 shadow-lg">
+                <span className="text-2xl">❓</span>
+                <span className="text-sm font-bold text-orange-600">Got Questions?</span>
               </div>
-            </Card>
+            </div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 text-gray-900">Frequently Asked Questions</h2>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto font-medium px-2">
+              Everything you need to know before getting started with our white-label website delivery service.
+            </p>
+          </div>
 
-            <Card className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
-              <h3 className="text-2xl font-black text-slate-900">Direct support channels</h3>
-              <p className="mt-3 leading-7 text-slate-600">
-                Homepage mein contact-related signals ko bhi clean tarike se present kiya gaya hai.
-              </p>
-
-              <div className="mt-6 space-y-4">
-                {[
-                  { icon: FaWhatsapp, title: "WhatsApp support", desc: "Quick communication for urgent coordination" },
-                  { icon: FaEnvelope, title: "Email coordination", desc: "Structured updates and asset flow" },
-                  { icon: FaPhone, title: "Call alignment", desc: "Fast clarity when scope needs discussion" },
-                ].map(({ icon: Icon, title, desc }) => (
-                  <div key={title} className="flex items-start gap-4 rounded-2xl border border-slate-200 p-4">
-                    <div className="rounded-2xl bg-slate-100 p-3 text-[#3b6fe0]">
-                      <Icon />
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900">{title}</p>
-                      <p className="mt-1 text-sm leading-6 text-slate-600">{desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
+          <div className="max-w-4xl mx-auto">
+            {faqs.map((faq, index) => (
+              <FAQItem key={index} question={faq.question} answer={faq.answer} />
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <SectionHeader
-          badge="Testimonials"
-          title="Social proof section preserve kiya"
-          description="Agar imported testimonial component available hai to usko page flow ke andar cleaner spacing ke saath retain kiya gaya hai."
-        />
-        <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+      <section className="py-20 sm:py-28 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-block mb-6">
+              <div className="flex items-center gap-3 bg-gradient-to-r from-pink-500 to-rose-600 rounded-full px-6 sm:px-8 py-4 shadow-xl">
+                <span className="text-2xl">💬</span>
+                <span className="text-sm font-bold text-white">Client Stories</span>
+              </div>
+            </div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 text-gray-900">What Our Partners Say</h2>
+          </div>
           <SectionTestimonials />
         </div>
       </section>
 
-      <section className="border-y border-slate-200 bg-white">
-        <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
-          <SectionHeader
-            badge="FAQ"
-            title="Important objections bhi cover kiye"
-            description="Conversion page ko complete feel dene ke liye FAQ structure ko bhi clean accordion ke saath retain kiya gaya hai."
-          />
-          <div className="space-y-4">
-            {faqs.map((faq) => (
-              <FAQItem key={faq.question} {...faq} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="rounded-[2rem] bg-slate-900 px-6 py-12 text-white shadow-2xl sm:px-10 lg:px-14">
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-2xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Final CTA</p>
-              <h2 className="mt-3 text-3xl font-black sm:text-4xl">Ready to turn website delivery into a system?</h2>
-              <p className="mt-4 text-base leading-8 text-slate-300 sm:text-lg">
-                Agar tum deals close kar sakte ho, to delivery side ko process bana ke margins aur speed dono improve kar sakte ho.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <button
-                type="button"
-                onClick={scrollToPricing}
-                className="rounded-2xl bg-white px-7 py-4 font-bold text-slate-900 transition-all duration-300 hover:bg-slate-100"
-              >
-                View pricing
-              </button>
-              <Link
-                to={isAuthenticated ? "/dashboard" : "/login"}
-                className="rounded-2xl border border-white/20 px-7 py-4 text-center font-bold text-white transition-all duration-300 hover:bg-white/10"
-              >
-                {isAuthenticated ? "Go to dashboard" : "Get started"}
-              </Link>
+      <section className="py-20 sm:py-24 bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black opacity-20"></div>
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-block mb-6">
+            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-full px-6 sm:px-8 py-4 border border-white/20">
+              <span className="text-2xl">🚀</span>
+              <span className="text-sm font-bold text-white">Ready to Scale?</span>
             </div>
           </div>
+
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 text-white">Start Closing More Website Deals</h2>
+          <p className="text-lg sm:text-xl text-white/90 mb-10 max-w-3xl mx-auto font-medium leading-relaxed px-2">
+            Let 3Digree handle the backend delivery while you stay focused on your clients, sales, and growth.
+          </p>
+
+          <button
+            type="button"
+            onClick={scrollToPricing}
+            className="bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300 text-base sm:text-lg inline-flex items-center justify-center"
+          >
+            View Plans
+          </button>
         </div>
       </section>
     </div>
