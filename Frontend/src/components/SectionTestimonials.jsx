@@ -383,7 +383,7 @@ export default function SectionTestimonials() {
                 </FadeIn>
 
                 {/* Sub-headline */}
-                <FadeIn delay={0.14}>
+                {/* <FadeIn delay={0.14}>
                     <p style={{
                         textAlign: 'center',
                         fontSize: 'clamp(14px, 1.8vw, 17px)',
@@ -395,7 +395,7 @@ export default function SectionTestimonials() {
                     }}>
                         Real feedback from partners who scaled their delivery with 3Digree.
                     </p>
-                </FadeIn>
+                </FadeIn> */}
             </div>
 
             {/* ── Full-width marquee rows ──────────────────────────────────── */}
