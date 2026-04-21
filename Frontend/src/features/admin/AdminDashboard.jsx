@@ -80,7 +80,7 @@ const AdminDashboard = () => {
   const statCards = [
     { label: 'Total Users', value: s.totalUsers, color: 'blue', icon: '👥' },
     { label: 'Total Bookings', value: s.totalOrders, color: 'green', icon: '📋' },
-    { label: 'Active Projects', value: s.activeProjects, color: 'purple', icon: '🚀' },
+    { label: 'Active Projects', value: s.activeProjects, color: 'purple', icon: ' ' },
     { label: 'Completed', value: s.completedProjects, color: 'blue', icon: '✅' },
     { label: 'Pending Meetings', value: s.pendingMeetings, color: 'blue', icon: '📅' },
     { label: 'Total Templates', value: s.totalTemplates, color: 'blue', icon: '🎨' },
@@ -253,7 +253,7 @@ const AdminDashboard = () => {
             {s.recentProjects.map((project) => (
               <div key={project._id} className="flex items-center justify-between px-5 py-3 hover:bg-gray-50 transition">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center text-sm">🚀</div>
+                  <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center text-sm"> </div>
                   <div>
                     <div className="text-sm font-semibold text-gray-900">
                       {project.templateId?.name || 'Custom Project'}

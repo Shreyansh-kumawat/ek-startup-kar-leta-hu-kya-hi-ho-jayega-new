@@ -78,7 +78,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: '🚀 3Digree B2B Template Booking System API',
+    message: '  3Digree B2B Template Booking System API',
     version: '2.0.0',
     status: 'Server is healthy and operational',
     timestamp: new Date().toISOString(),

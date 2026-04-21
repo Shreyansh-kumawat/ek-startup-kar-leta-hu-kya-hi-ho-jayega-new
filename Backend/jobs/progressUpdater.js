@@ -3,7 +3,7 @@ const WebsiteBooking = require('../models/WebsiteBooking');
 
 // ✅ CRON JOB: Runs every 1 minute (for testing) or 54 minutes (production)
 const startProgressUpdater = () => {
-  // console.log('🚀 Progress Auto-Updater Started!');
+  // console.log('  Progress Auto-Updater Started!');
   
   // ✅ TESTING: Every 1 minute
   cron.schedule('*/54 * * * *', async () => {

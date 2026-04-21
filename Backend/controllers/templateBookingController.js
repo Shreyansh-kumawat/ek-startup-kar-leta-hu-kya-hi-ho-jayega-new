@@ -762,7 +762,7 @@ exports.updateDevelopmentProgress = async (req, res) => {
     const { progress, stage, developerNotes, websitePreviewUrl } = req.body;
     const adminId = req.user.id;
 
-    // console.removed.log('🚀 Updating development progress:', { bookingId, progress, stage });
+    // console.removed.log('  Updating development progress:', { bookingId, progress, stage });
 
     // Find booking
     const booking = await TemplateBooking.findById(bookingId)

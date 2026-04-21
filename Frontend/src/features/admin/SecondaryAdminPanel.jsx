@@ -430,7 +430,7 @@ const SecondaryAdminPanel = () => {
                         size="sm"
                         className="bg-blue-600 hover:bg-blue-700"
                       >
-                        🚀 Start
+                          Start
                       </Button>
                       <Button
                         onClick={() => handleOrderStatusUpdate(order._id, 'cancelled')}

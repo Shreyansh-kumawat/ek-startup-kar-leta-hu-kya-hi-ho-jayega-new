@@ -300,7 +300,7 @@ const VisionStrip = () => {
   const phrases = [
     '⚡ 3-Day Delivery',
     '🔒 White Label Always',
-    '🚀 You Close We Build',
+    '  You Close We Build',
     '🎯 Your Brand Only',
     '🤝 Long-Term Partner',
     '💰 Better Margins',

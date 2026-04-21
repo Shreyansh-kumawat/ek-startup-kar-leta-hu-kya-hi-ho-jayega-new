@@ -18,7 +18,7 @@ Hope you're doing great! We just wanted to check in and see how things are going
 
 If you have any questions, need help choosing a template, or want to discuss a project — we're just one reply away!
 
-Let's build something great together. 🚀
+Let's build something great together.  
 
 Warm regards,
 The 3Digree Team

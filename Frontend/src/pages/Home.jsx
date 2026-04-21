@@ -886,7 +886,7 @@ const Home = () => {
       <section className="py-20 sm:py-28 bg-white relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-5">
           <div className="absolute top-1/4 left-1/4 text-9xl animate-pulse">💼</div>
-          <div className="absolute bottom-1/4 right-1/4 text-8xl animate-pulse">🚀</div>
+          <div className="absolute bottom-1/4 right-1/4 text-8xl animate-pulse"> </div>
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -956,7 +956,7 @@ const Home = () => {
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-block mb-6">
             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-full px-6 sm:px-8 py-4 border border-white/20">
-              <span className="text-2xl">🚀</span>
+              <span className="text-2xl"> </span>
               <span className="text-sm font-bold text-white">Ready to Scale?</span>
             </div>
           </div>

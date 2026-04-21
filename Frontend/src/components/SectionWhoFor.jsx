@@ -252,7 +252,7 @@ const audience = [
     accentColor: '#fb923c',
   },
   {
-    icon:        '🚀',
+    icon:        ' ',
     title:       'Solopreneurs Scaling Up',
     subtitle:    'Solo operators building an agency without a team.',
     detail:      "You've outgrown solo freelancing but aren't ready to hire. 3Digree is your first silent team member — the one who actually builds everything.",
@@ -279,7 +279,7 @@ const marqueeRow1 = [
   { icon: '🔒', label: 'NDA Protected',          color: '#06b6d4' },
   { icon: '🎨', label: 'Custom Design',           color: '#a78bfa' },
   { icon: '📱', label: 'Mobile First',            color: '#f472b6' },
-  { icon: '🚀', label: 'Fast Deployment',         color: '#fb923c' },
+  { icon: ' ', label: 'Fast Deployment',         color: '#fb923c' },
   { icon: '💰', label: 'Better Margins',          color: '#34d399' },
   { icon: '🛡️', label: 'White Label',            color: '#fbbf24' },
   { icon: '🤝', label: 'Partner Network',         color: '#60a5fa' },

@@ -140,7 +140,7 @@ export default function About() {
   const vision = [
     { icon: '⚡', text: '3-Day Delivery' },
     { icon: '🔒', text: 'White Label Always' },
-    { icon: '🚀', text: 'You Close, We Build' },
+    { icon: ' ', text: 'You Close, We Build' },
     { icon: '🎯', text: 'Your Brand Only' },
     { icon: '🤝', text: 'Long-Term Partner' },
     { icon: '💰', text: 'Better Margins' },
@@ -200,7 +200,7 @@ export default function About() {
               { number: '100+', label: 'Templates', emoji: '🎨' },
               { number: '3', label: 'Day Delivery', emoji: '⚡' },
               { number: '100%', label: 'White-label', emoji: '🔒' },
-              { number: '2025', label: 'Founded', emoji: '🚀' },
+              { number: '2025', label: 'Founded', emoji: ' ' },
             ].map((s, i) => (
               <div key={i} style={{ opacity: statsVisible ? 1 : 0, transform: statsVisible ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.8)', transition: `all 0.6s ease ${i * 0.15}s` }}>
                 <StatCard {...s} />
