@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo, memo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/useAuth";
+import { useNotification } from "../hooks/useNotification";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import Lenis from "lenis";
+import { createPlanOrder, openRazorpayCheckout } from "../services/planApi";
 import {
   FaWhatsapp,
   FaEnvelope,
@@ -215,111 +217,139 @@ const FAQItem = memo(({ question, answer }) => {
 
 FAQItem.displayName = "FAQItem";
 
-const PricingCard = memo(({ title, price, strikePrice, websites, bestFor, features, popular, gradient, onGetPlan, getDisplayPrices }) => {
-  const pricePerWebsite = Math.round(price / parseInt(websites, 10));
-  const displayPrices = getDisplayPrices(price);
-  const displayPerWebsite = getDisplayPrices(pricePerWebsite);
-  const strikeDisplay = getDisplayPrices(strikePrice);
+const PricingCard = memo(
+  ({
+    id,
+    title,
+    price,
+    strikePrice,
+    websites,
+    bestFor,
+    features,
+    popular,
+    gradient,
+    onGetPlan,
+    getDisplayPrices,
+    loading,
+    selectedPlan,
+  }) => {
+    const websiteCount = Number(websites) || 1;
+    const pricePerWebsite = Math.round(price / websiteCount);
+    const displayPrices = getDisplayPrices(price);
+    const displayPerWebsite = getDisplayPrices(pricePerWebsite);
+    const strikeDisplay = getDisplayPrices(strikePrice);
 
-  return (
-    <Card
-      className={`relative p-5 sm:p-7 md:p-10 border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 group overflow-hidden ${
-        popular
-          ? "border-[#6498fe] shadow-2xl scale-100 md:scale-105 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
-          : "border-gray-200 hover:border-[#6498fe] bg-white"
-      }`}
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-[#6498fe] via-purple-600 to-pink-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
+    return (
+      <Card
+        className={`relative p-5 sm:p-7 md:p-10 border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 group overflow-hidden ${
+          popular
+            ? "border-[#6498fe] shadow-2xl scale-100 md:scale-105 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
+            : "border-gray-200 hover:border-[#6498fe] bg-white"
+        }`}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-[#6498fe] via-purple-600 to-pink-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
 
-      <div className="relative z-10 text-center mb-5 sm:mb-8">
-        <h3 className="text-lg sm:text-xl md:text-3xl font-extrabold text-gray-900 mb-3 sm:mb-4 group-hover:text-[#6498fe] transition-colors duration-300">
-          {title}
-        </h3>
+        <div className="relative z-10 text-center mb-5 sm:mb-8">
+          <h3 className="text-lg sm:text-xl md:text-3xl font-extrabold text-gray-900 mb-3 sm:mb-4 group-hover:text-[#6498fe] transition-colors duration-300">
+            {title}
+          </h3>
 
-        <div className="relative inline-block mb-4">
-          <div className="flex flex-col items-center gap-0.5 sm:gap-1 mb-1">
-            <span className="text-xs sm:text-sm md:text-lg font-medium text-gray-400 line-through">
-              {strikeDisplay.main.symbol}
-              {strikeDisplay.main.amount.toLocaleString("en-US")}
-            </span>
-            <div className={`text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r ${gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`}>
-              {displayPrices.main.symbol}
-              {displayPrices.main.amount.toLocaleString("en-US")}
+          <div className="relative inline-block mb-4">
+            <div className="flex flex-col items-center gap-0.5 sm:gap-1 mb-1">
+              <span className="text-xs sm:text-sm md:text-lg font-medium text-gray-400 line-through">
+                {strikeDisplay.main.symbol}
+                {strikeDisplay.main.amount.toLocaleString("en-US")}
+              </span>
+              <div className={`text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r ${gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`}>
+                {displayPrices.main.symbol}
+                {displayPrices.main.amount.toLocaleString("en-US")}
+              </div>
             </div>
+
+            {displayPrices.secondary && (
+              <div className="text-xs sm:text-sm md:text-base font-semibold text-gray-500 mt-1">
+                ≈ {displayPrices.secondary.symbol}
+                {displayPrices.secondary.amount.toLocaleString("en-US")} {displayPrices.secondary.code}
+              </div>
+            )}
+
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 sm:w-20 h-1 bg-gradient-to-r from-[#6498fe] to-purple-600 rounded-full"></div>
           </div>
 
-          {displayPrices.secondary && (
-            <div className="text-xs sm:text-sm md:text-base font-semibold text-gray-500 mt-1">
-              ≈ {displayPrices.secondary.symbol}
-              {displayPrices.secondary.amount.toLocaleString("en-US")} {displayPrices.secondary.code}
-            </div>
-          )}
+          <p className="text-gray-700 font-semibold text-base sm:text-lg md:text-xl mb-1">
+            <span className="font-bold">{websiteCount}</span> websites
+          </p>
 
-          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 sm:w-20 h-1 bg-gradient-to-r from-[#6498fe] to-purple-600 rounded-full"></div>
+          <p className="text-gray-600 font-semibold text-xs sm:text-sm md:text-base mb-2">
+            ({" "}
+            {displayPerWebsite.main.symbol}
+            {displayPerWebsite.main.amount.toLocaleString("en-US")} per website
+            {displayPerWebsite.secondary && (
+              <span className="text-xs text-gray-500 ml-1">
+                / {displayPerWebsite.secondary.symbol}
+                {displayPerWebsite.secondary.amount} {displayPerWebsite.secondary.code}
+              </span>
+            )}
+            )
+          </p>
+
+          <br />
+          <p className="text-xs sm:text-sm text-gray-500 italic px-2 sm:px-4">{bestFor}</p>
         </div>
 
-        <p className="text-gray-700 font-semibold text-base sm:text-lg md:text-xl mb-1">
-          <span className="font-bold">{websites}</span> websites
-        </p>
-
-        <p className="text-gray-600 font-semibold text-xs sm:text-sm md:text-base mb-2">
-          ({" "}
-          {displayPerWebsite.main.symbol}
-          {displayPerWebsite.main.amount.toLocaleString("en-US")} per website
-          {displayPerWebsite.secondary && (
-            <span className="text-xs text-gray-500 ml-1">
-              / {displayPerWebsite.secondary.symbol}
-              {displayPerWebsite.secondary.amount} {displayPerWebsite.secondary.code}
-            </span>
-          )}
-          )
-        </p>
-
-        <br />
-        <p className="text-xs sm:text-sm text-gray-500 italic px-2 sm:px-4">{bestFor}</p>
-      </div>
-
-      <div className="relative z-10 space-y-2 sm:space-y-3 md:space-y-4 mb-6 sm:mb-8 md:mb-10">
-        {features.map((feature, index) => (
-          <div key={index} className="flex items-start gap-2 sm:gap-3 group/item">
-            <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-md group-hover/item:scale-125 transition-transform duration-300">
-              <span className="text-white font-bold text-xs">✓</span>
+        <div className="relative z-10 space-y-2 sm:space-y-3 md:space-y-4 mb-6 sm:mb-8 md:mb-10">
+          {features.map((feature, index) => (
+            <div key={index} className="flex items-start gap-2 sm:gap-3 group/item">
+              <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-md group-hover/item:scale-125 transition-transform duration-300">
+                <span className="text-white font-bold text-xs">✓</span>
+              </div>
+              <span className="text-gray-700 text-xs sm:text-sm leading-relaxed font-medium group-hover/item:text-gray-900 transition-colors duration-300">
+                {feature}
+              </span>
             </div>
-            <span className="text-gray-700 text-xs sm:text-sm leading-relaxed font-medium group-hover/item:text-gray-900 transition-colors duration-300">
-              {feature}
-            </span>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <div className="block relative z-10">
-        <Button
-          onClick={() => onGetPlan(title, price)}
-          className={`w-full font-bold py-3 sm:py-4 md:py-5 rounded-xl transition-all duration-300 text-sm sm:text-base md:text-lg relative overflow-hidden group/btn cursor-pointer ${
-            popular
-              ? "bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white shadow-xl hover:shadow-2xl"
-              : "bg-black text-white border-2 border-gray-300 hover:bg-gradient-to-r hover:from-[#6498fe] hover:to-purple-600 hover:border-[#6498fe]"
-          }`}
-        >
-          <span className="relative z-10 flex items-center justify-center gap-2">
-            <span>Get Plan</span>
-            <span className="group-hover/btn:translate-x-1 transition-transform duration-300">→</span>
-          </span>
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-        </Button>
-      </div>
-    </Card>
-  );
-});
+        <div className="block relative z-10">
+          <Button
+            onClick={() => onGetPlan(title, price)}
+            disabled={loading && selectedPlan === title}
+            className={`w-full font-bold py-3 sm:py-4 md:py-5 rounded-xl transition-all duration-300 text-sm sm:text-base md:text-lg relative overflow-hidden group/btn cursor-pointer ${
+              popular
+                ? "bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white shadow-xl hover:shadow-2xl"
+                : "bg-black text-white border-2 border-gray-300 hover:bg-gradient-to-r hover:from-[#6498fe] hover:to-purple-600 hover:border-[#6498fe]"
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            {loading && selectedPlan === title ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                Processing...
+              </span>
+            ) : (
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                <span>Get Plan</span>
+                <span className="group-hover/btn:translate-x-1 transition-transform duration-300">→</span>
+              </span>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+);
 
 PricingCard.displayName = "PricingCard";
 
 const Home = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, updateCredits } = useAuth();
+  const { addNotification } = useNotification();
   const navigate = useNavigate();
   const { getDisplayPrices, userRegion, loading: currencyLoading } = useSmartCurrency();
 
   const [isStatsVisible, setIsStatsVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const statsRef = useRef(null);
 
   useEffect(() => {
@@ -380,18 +410,46 @@ const Home = () => {
     }
   };
 
-  const handleGetPlan = (planTitle, planPrice) => {
-    const planToken = {
-      plan: planTitle,
-      price: planPrice,
-      timestamp: new Date().toISOString(),
-    };
-
-    if (typeof localStorage !== "undefined") {
-      localStorage.setItem("selectedPlan", JSON.stringify(planToken));
+  const handleGetPlan = async (planTitle) => {
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: "/" } });
+      return;
     }
 
-    navigate(isAuthenticated ? "/dashboard" : "/login");
+    try {
+      setLoading(true);
+      setSelectedPlan(planTitle);
+
+      const orderResponse = await createPlanOrder(planTitle);
+      await openRazorpayCheckout(
+        orderResponse.data,
+        (verifyResponse) => {
+          addNotification({
+            type: "success",
+            message: `🎉 ${planTitle} plan activated! Credits added to your account.`,
+          });
+          updateCredits(verifyResponse.data.user.credits);
+          setLoading(false);
+          setSelectedPlan(null);
+          setTimeout(() => navigate("/dashboard"), 1500);
+        },
+        (error) => {
+          addNotification({
+            type: "error",
+            message: error.message || "Payment failed. Please try again.",
+          });
+          setLoading(false);
+          setSelectedPlan(null);
+        }
+      );
+    } catch (error) {
+      addNotification({
+        type: "error",
+        message: error.message || "Failed to initiate payment",
+      });
+      setLoading(false);
+      setSelectedPlan(null);
+    }
   };
 
   useEffect(() => {
@@ -552,7 +610,7 @@ const Home = () => {
   }
 
   const singleWebsiteDisplay = getDisplayPrices(4999);
-  const singleWebsiteStrikeDisplay = getDisplayPrices(10000);
+  const singleWebsiteStrikeDisplay = getDisplayPrices(9999);
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
@@ -770,7 +828,14 @@ const Home = () => {
 
           <div className="grid md:grid-cols-2 gap-8 sm:gap-10 mb-16 sm:mb-24 max-w-6xl mx-auto">
             {pricingPlans.map((plan) => (
-              <PricingCard key={plan.title} {...plan} onGetPlan={handleGetPlan} getDisplayPrices={getDisplayPrices} />
+              <PricingCard
+                key={plan.id}
+                {...plan}
+                onGetPlan={handleGetPlan}
+                getDisplayPrices={getDisplayPrices}
+                loading={loading}
+                selectedPlan={selectedPlan}
+              />
             ))}
           </div>
 
@@ -840,10 +905,18 @@ const Home = () => {
                 <div className="text-center">
                   <button
                     type="button"
-                    onClick={() => handleGetPlan("Single Website", 4999)}
-                    className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group rounded-xl inline-flex items-center justify-center hover:scale-105"
+                    onClick={() => handleGetPlan("Single Website")}
+                    disabled={loading && selectedPlan === "Single Website"}
+                    className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group rounded-xl inline-flex items-center justify-center hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <span className="relative z-10">Get Plan</span>
+                    {loading && selectedPlan === "Single Website" ? (
+                      <span className="flex items-center gap-2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        Processing...
+                      </span>
+                    ) : (
+                      <span className="relative z-10">Get Plan</span>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </button>
                 </div>
