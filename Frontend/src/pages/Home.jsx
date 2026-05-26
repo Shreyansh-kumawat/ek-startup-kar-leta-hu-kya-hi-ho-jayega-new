@@ -576,7 +576,7 @@ const Home = () => {
           "No problem, your credits will remain safe in your account as long as you don't forget your account password. And even if that happens, there is no issue — we still keep your data. You can contact our support number, and we will either recover your account or provide you with a new account with the same credit balance.",
       },
       {
-        question: "What exactly do I get for ₹4,999 per website?",
+        question: "What exactly do I get for ₹3,999 per website?",
         answer:
           "A standard marketing website using one of our Website Designs, customized with your client's branding and content, delivered in 3 business days after content is confirmed.",
       },
@@ -609,7 +609,7 @@ const Home = () => {
     );
   }
 
-  const singleWebsiteDisplay = getDisplayPrices(4999);
+  const singleWebsiteDisplay = getDisplayPrices(3999);
   const singleWebsiteStrikeDisplay = getDisplayPrices(9999);
 
   return (

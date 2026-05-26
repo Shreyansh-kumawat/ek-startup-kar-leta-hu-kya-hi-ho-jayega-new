@@ -261,7 +261,7 @@ const Pricing = () => {
     }
   };
 
-  const singleWebsiteDisplay = getDisplayPrices(4999);
+  const singleWebsiteDisplay = getDisplayPrices(3999);
   const singleWebsiteStrikeDisplay = getDisplayPrices(9999);
 
   if (currencyLoading) {
@@ -382,7 +382,7 @@ const Pricing = () => {
 
                 <div className="text-center">
                   <button
-                    onClick={() => handleGetPlan('Single Website', 4999)}
+                    onClick={() => handleGetPlan('Single Website', 3999)}
                     disabled={loading && selectedPlan === 'Single Website'}
                     className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group cursor-pointer rounded-xl inline-flex items-center justify-center hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                   >

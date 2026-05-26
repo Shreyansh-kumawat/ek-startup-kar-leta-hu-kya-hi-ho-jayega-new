@@ -286,12 +286,12 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
                 <div className="flex items-center gap-4">
                   <div className="text-right">
                     <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600">
-                      ₹4,999
+                      ₹3,999
                     </div>
                     <div className="text-xs text-gray-500">1 Credit</div>
                   </div>
                   <button
-                    onClick={() => handlePurchasePlan({ type: 'Single Website', price: 4999, credits: 1 })}
+                    onClick={() => handlePurchasePlan({ type: 'Single Website', price: 3999, credits: 1 })}
                     disabled={loading}
                     className="bg-gradient-to-r from-[#6498fe] to-purple-600 text-white font-bold px-6 py-3 rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   >
