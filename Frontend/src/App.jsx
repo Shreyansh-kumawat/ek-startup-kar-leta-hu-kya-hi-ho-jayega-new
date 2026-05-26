@@ -33,6 +33,9 @@ const BookTemplate = lazy(() => import('./pages/BookTemplate'));
 const UserBookings = lazy(() => import('./pages/UserBookings'));
 const BookingDetails = lazy(() => import('./pages/BookingDetails'));
 
+// ✅ Games
+const Games = lazy(() => import('./pages/games/Games'));
+
 // Protected User Pages
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Account = lazy(() => import('./pages/Account'));
@@ -45,7 +48,7 @@ const TemplateManager = lazy(() => import('./features/admin/TemplateManager'));
 const UserManager = lazy(() => import('./features/admin/UserManager'));
 const SecondaryAdminPanel = lazy(() => import('./features/admin/SecondaryAdminPanel'));
 const AdminTemplateBookingManager = lazy(() => import('./features/admin/AdminTemplateBookingManager'));
-const AdminMailManager = lazy(() => import('./features/admin/AdminMailManager')); // ✅ Mail (replaces meetings)
+const AdminMailManager = lazy(() => import('./features/admin/AdminMailManager'));
 const AdminCareerManager = lazy(() => import('./features/admin/AdminCareerManager'));
 
 // Placeholder component
@@ -119,6 +122,9 @@ function App() {
 
               {/* ✅ Labs Routes */}
               <Route path="labs/about" element={<PublicRoute><LabsAbout /></PublicRoute>} />
+
+              {/* ✅ Games Route */}
+              <Route path="games" element={<PublicRoute><Games /></PublicRoute>} />
             </Route>
 
             {/* ========== B2B BOOKING ROUTES ========== */}
@@ -142,7 +148,7 @@ function App() {
               <Route path="users" element={<UserManager />} />
               <Route path="templates" element={<TemplateManager />} />
               <Route path="bookings" element={<AdminTemplateBookingManager />} />
-              <Route path="mail" element={<AdminMailManager />} /> {/* ✅ Replaces /admin/meetings */}
+              <Route path="mail" element={<AdminMailManager />} />
               <Route path="secondary" element={<SecondaryAdminPanel />} />
               <Route path="careers" element={<AdminCareerManager />} />
             </Route>

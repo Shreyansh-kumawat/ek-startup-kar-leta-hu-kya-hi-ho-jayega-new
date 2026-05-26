@@ -135,29 +135,27 @@ const UserBookings = () => {
           <h1 className="text-2xl font-bold text-gray-900 mb-1">My Website Bookings 🎯</h1>
           <div className="flex items-center gap-4 text-sm text-gray-600">
             <span>Track your website development progress</span>
-             
           </div>
         </div>
 
         {/* Stats */}
-<div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
-  {[
-    { label: 'Total', value: stats.total, icon: '📋' },
-    { label: 'Completed', value: stats.completed, icon: '✅' },
-    { label: 'Active', value: stats.inProgress, icon: '⚡' }, 
-  ].map(stat => (
-    <div key={stat.label} className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-          <div className="text-xs text-gray-600">{stat.label}</div>
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+          {[
+            { label: 'Total', value: stats.total, icon: '📋' },
+            { label: 'Completed', value: stats.completed, icon: '✅' },
+            { label: 'Active', value: stats.inProgress, icon: '⚡' }, 
+          ].map(stat => (
+            <div key={stat.label} className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                  <div className="text-xs text-gray-600">{stat.label}</div>
+                </div>
+                <div className="text-2xl">{stat.icon}</div>
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="text-2xl">{stat.icon}</div>
-      </div>
-    </div>
-  ))}
-</div>
-
 
         {/* Compact Filters */}
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-6">
@@ -167,7 +165,7 @@ const UserBookings = () => {
               <select
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">All Statuses</option>
                 <option value="purchased">📦 Just Purchased</option>
@@ -184,7 +182,7 @@ const UserBookings = () => {
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
                 placeholder="Search by name or Booking ID..."
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-sm text-gray-900 bg-white placeholder-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -200,7 +198,6 @@ const UserBookings = () => {
                 ? 'No bookings match your filters.' 
                 : "You haven't booked any website yet."}
             </p>
-            
           </div>
         ) : (
           <div className="space-y-4">
