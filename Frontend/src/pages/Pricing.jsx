@@ -212,7 +212,7 @@ const Pricing = () => {
         'Advanced customization',
         'Dedicated support channel'
       ],
-      popular: true
+      popular: false
     },
     {
       id: 'scale',

@@ -54,9 +54,16 @@ const NotFound = () => {
         </h2>
          
         
-        <div className="flex gap-4 justify-center mt-6">
-          <Link 
-            to="/" 
+        <div className="flex justify-center mt-6 mb-4">
+          <img
+            src="/gifs/where.gif"
+            alt="Confused"
+            style={{ height: '20vh', width: 'auto', objectFit: 'contain' }}
+          />
+        </div>
+        <div className="flex gap-4 justify-center mt-2">
+          <Link
+            to="/"
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
           >
             Go Home

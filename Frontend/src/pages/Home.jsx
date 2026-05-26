@@ -146,7 +146,7 @@ const TypewriterEffect = memo(({ texts, speed = 100, delay = 2000 }) => {
   return (
     <span className="relative text-gray-700 text-2xl md:text-3xl">
       {currentText}
-      <span className="animate-pulse ml-1 text-gray-400">💻</span>
+      <img src="/gifs/blueball_transparent.gif" alt="" className="inline-block ml-1 align-middle" style={{ height: '1.2em', width: 'auto' }} />
     </span>
   );
 });
@@ -544,7 +544,7 @@ const Home = () => {
           "Advanced customization",
           "Dedicated support channel",
         ],
-        popular: true,
+        popular: false,
       },
       {
         id: "scale",
