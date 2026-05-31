@@ -22,15 +22,15 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
   { 
     id: 'growth',
     type: 'Growth',
-    price: 11999,
+    price: 10999,
     credits: 3,
-    pricePerWebsite: 4499,
+    pricePerWebsite: 3666,
     badge: '/gold.png',
     gradient: 'from-[#6498fe] to-purple-600',
     bestFor: 'Small teams and boutique agencies',
     features: [
       '3 website credits',
-      '₹3,999 per website',
+      '₹3,666 per website',
       'Priority delivery queue',
       'Advanced customization',
       'Dedicated support channel'
@@ -291,7 +291,7 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
                     <div className="text-xs text-gray-500">1 Credit</div>
                   </div>
                   <button
-                    onClick={() => handlePurchasePlan({ type: 'Single Website', price: 4499, credits: 1 })}
+                    onClick={() => handlePurchasePlan({ type: 'Single Website', price: 3999, credits: 1 })}
                     disabled={loading}
                     className="bg-gradient-to-r from-[#6498fe] to-purple-600 text-white font-bold px-6 py-3 rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   >

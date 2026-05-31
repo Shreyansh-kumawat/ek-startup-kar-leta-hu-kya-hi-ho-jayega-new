@@ -24,9 +24,9 @@ try {
 const PLAN_CONFIG = {
   // 'Starter': { price: 30000, credits: 5 },      // Sleep
 
-  'Growth': { price: 11999, credits: 3 },       // ✅ ₹11,999
+  'Growth': { price: 10999, credits: 3 },       // ✅ ₹10,999
   'Scale': { price: 29999, credits: 9 },       // ✅ ₹29,999
-  'Single Website': { price: 4499, credits: 1 }  // ✅ ₹3,999
+  'Single Website': { price: 3999, credits: 1 }  // ✅ ₹3,999
 };
 
 // ========================================

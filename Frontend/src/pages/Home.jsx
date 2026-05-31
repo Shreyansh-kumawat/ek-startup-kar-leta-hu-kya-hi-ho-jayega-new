@@ -531,15 +531,15 @@ const Home = () => {
       {
         id: "growth",
         title: "Growth",
-        price: 11999,
+        price: 10999,
         strikePrice: 15000,
         websites: 3,
-        pricePerWebsite: 4499,
+        pricePerWebsite: 3666,
         gradient: "from-[#6498fe] to-purple-600",
         bestFor: "Small teams and boutique agencies",
         features: [
           "3 website credits",
-          "₹3,999 per website",
+          "₹3,666 per website",
           "Priority delivery queue",
           "Advanced customization",
           "Dedicated support channel",
@@ -609,7 +609,7 @@ const Home = () => {
     );
   }
 
-  const singleWebsiteDisplay = getDisplayPrices(4499);
+  const singleWebsiteDisplay = getDisplayPrices(3999);
   const singleWebsiteStrikeDisplay = getDisplayPrices(9999);
 
   return (
