@@ -534,7 +534,7 @@ const Home = () => {
         price: 11999,
         strikePrice: 15000,
         websites: 3,
-        pricePerWebsite: 3999,
+        pricePerWebsite: 4499,
         gradient: "from-[#6498fe] to-purple-600",
         bestFor: "Small teams and boutique agencies",
         features: [
@@ -609,7 +609,7 @@ const Home = () => {
     );
   }
 
-  const singleWebsiteDisplay = getDisplayPrices(3999);
+  const singleWebsiteDisplay = getDisplayPrices(4499);
   const singleWebsiteStrikeDisplay = getDisplayPrices(9999);
 
   return (
