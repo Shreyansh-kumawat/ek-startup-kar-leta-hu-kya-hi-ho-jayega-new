@@ -530,7 +530,7 @@ const Home = () => {
     () => [
       {
         id: "growth",
-        title: "Growth",
+        title: "Starter",
         price: 10999,
         strikePrice: 15000,
         websites: 3,
@@ -548,7 +548,7 @@ const Home = () => {
       },
       {
         id: "scale",
-        title: "Scale",
+        title: "Growth",
         price: 29999,
         strikePrice: 45000,
         websites: 9,

@@ -200,7 +200,7 @@ const Pricing = () => {
   const pricingPlans = useMemo(() => [
     {
       id: 'growth',
-      title: 'Growth',
+      title: 'Starter',
       price: 10999,
       credits: 3,
       gradient: 'from-[#6498fe] to-purple-600',
@@ -216,7 +216,7 @@ const Pricing = () => {
     },
     {
       id: 'scale',
-      title: 'Scale',
+      title: 'Growth',
       price: 29999,
       credits: 9,
       gradient: 'from-purple-600 to-pink-600',

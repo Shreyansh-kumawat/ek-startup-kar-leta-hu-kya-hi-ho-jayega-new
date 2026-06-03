@@ -21,7 +21,7 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
   const plans = [
   { 
     id: 'growth',
-    type: 'Growth',
+    type: 'Starter',
     price: 10999,
     credits: 3,
     pricePerWebsite: 3666,
@@ -39,7 +39,7 @@ const PlanPurchaseModal = ({ isOpen, onClose, onSuccess, preSelectedPlan }) => {
   },
   {
     id: 'scale',
-    type: 'Scale',
+    type: 'Growth',
     price: 29999,
     credits: 9,
     pricePerWebsite: 3333,

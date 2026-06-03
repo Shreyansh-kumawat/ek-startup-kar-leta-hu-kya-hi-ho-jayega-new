@@ -184,7 +184,7 @@ const PrivacyPolicy = () => {
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. Refund and Cancellation Policy</h2>
           <p className="text-gray-700 leading-relaxed mb-4">
-            <strong>No Refunds:</strong> All credit purchases are <strong>non-refundable</strong>. Once you purchase a subscription plan (Single Website, Growth, or Scale), credits cannot be refunded or exchanged for cash.
+            <strong>No Refunds:</strong> All credit purchases are <strong>non-refundable</strong>. Once you purchase a subscription plan (Single Website, Starter, or Growth), credits cannot be refunded or exchanged for cash.
           </p>
           <p className="text-gray-700 leading-relaxed mb-4">
             <strong>Client Satisfaction:</strong> If you are dissatisfied with our service, you are responsible for evaluating our capabilities before committing to larger plans. We recommend:
