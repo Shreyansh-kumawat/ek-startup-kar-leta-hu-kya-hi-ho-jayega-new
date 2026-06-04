@@ -5,7 +5,7 @@ import { useNotification } from '../hooks/useNotification';
 import Loader from '../components/Loader';
 import { formatDate } from '../utils/helpers';
 import {
-  LuPackage, LuWrench, LuZap, LuClock, LuCheckCircle,
+  LuPackage, LuWrench, LuZap, LuClock, LuCircleCheck,
   LuClipboardList, LuImage, LuGlobe, LuTarget, LuTriangleAlert,
 } from 'react-icons/lu';
 
@@ -66,7 +66,7 @@ const UserBookings = () => {
       approved:           { color: 'bg-blue-500',    text: 'Development Started', Icon: LuWrench },
       inprogress:         { color: 'bg-purple-500',  text: 'In Development',      Icon: LuZap },
       readyforcompletion: { color: 'bg-orange-500',  text: 'Almost Ready',        Icon: LuClock },
-      completed:          { color: 'bg-green-500',   text: 'Completed',           Icon: LuCheckCircle },
+      completed:          { color: 'bg-green-500',   text: 'Completed',           Icon: LuCircleCheck },
     };
     return config[status] || { color: 'bg-gray-500', text: status, Icon: LuClipboardList };
   };
@@ -113,7 +113,7 @@ const UserBookings = () => {
       <div className="grid grid-cols-3 gap-4">
         {[
           { label: 'Total',     value: stats.total,      Icon: LuClipboardList, bg: 'bg-blue-50',   fg: 'text-blue-600' },
-          { label: 'Completed', value: stats.completed,  Icon: LuCheckCircle,   bg: 'bg-green-50',  fg: 'text-green-600' },
+          { label: 'Completed', value: stats.completed,  Icon: LuCircleCheck,   bg: 'bg-green-50',  fg: 'text-green-600' },
           { label: 'Active',    value: stats.inProgress, Icon: LuZap,           bg: 'bg-purple-50', fg: 'text-purple-600' },
         ].map(stat => (
           <div key={stat.label} className="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm flex items-center gap-4">

@@ -9,7 +9,7 @@ import Loader from '../components/Loader';
 import { formatDate } from '../utils/helpers';
 import {
   LuPen, LuX, LuCrown, LuKey, LuUser, LuShieldCheck,
-  LuLogOut, LuSave, LuLightbulb, LuCheckCircle, LuTriangleAlert,
+  LuLogOut, LuSave, LuLightbulb, LuCircleCheck, LuTriangleAlert,
 } from 'react-icons/lu';
 
 const Account = () => {
@@ -196,7 +196,7 @@ const Account = () => {
                         : <><LuUser className="w-3.5 h-3.5" /> User</>}
                     </span>
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
-                      <LuCheckCircle className="w-3.5 h-3.5" />
+                      <LuCircleCheck className="w-3.5 h-3.5" />
                       {user.authProvider === 'google' ? 'Google Account' : 'Local Account'}
                     </span>
                   </div>
@@ -325,7 +325,7 @@ const Account = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Status</span>
                   <span className="text-sm font-semibold text-green-600 flex items-center gap-1">
-                    <LuCheckCircle className="w-4 h-4" /> Active
+                    <LuCircleCheck className="w-4 h-4" /> Active
                   </span>
                 </div>
               </div>
@@ -412,7 +412,7 @@ const Account = () => {
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">
-                    <LuCheckCircle className="w-4 h-4" />
+                    <LuCircleCheck className="w-4 h-4" />
                     Change Password
                   </span>
                 )}
