@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar';
 import { useAuth } from '../features/auth/useAuth';
 import { useNotification } from '../hooks/useNotification';
 import Notification from '../components/Notification';
+import { LuTicket } from 'react-icons/lu';
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -77,7 +78,7 @@ const DashboardLayout = () => {
                   ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                   : 'bg-gray-50 border-gray-200 text-gray-500'
               }`}>
-                <span>🎫</span>
+                <LuTicket className="w-3.5 h-3.5" />
                 <span>{credits} Credits</span>
               </div>
 

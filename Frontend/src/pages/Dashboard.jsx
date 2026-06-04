@@ -4,6 +4,11 @@ import { useAuth } from '../features/auth/useAuth';
 import { useNotification } from '../hooks/useNotification';
 import templateBookingAPI from '../services/templateBookingApi';
 import { formatDate } from '../utils/helpers';
+import {
+  LuTarget, LuCalendar, LuClock, LuLightbulb, LuCreditCard,
+  LuWrench, LuClipboardList, LuTicket, LuAlertTriangle,
+  LuMousePointerClick, LuPartyPopper, LuGlobe,
+} from 'react-icons/lu';
 
 // ✅ CUSTOM DATE & TIME PICKER - FULLY RESPONSIVE
 const CustomDateTimePicker = memo(({ selectedDate, selectedTime, onDateSelect, onTimeSelect }) => {
@@ -60,8 +65,9 @@ const CustomDateTimePicker = memo(({ selectedDate, selectedTime, onDateSelect, o
   return (
     <div className="space-y-5">
       <div>
-        <label className="block text-sm font-semibold text-gray-900 mb-3">
-          📅 Select Meeting Date <span className="text-red-500">*</span>
+        <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
+          <LuCalendar className="w-4 h-4 text-blue-600" />
+          Select Meeting Date <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
           {getAvailableDates.map((dateObj, index) => (
@@ -83,19 +89,23 @@ const CustomDateTimePicker = memo(({ selectedDate, selectedTime, onDateSelect, o
             </button>
           ))}
         </div>
-        <p className="text-xs text-blue-600 mt-2">
-          ⏰ Meetings scheduled at least 24 hours in advance
+        <p className="text-xs text-blue-600 mt-2 flex items-center gap-1">
+          <LuClock className="w-3 h-3" />
+          Meetings scheduled at least 24 hours in advance
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-900 mb-3">
-          🕐 Select Meeting Time <span className="text-red-500">*</span>
+        <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
+          <LuClock className="w-4 h-4 text-blue-600" />
+          Select Meeting Time <span className="text-red-500">*</span>
         </label>
 
         {!selectedDate ? (
           <div className="text-center py-6 sm:py-8 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
-            <span className="text-gray-500 text-sm font-medium">👆 Select a date first</span>
+            <span className="text-gray-500 text-sm font-medium flex items-center gap-1.5">
+              <LuMousePointerClick className="w-4 h-4" /> Select a date first
+            </span>
           </div>
         ) : getAvailableTimeSlots.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
@@ -116,7 +126,9 @@ const CustomDateTimePicker = memo(({ selectedDate, selectedTime, onDateSelect, o
           </div>
         ) : (
           <div className="text-center py-6 sm:py-8 border-2 border-gray-300 rounded-xl bg-gray-50">
-            <div className="text-gray-600 text-sm font-medium">😔 No slots available for this date</div>
+            <div className="text-gray-600 text-sm font-medium flex items-center justify-center gap-2">
+              <LuAlertTriangle className="w-4 h-4 text-gray-400" /> No slots available for this date
+            </div>
             <div className="text-xs text-gray-500 mt-1">Please select another date</div>
           </div>
         )}
@@ -435,11 +447,44 @@ const Dashboard = () => {
   const creditsRequired = selectedTemplate?.creditsRequired || 1;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 flex items-center gap-4">
+          <div className="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+            <LuTicket className="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Credits</p>
+            <p className="text-2xl font-bold text-gray-900">{credits}</p>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 flex items-center gap-4">
+          <div className="w-11 h-11 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">
+            <LuClipboardList className="w-5 h-5 text-green-600" />
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Bookings</p>
+            <p className="text-2xl font-bold text-gray-900">{recentBookings.length}</p>
+          </div>
+        </div>
+        <div className="hidden sm:flex bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 items-center gap-4">
+          <div className="w-11 h-11 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
+            <LuGlobe className="w-5 h-5 text-purple-600" />
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Templates</p>
+            <p className="text-2xl font-bold text-gray-900">100+</p>
+          </div>
+        </div>
+      </div>
+
       {/* Website ID Paste Booking Section */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 sm:p-8 rounded-3xl border border-blue-100">
         <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-          <span className="text-blue-600">🎯</span>
+          <span className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+            <LuTarget className="w-5 h-5 text-white" />
+          </span>
           Quick Book by Website ID
         </h3>
 
@@ -464,8 +509,9 @@ const Dashboard = () => {
                   </div>
                 )}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                💡 Copy ID from template catalog and paste here
+              <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                <LuLightbulb className="w-3 h-3 text-yellow-500" />
+                Copy ID from template catalog and paste here
               </p>
             </div>
 
@@ -485,16 +531,16 @@ const Dashboard = () => {
                       <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-mono font-bold rounded-lg">
                         {websiteId}
                       </span>
-                      <span className={`px-3 py-1 text-xs font-bold rounded-lg ${
-                        creditsRequired > 1 
-                          ? 'bg-orange-100 text-orange-800' 
+                      <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-lg ${
+                        creditsRequired > 1
+                          ? 'bg-orange-100 text-orange-800'
                           : 'bg-blue-100 text-blue-800'
                       }`}>
-                        💳 {creditsRequired} Credit{creditsRequired > 1 ? 's' : ''}
+                        <LuCreditCard className="w-3 h-3" /> {creditsRequired} Credit{creditsRequired > 1 ? 's' : ''}
                       </span>
                       {selectedTemplate.withBackend && (
-                        <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-lg">
-                          🔧 Backend
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-lg">
+                          <LuWrench className="w-3 h-3" /> Backend
                         </span>
                       )}
                     </div>
@@ -670,7 +716,9 @@ const Dashboard = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">🎉 Confirm Booking</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <LuPartyPopper className="w-6 h-6 text-blue-600" /> Confirm Booking
+                </h3>
                 <button
                   onClick={() => setShowBookingModal(false)}
                   className="text-gray-400 hover:text-gray-600 text-3xl leading-none w-8 h-8 flex items-center justify-center"
@@ -778,7 +826,9 @@ const Dashboard = () => {
 
           {recentBookings.length === 0 ? (
             <div className="text-center py-8 text-gray-500 text-sm">
-              <div className="text-4xl mb-2">📋</div>
+              <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                <LuClipboardList className="w-6 h-6 text-gray-400" />
+              </div>
               No bookings yet
             </div>
           ) : (
@@ -797,13 +847,14 @@ const Dashboard = () => {
                         {booking.templateName}
                       </h4>
                       {booking.meetingDetails ? (
-                        <p className="text-xs text-gray-600 mt-1">
-                          📅 {formatDate(booking.meetingDetails.scheduledDate)} • 
-                          🕐 {booking.meetingDetails.scheduledTime}
+                        <p className="text-xs text-gray-600 mt-1 flex items-center gap-1 flex-wrap">
+                          <LuCalendar className="w-3 h-3" /> {formatDate(booking.meetingDetails.scheduledDate)}
+                          <span className="mx-0.5">•</span>
+                          <LuClock className="w-3 h-3" /> {booking.meetingDetails.scheduledTime}
                         </p>
                       ) : (
-                        <p className="text-xs text-gray-600 mt-1">
-                          📅 {formatDate(booking.purchasedAt || booking.createdAt)}
+                        <p className="text-xs text-gray-600 mt-1 flex items-center gap-1">
+                          <LuCalendar className="w-3 h-3" /> {formatDate(booking.purchasedAt || booking.createdAt)}
                         </p>
                       )}
                       <span className={`inline-block mt-1 px-2 py-0.5 text-xs font-semibold rounded ${
@@ -839,7 +890,9 @@ const Dashboard = () => {
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
               credits > 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'
             }`}>
-              {credits > 0 ? '🎫' : '⚠️'}
+              {credits > 0
+                ? <LuTicket className="w-6 h-6" />
+                : <LuAlertTriangle className="w-6 h-6" />}
             </div>
           </div>
           {credits === 0 ? (

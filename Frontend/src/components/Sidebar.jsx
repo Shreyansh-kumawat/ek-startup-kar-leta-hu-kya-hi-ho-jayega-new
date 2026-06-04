@@ -1,6 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../features/auth/useAuth';
+import {
+  LuLayoutDashboard, LuGlobe, LuCreditCard, LuUser,
+  LuZap, LuUsers, LuPalette, LuClipboardList, LuMail,
+  LuBriefcase, LuShieldCheck, LuCrown, LuShield,
+  LuTicket, LuX,
+} from 'react-icons/lu';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
@@ -9,36 +15,36 @@ const Sidebar = ({ isOpen, onClose }) => {
   const isActive = (path) => location.pathname === path;
 
   const userMenuItems = [
-    { path: '/dashboard',          label: 'Dashboard',            emoji: '📊' },
-    { path: '/dashboard/bookings', label: 'My Website Bookings',  emoji: '🎯' },
-    { path: '/pricing',            label: 'Buy Credits',          emoji: '💳' },
-    { path: '/dashboard/account',  label: 'My Account',           emoji: '👤' },
+    { path: '/dashboard',          label: 'Dashboard',           Icon: LuLayoutDashboard },
+    { path: '/dashboard/bookings', label: 'My Website Bookings', Icon: LuGlobe },
+    { path: '/pricing',            label: 'Buy Credits',         Icon: LuCreditCard },
+    { path: '/dashboard/account',  label: 'My Account',          Icon: LuUser },
   ];
 
   const adminMenuItems = [
-    { path: '/admin',           label: 'Admin Dashboard',   emoji: '⚡'  },
-    { path: '/admin/users',     label: 'User Management',   emoji: '👥'  },
-    { path: '/admin/templates', label: 'Website Templates', emoji: '🎨'  },
-    { path: '/admin/bookings',  label: 'Bookings',          emoji: '📋'  },
-    { path: '/admin/mail',      label: 'Mail Manager',      emoji: '📧'  }, // ✅ replaces /admin/meetings
-    { path: '/admin/careers',   label: 'Careers',           emoji: '💼'  },
-    { path: '/admin/secondary', label: 'Secondary Admin',   emoji: '🔐'  },
+    { path: '/admin',           label: 'Admin Dashboard',   Icon: LuZap },
+    { path: '/admin/users',     label: 'User Management',   Icon: LuUsers },
+    { path: '/admin/templates', label: 'Website Templates', Icon: LuPalette },
+    { path: '/admin/bookings',  label: 'Bookings',          Icon: LuClipboardList },
+    { path: '/admin/mail',      label: 'Mail Manager',      Icon: LuMail },
+    { path: '/admin/careers',   label: 'Careers',           Icon: LuBriefcase },
+    { path: '/admin/secondary', label: 'Secondary Admin',   Icon: LuShieldCheck },
   ];
 
   const secondaryAdminMenuItems = [
-    { path: '/admin',           label: 'Admin Dashboard',   emoji: '⚡' },
-    { path: '/admin/templates', label: 'Website Templates', emoji: '🎨' },
-    { path: '/admin/bookings',  label: 'Bookings',          emoji: '📋' },
+    { path: '/admin',           label: 'Admin Dashboard',   Icon: LuZap },
+    { path: '/admin/templates', label: 'Website Templates', Icon: LuPalette },
+    { path: '/admin/bookings',  label: 'Bookings',          Icon: LuClipboardList },
   ];
 
   const isMainAdmin      = user?.role === 'admin';
   const isSecondaryAdmin = user?.role === 'secondaryAdmin';
 
   let menuItems = userMenuItems;
-  if (isMainAdmin)      menuItems = [...userMenuItems, { separator: true }, ...adminMenuItems];
+  if (isMainAdmin)           menuItems = [...userMenuItems, { separator: true }, ...adminMenuItems];
   else if (isSecondaryAdmin) menuItems = [...userMenuItems, { separator: true }, ...secondaryAdminMenuItems];
 
-  const getInitials       = (name) => (name ? name.charAt(0).toUpperCase() : 'U');
+  const getInitials        = (name) => (name ? name.charAt(0).toUpperCase() : 'U');
   const getUserDisplayName = () => user?.name || user?.username || 'User';
 
   return (
@@ -85,8 +91,8 @@ const Sidebar = ({ isOpen, onClose }) => {
               <div className="min-w-0">
                 <h2 className="text-sm font-bold text-white truncate">{getUserDisplayName()}</h2>
                 <p className="text-white/75 text-xs flex items-center gap-1">
-                  {isMainAdmin      ? <><span>👑</span> Main Admin</> :
-                   isSecondaryAdmin ? <><span>🔐</span> Secondary Admin</> :
+                  {isMainAdmin      ? <><LuCrown className="w-3 h-3" /> Main Admin</> :
+                   isSecondaryAdmin ? <><LuShield className="w-3 h-3" /> Secondary Admin</> :
                    'Client'}
                 </p>
               </div>
@@ -95,7 +101,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               onClick={onClose}
               className="lg:hidden p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all"
             >
-              ✕
+              <LuX className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -108,12 +114,12 @@ const Sidebar = ({ isOpen, onClose }) => {
                 <div key={`sep-${index}`} className="py-4">
                   <div className="flex items-center gap-2 px-2">
                     <div className="h-px bg-gray-200 flex-1" />
-                    <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-white text-xs font-bold ${
+                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-white text-xs font-bold ${
                       isMainAdmin
                         ? 'bg-gradient-to-r from-purple-600 to-indigo-600'
                         : 'bg-gradient-to-r from-purple-500 to-pink-500'
                     }`}>
-                      <span>{isMainAdmin ? '👑' : '🔐'}</span>
+                      {isMainAdmin ? <LuCrown className="w-3 h-3" /> : <LuShield className="w-3 h-3" />}
                       <span>ADMIN PANEL</span>
                     </div>
                     <div className="h-px bg-gray-200 flex-1" />
@@ -123,6 +129,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             }
 
             const active = isActive(item.path);
+            const Icon   = item.Icon;
             return (
               <Link
                 key={item.path}
@@ -145,7 +152,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                     ? 'bg-white/20 border border-white/30'
                     : 'bg-gray-100 group-hover:bg-white/20 group-hover:border group-hover:border-white/30'
                 }`}>
-                  <span className="text-base">{item.emoji}</span>
+                  <Icon className="w-4 h-4" />
                 </div>
                 <span className="relative z-10 font-medium text-sm">{item.label}</span>
                 {active && (
@@ -160,7 +167,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         <div className="px-4 py-3 border-t border-gray-100 flex-shrink-0 bg-gray-50">
           {user?.credits !== undefined && (
             <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full w-fit mx-auto">
-              <span className="text-xs">🎫</span>
+              <LuTicket className="w-3.5 h-3.5 text-green-700" />
               <span className="text-xs font-bold text-green-700">{user.credits} Credits</span>
             </div>
           )}
