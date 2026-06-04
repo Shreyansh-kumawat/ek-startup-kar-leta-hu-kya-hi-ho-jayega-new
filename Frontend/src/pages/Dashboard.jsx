@@ -6,7 +6,7 @@ import templateBookingAPI from '../services/templateBookingApi';
 import { formatDate } from '../utils/helpers';
 import {
   LuTarget, LuCalendar, LuClock, LuLightbulb, LuCreditCard,
-  LuWrench, LuClipboardList, LuTicket, LuAlertTriangle,
+  LuWrench, LuClipboardList, LuTicket, LuTriangleAlert,
   LuMousePointerClick, LuPartyPopper, LuGlobe,
 } from 'react-icons/lu';
 
@@ -127,7 +127,7 @@ const CustomDateTimePicker = memo(({ selectedDate, selectedTime, onDateSelect, o
         ) : (
           <div className="text-center py-6 sm:py-8 border-2 border-gray-300 rounded-xl bg-gray-50">
             <div className="text-gray-600 text-sm font-medium flex items-center justify-center gap-2">
-              <LuAlertTriangle className="w-4 h-4 text-gray-400" /> No slots available for this date
+              <LuTriangleAlert className="w-4 h-4 text-gray-400" /> No slots available for this date
             </div>
             <div className="text-xs text-gray-500 mt-1">Please select another date</div>
           </div>
@@ -892,7 +892,7 @@ const Dashboard = () => {
             }`}>
               {credits > 0
                 ? <LuTicket className="w-6 h-6" />
-                : <LuAlertTriangle className="w-6 h-6" />}
+                : <LuTriangleAlert className="w-6 h-6" />}
             </div>
           </div>
           {credits === 0 ? (
