@@ -212,7 +212,7 @@ const Account = () => {
                       type="text"
                       value={editForm.name}
                       onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm text-gray-900 bg-white"
                       placeholder="Enter your name"
                     />
                   </div>
@@ -222,7 +222,7 @@ const Account = () => {
                       type="tel"
                       value={editForm.phone}
                       onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm text-gray-900 bg-white"
                       placeholder="Enter your phone number"
                     />
                   </div>
@@ -358,7 +358,7 @@ const Account = () => {
                   type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm text-gray-900 bg-white"
                   placeholder="Enter current password"
                 />
               </div>
@@ -369,7 +369,7 @@ const Account = () => {
                   type="password"
                   value={changeNewPassword}
                   onChange={(e) => setChangeNewPassword(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm text-gray-900 bg-white"
                   placeholder="Enter new password"
                 />
               </div>
@@ -380,7 +380,7 @@ const Account = () => {
                   type="password"
                   value={changeConfirmPassword}
                   onChange={(e) => setChangeConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm text-gray-900 bg-white"
                   placeholder="Confirm new password"
                 />
               </div>
