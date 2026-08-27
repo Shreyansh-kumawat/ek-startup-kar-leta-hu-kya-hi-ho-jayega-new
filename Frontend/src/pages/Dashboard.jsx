@@ -314,8 +314,9 @@ const Dashboard = () => {
   };
 
   const handleLivePreview = () => {
-    if (selectedTemplate?.liveDemo || selectedTemplate?.templateLink) {
-      window.open(selectedTemplate.liveDemo || selectedTemplate.templateLink, '_blank', 'noopener,noreferrer');
+    const link = selectedTemplate?.live_demo || selectedTemplate?.liveDemo || selectedTemplate?.template_link || selectedTemplate?.templateLink;
+    if (link) {
+      window.open(link, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -328,7 +329,7 @@ const Dashboard = () => {
       return;
     }
 
-    const creditsRequired = selectedTemplate?.creditsRequired || 1;
+    const creditsRequired = selectedTemplate?.credits_required || selectedTemplate?.creditsRequired || 1;
     const userCredits = user?.credits || 0;
 
     if (userCredits < creditsRequired) {
@@ -364,7 +365,7 @@ const Dashboard = () => {
       return;
     }
 
-    const creditsRequired = selectedTemplate?.creditsRequired || 1;
+    const creditsRequired = selectedTemplate?.credits_required || selectedTemplate?.creditsRequired || 1;
 
     try {
       setBookingLoading(true);
@@ -429,7 +430,7 @@ const Dashboard = () => {
     );
   }
 
-  const creditsRequired = selectedTemplate?.creditsRequired || 1;
+  const creditsRequired = selectedTemplate?.credits_required || selectedTemplate?.creditsRequired || 1;
 
   return (
     <div className="space-y-6">
@@ -504,7 +505,7 @@ const Dashboard = () => {
               <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-lg border-2 border-blue-200 animate-fadeIn">
                 <div className="flex items-start gap-3 sm:gap-4">
                   <img
-                    src={selectedTemplate.previewImage || '/placeholder-template.jpg'}
+                    src={selectedTemplate.preview_image || selectedTemplate.previewImage || '/placeholder-template.jpg'}
                     alt={selectedTemplate.name}
                     className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl object-cover flex-shrink-0 border-2 border-gray-200"
                   />
@@ -523,7 +524,7 @@ const Dashboard = () => {
                       }`}>
                         <LuCreditCard className="w-3 h-3" /> {creditsRequired} Credit{creditsRequired > 1 ? 's' : ''}
                       </span>
-                      {selectedTemplate.withBackend && (
+                      {(selectedTemplate.with_backend || selectedTemplate.withBackend) && (
                         <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-lg">
                           <LuWrench className="w-3 h-3" /> Backend
                         </span>
@@ -599,7 +600,7 @@ const Dashboard = () => {
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                   <div className="flex items-start gap-4">
                     <img
-                      src={selectedTemplate?.previewImage || '/placeholder-template.jpg'}
+                      src={selectedTemplate?.preview_image || selectedTemplate?.previewImage || '/placeholder-template.jpg'}
                       alt={selectedTemplate?.name}
                       className="w-20 h-20 rounded-lg object-cover flex-shrink-0 border border-gray-200"
                     />
@@ -608,7 +609,7 @@ const Dashboard = () => {
                         {selectedTemplate?.name}
                       </h4>
                       <div className="flex items-center gap-2 flex-wrap">
-                        {selectedTemplate?.withBackend && (
+                        {(selectedTemplate?.with_backend || selectedTemplate?.withBackend) && (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-md">
                             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
@@ -717,7 +718,7 @@ const Dashboard = () => {
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-3 sm:p-4 mb-4 animate-fadeIn">
                     <div className="flex items-center gap-3">
                       <img
-                        src={selectedTemplate.previewImage || '/placeholder-template.jpg'}
+                        src={selectedTemplate.preview_image || selectedTemplate.previewImage || '/placeholder-template.jpg'}
                         alt={selectedTemplate.name}
                         className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-cover"
                       />
@@ -822,7 +823,7 @@ const Dashboard = () => {
                 <div key={booking._id} className="border border-gray-200 rounded-xl p-3 hover:border-blue-300 transition-all">
                   <div className="flex items-center gap-3">
                     <img
-                      src={booking.templateImage || booking.templateId?.previewImage || '/placeholder-template.jpg'}
+                      src={booking.template_image || booking.templateImage || booking.templates?.preview_image || booking.templateId?.previewImage || '/placeholder-template.jpg'}
                       alt={booking.templateName}
                       className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover flex-shrink-0"
                     />
