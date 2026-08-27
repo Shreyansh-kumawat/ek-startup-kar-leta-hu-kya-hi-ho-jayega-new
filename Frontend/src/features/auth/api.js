@@ -1,127 +1,72 @@
-import apiClient from '../../services/apiClient';
+import { supabase } from '../../lib/supabase';
+import { authApi, tutorialApi } from '../../services/apiClient';
 
 export const authAPI = {
-  // Register new user
-  register: async (userData) => {
-    const response = await apiClient.post('/auth/register', userData);
-    return response.data;
-  },
+  register: (userData) => authApi.register(userData),
+  login: (credentials) => authApi.login(credentials),
 
-  // Login user
-  login: async (credentials) => {
-    const response = await apiClient.post('/auth/login', credentials);
-    return response.data;
-  },
+  googleLogin: () => authApi.googleLogin(),
 
-  // Google Login
-  googleLogin: async (code) => {
-    const response = await apiClient.post('/auth/google', { code });
-    return response.data;
-  },
+  logout: () => authApi.logout(),
 
-  // Logout user
-  logout: async () => {
-    const response = await apiClient.post('/auth/logout');
-    return response.data;
-  },
+  getProfile: () => authApi.getProfile(),
 
-  // Get user profile
-  getProfile: async () => {
-    const response = await apiClient.get('/auth/profile');
-    return response.data;
-  },
+  forgotPassword: ({ email }) => authApi.forgotPassword({ email }),
 
-  // ✅ UPDATED: Forgot password - Send OTP
-  forgotPassword: async (email) => {
-    const response = await apiClient.post('/auth/forgot-password', { email });
-    return response.data;
-  },
+  resetPassword: (resetData) => authApi.resetPassword(resetData),
 
-  // ✅ UPDATED: Reset password with OTP
-  resetPassword: async (resetData) => {
-    // resetData = { email, otp, newPassword }
-    const response = await apiClient.post('/auth/reset-password', resetData);
-    return response.data;
-  },
+  updateProfile: (profileData) => authApi.updateProfile(profileData),
 
-  // ✅ NEW: Update user profile (name, phone)
-  updateProfile: async (profileData) => {
-    const response = await apiClient.put('/auth/profile', profileData);
-    return response.data;
-  },
+  changePassword: (passwordData) => authApi.changePassword(passwordData),
 
-  // ✅ NEW: Change password (for logged-in users with current password)
-  changePassword: async (passwordData) => {
-    // passwordData = { currentPassword, newPassword }
-    const response = await apiClient.put('/auth/change-password', passwordData);
-    return response.data;
-  },
+  verifyEmail: async () => ({ success: true }),
 
-  // ✅ NEW: Verify email (if you implement email verification)
-  verifyEmail: async (token) => {
-    const response = await apiClient.post('/auth/verify-email', { token });
-    return response.data;
-  },
-
-  // ✅ NEW: Resend verification email
-  resendVerificationEmail: async () => {
-    const response = await apiClient.post('/auth/resend-verification');
-    return response.data;
-  },
-  
+  resendVerificationEmail: async () => ({ success: true }),
 };
 
+export const recordTutorialInteraction = (action, sessionId) =>
+  tutorialApi.recordInteraction({ action, sessionId });
 
+export const updateVideoProgress = ({ interactionId, videoNumber }) =>
+  tutorialApi.updateVideoProgress({ interactionId, videoNumber });
 
-// ✅ NEW: Tutorial tracking functions
-export const recordTutorialInteraction = async (action, sessionId = null) => {
-  try {
-    const response = await apiClient.post('/tutorials/interaction', {
-      action,
-      sessionId: sessionId || Date.now().toString(),
-      deviceInfo: navigator.userAgent,
+export const getUserTutorialHistory = () => tutorialApi.getUserHistory();
+
+export const getTutorialAnalytics = async (startDate, endDate) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  let query = supabase
+    .from('tutorial_interactions')
+    .select('*')
+    .order('started_at', { ascending: false });
+
+  if (startDate) query = query.gte('started_at', startDate);
+  if (endDate) query = query.lte('started_at', endDate);
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  const totalInteractions = data.length;
+  const yesCount = data.filter(d => d.action === 'yes').length;
+  const noCount = data.filter(d => d.action === 'no').length;
+
+  const videoDistribution = {};
+  data.forEach((interaction) => {
+    (interaction.videos_watched || []).forEach((v) => {
+      videoDistribution[v] = (videoDistribution[v] || 0) + 1;
     });
-    return response.data;
-  } catch (error) {
-    console.error('Record tutorial interaction error:', error);
-    throw error.response?.data || error.message;
-  }
-};
+  });
 
-export const updateVideoProgress = async (interactionId, videoNumber) => {
-  try {
-    const response = await apiClient.put('/tutorials/video-progress', {
-      interactionId,
-      videoNumber,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Update video progress error:', error);
-    throw error.response?.data || error.message;
-  }
-};
-
-export const getUserTutorialHistory = async () => {
-  try {
-    const response = await apiClient.get('/tutorials/my-history');
-    return response.data;
-  } catch (error) {
-    console.error('Get tutorial history error:', error);
-    throw error.response?.data || error.message;
-  }
-};
-
-// Admin only
-export const getTutorialAnalytics = async (startDate = null, endDate = null) => {
-  try {
-    const params = {};
-    if (startDate) params.startDate = startDate;
-    if (endDate) params.endDate = endDate;
-    
-    const response = await apiClient.get('/tutorials/analytics', { params });
-    return response.data;
-  } catch (error) {
-    console.error('Get tutorial analytics error:', error);
-    throw error.response?.data || error.message;
-  }
+  return {
+    success: true,
+    data: {
+      totalInteractions,
+      yesCount,
+      noCount,
+      acceptanceRate: totalInteractions > 0 ? ((yesCount / totalInteractions) * 100).toFixed(1) : 0,
+      videoDistribution,
+      interactions: data,
+    },
+  };
 };

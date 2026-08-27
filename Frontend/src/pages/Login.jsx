@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../features/auth/useAuth';
 import { useForm } from '../hooks/useForm';
 import { validationRules } from '../utils/validators';
@@ -44,45 +43,17 @@ const Login = () => {
     }
   );
   
-  // ✅ FIXED: Google Login with proper token saving
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (codeResponse) => {
-      try {
-        const result = await googleLogin(codeResponse.code);
-        
-        if (result.success) {
-          // ✅ CRITICAL FIX: Save token to localStorage
-          if (result.token) {
-            localStorage.setItem('token', result.token);
-          }
-          
-          // Save user data
-          if (result.user) {
-            localStorage.setItem('user', JSON.stringify(result.user));
-          }
-          
-          showSuccess(`Welcome back, ${result.user.name}!`);
-          
-          // Navigate based on where user came from
-          if (returnToTemplate && from !== '/login') {
-            navigate(from, { replace: true });
-          } else {
-            navigate('/dashboard', { replace: true });
-          }
-        } else {
-          showError(result.error || 'Google login failed');
-        }
-      } catch (error) {
-        console.error('Google login error:', error);
-        showError('Google login failed. Please try again.');
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await googleLogin();
+      if (!result?.success) {
+        showError(result?.error || 'Google login failed');
       }
-    },
-    onError: (error) => {
-      console.error('Google OAuth Error:', error);
-      showError('Google login failed');
-    },
-    flow: 'auth-code',
-  });
+    } catch (error) {
+      console.error('Google login error:', error);
+      showError('Google login failed. Please try again.');
+    }
+  };
   
   useEffect(() => {
     if (isAuthenticated) {
@@ -106,14 +77,8 @@ const Login = () => {
       const result = await login(formData);
       
       if (result?.success) {
-        // ✅ Token already saved in auth context, but ensure it's there
-        if (result.token) {
-          localStorage.setItem('token', result.token);
-        }
-        
         showSuccess(`Welcome back, ${result.user?.name || 'User'}!`);
-        
-        // Navigate based on where user came from
+
         if (returnToTemplate && from !== '/login') {
           navigate(from, { replace: true });
         } else {
@@ -123,7 +88,6 @@ const Login = () => {
         showError(result?.message || 'Login failed');
       }
     } catch (err) {
-      console.error('❌ Login error:', err);
       showError(err.message || 'Login failed. Please try again.');
     }
   };
@@ -143,18 +107,12 @@ const Login = () => {
     try {
       setFieldValue('email', demoCredentials[userType].email);
       setFieldValue('password', demoCredentials[userType].password);
-      
+
       const result = await login(demoCredentials[userType]);
-      
+
       if (result?.success) {
-        // ✅ Ensure token is saved
-        if (result.token) {
-          localStorage.setItem('token', result.token);
-        }
-        
         showSuccess(`Demo ${userType} login successful!`);
-        
-        // Navigate based on where user came from
+
         if (returnToTemplate && from !== '/login') {
           navigate(from, { replace: true });
         } else {
@@ -164,7 +122,6 @@ const Login = () => {
         showError(result?.message || `Demo ${userType} login failed`);
       }
     } catch (err) {
-      console.error('❌ Demo login error:', err);
       showError(`Demo ${userType} login failed: ${err.message}`);
     }
   };

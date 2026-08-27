@@ -263,22 +263,13 @@ const Dashboard = () => {
 
   const loadRecentBookings = async () => {
     try {
-      const response = await fetch('https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com/api/website-booking/user', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-
-        if (data.success && Array.isArray(data.data)) {
-          setRecentBookings(data.data.slice(0, 3));
-        } else {
-          setRecentBookings([]);
-        }
+      const result = await templateBookingAPI.getUserBookings({ page: 1, limit: 3 });
+      if (result.success && result.data?.bookings) {
+        setRecentBookings(result.data.bookings.slice(0, 3));
+      } else if (result.data && Array.isArray(result.data)) {
+        setRecentBookings(result.data.slice(0, 3));
+      } else {
+        setRecentBookings([]);
       }
     } catch (error) {
       console.error('❌ Recent bookings error:', error);
@@ -295,27 +286,21 @@ const Dashboard = () => {
       try {
         setSearchLoading(true);
 
-        let response;
-        if (id.match(/^#?3di-[a-f0-9]{6}$/i)) {
-          const cleanId = id.replace(/^#?3di-/i, '');
-          response = await fetch(`https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com/api/templates/display/${cleanId}`);
-        } else {
-          response = await fetch(`https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com/website/${id}`);
-        }
-
-        if (response.ok) {
-          const data = await response.json();
-          setSelectedTemplate(data.data);
+        const { templateApi } = await import('../services/apiClient');
+        const displayId = id.match(/^#?3di-[a-f0-9]{6}$/i) ? id : `#3di-${id}`;
+        const result = await templateApi.getByDisplayId(displayId);
+        if (result.success && result.data) {
+          setSelectedTemplate(result.data);
           addNotification({
             type: 'success',
-            message: `✅ Template "${data.data.name}" found!`
+            message: `Template "${result.data.name}" found!`
           });
         } else {
           setSelectedTemplate(null);
           if (id.length > 6) {
             addNotification({
               type: 'error',
-              message: '❌ Template not found with this ID'
+              message: 'Template not found with this ID'
             });
           }
         }

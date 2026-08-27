@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import apiClient from '../../services/apiClient';
-import { useAuth } from '../auth/useAuth';
-
-const SERVER = import.meta.env.VITE_SERVER_BASE_URL ||
-  (import.meta.env.PROD ? 'https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com' : 'http://localhost:5000');
+import { supabase } from '../../lib/supabase';
 
 const emptyForm = { title: '', description: '', timePeriod: '', experience: '', expiryDate: '', image: null };
 
 const AdminCareerManager = () => {
-  const { token } = useAuth();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(emptyForm);
@@ -16,18 +11,18 @@ const AdminCareerManager = () => {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [preview, setPreview] = useState(null);
-  // Applications viewer
-  const [viewingJob, setViewingJob] = useState(null); // { jobId, title }
+  const [viewingJob, setViewingJob] = useState(null);
   const [applications, setApplications] = useState([]);
   const [appsLoading, setAppsLoading] = useState(false);
-
-  const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
 
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const res = await apiClient.get('/careers/admin/all', authHeaders);
-      setJobs(res.data.data || []);
+      const { data } = await supabase
+        .from('careers')
+        .select('*')
+        .order('created_at', { ascending: false });
+      setJobs(data || []);
     } catch { setJobs([]); }
     setLoading(false);
   };
@@ -38,8 +33,12 @@ const AdminCareerManager = () => {
     setViewingJob({ jobId, title });
     setAppsLoading(true);
     try {
-      const res = await apiClient.get(`/careers/admin/applications/${jobId}`, authHeaders);
-      setApplications(res.data.data || []);
+      const { data } = await supabase
+        .from('job_applications')
+        .select('*')
+        .eq('job_id', jobId)
+        .order('created_at', { ascending: false });
+      setApplications(data || []);
     } catch { setApplications([]); }
     setAppsLoading(false);
   };
@@ -58,23 +57,53 @@ const AdminCareerManager = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => { if (v !== null && v !== undefined && v !== '') fd.append(k, v); });
-      const config = { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } };
-      if (editId) await apiClient.put(`/careers/${editId}`, fd, config);
-      else await apiClient.post('/careers', fd, config);
+      let imageUrl = null;
+      if (form.image instanceof File) {
+        const uploadForm = new FormData();
+        uploadForm.append('file', form.image);
+        uploadForm.append('folder', '3digree/careers');
+        const { data: uploadResult, error: uploadError } = await supabase.functions.invoke('upload-image', {
+          body: uploadForm,
+        });
+        if (uploadError) throw uploadError;
+        imageUrl = uploadResult?.data?.url;
+      }
+
+      const jobData = {
+        title: form.title,
+        description: form.description,
+        time_period: form.timePeriod,
+        experience: form.experience,
+        expiry_date: form.expiryDate,
+      };
+      if (imageUrl) jobData.image = imageUrl;
+
+      if (editId) {
+        jobData.updated_at = new Date().toISOString();
+        await supabase.from('careers').update(jobData).eq('id', editId);
+      } else {
+        await supabase.from('careers').insert(jobData);
+      }
+
       setForm(emptyForm); setEditId(null); setShowForm(false); setPreview(null);
       fetchJobs();
     } catch (err) {
-      alert(err.response?.data?.message || 'Error saving job');
+      alert(err.message || 'Error saving job');
     }
     setSubmitting(false);
   };
 
   const handleEdit = (job) => {
-    setForm({ title: job.title || '', description: job.description || '', timePeriod: job.timePeriod || '', experience: job.experience || '', expiryDate: job.expiryDate?.split('T')[0] || '', image: null });
-    setEditId(job._id);
-    setPreview(job.image ? `${SERVER}${job.image}` : null);
+    setForm({
+      title: job.title || '',
+      description: job.description || '',
+      timePeriod: job.time_period || '',
+      experience: job.experience || '',
+      expiryDate: job.expiry_date?.split('T')[0] || '',
+      image: null,
+    });
+    setEditId(job.id);
+    setPreview(job.image || null);
     setShowForm(true);
     setViewingJob(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -82,28 +111,25 @@ const AdminCareerManager = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this job?')) return;
-    await apiClient.delete(`/careers/${id}`, authHeaders);
+    await supabase.from('careers').delete().eq('id', id);
     fetchJobs();
   };
 
   const handleToggle = async (job) => {
-    const fd = new FormData();
-    fd.append('isActive', String(!job.isActive));
-    await apiClient.put(`/careers/${job._id}`, fd, { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } });
+    await supabase.from('careers').update({ is_active: !job.is_active }).eq('id', job.id);
     fetchJobs();
   };
 
   const handleShare = (jobId) => {
     navigator.clipboard.writeText(`${window.location.origin}/careers/${jobId}`);
-    alert('Link copied! 🎉');
+    alert('Link copied!');
   };
 
-  // ── Applications Viewer Panel ──
   if (viewingJob) {
     return (
       <div className="p-6 max-w-5xl mx-auto">
         <button onClick={() => setViewingJob(null)} className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 text-sm font-medium">
-          ← Back to Jobs
+          Back to Jobs
         </button>
         <h1 className="text-2xl font-extrabold text-gray-900 mb-1">Applications</h1>
         <p className="text-gray-500 text-sm mb-6">Job: <span className="font-semibold text-gray-700">{viewingJob.title}</span> <span className="text-blue-500">#{viewingJob.jobId}</span></p>
@@ -112,20 +138,19 @@ const AdminCareerManager = () => {
           <div className="flex justify-center py-16"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" /></div>
         ) : applications.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
-            <div className="text-5xl mb-3">📩</div>
             <p className="font-medium">No applications yet for this job.</p>
           </div>
         ) : (
           <div className="space-y-4">
             <p className="text-sm text-gray-500">{applications.length} application(s) received</p>
             {applications.map((app, i) => (
-              <div key={app._id} className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-sm transition-shadow">
+              <div key={app.id} className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-sm transition-shadow">
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div>
                     <span className="text-xs text-gray-400 font-mono">#{i + 1}</span>
                     <h3 className="font-bold text-gray-900 text-lg">{app.name}</h3>
                   </div>
-                  <span className="text-xs text-gray-400">{new Date(app.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  <span className="text-xs text-gray-400">{new Date(app.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
                   <div><span className="text-gray-400">Age</span><p className="font-semibold text-gray-800">{app.age}</p></div>
@@ -147,7 +172,6 @@ const AdminCareerManager = () => {
     );
   }
 
-  // ── Main Jobs Panel ──
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -163,7 +187,6 @@ const AdminCareerManager = () => {
         </button>
       </div>
 
-      {/* Add/Edit Form */}
       {showForm && (
         <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-8 shadow-sm">
           <h2 className="text-lg font-bold text-gray-800 mb-4">{editId ? 'Edit Job' : 'Add New Job'}</h2>
@@ -219,52 +242,50 @@ const AdminCareerManager = () => {
         </div>
       )}
 
-      {/* Jobs List */}
       {loading ? (
         <div className="flex justify-center py-16"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" /></div>
       ) : jobs.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
-          <div className="text-5xl mb-3">💼</div>
           <p className="font-medium">No jobs yet. Add your first job!</p>
         </div>
       ) : (
         <div className="space-y-4">
           {jobs.map(job => {
-            const expired = new Date(job.expiryDate) < new Date();
+            const expired = new Date(job.expiry_date) < new Date();
             return (
-              <div key={job._id} className="bg-white rounded-2xl border border-gray-100 p-5 flex gap-4 items-start hover:shadow-sm transition-shadow">
+              <div key={job.id} className="bg-white rounded-2xl border border-gray-100 p-5 flex gap-4 items-start hover:shadow-sm transition-shadow">
                 {job.image ? (
-                  <img src={`${SERVER}${job.image}`} alt={job.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                  <img src={job.image} alt={job.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
                 ) : (
                   <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
-                    <span className="text-2xl">💼</span>
+                    <span className="text-2xl">Job</span>
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">#{job.jobId}</span>
+                    <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">#{job.job_id}</span>
                     <h3 className="font-bold text-gray-900">{job.title}</h3>
                     {expired && <span className="text-xs bg-red-100 text-red-500 px-2 py-0.5 rounded-full font-semibold">EXPIRED</span>}
-                    {!job.isActive && <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-semibold">INACTIVE</span>}
+                    {!job.is_active && <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-semibold">INACTIVE</span>}
                   </div>
                   <p className="text-sm text-gray-500 mt-0.5 truncate">{job.description}</p>
                   <div className="flex gap-3 mt-1.5 text-xs text-gray-400 flex-wrap">
-                    {job.timePeriod && <span>⏱️ {job.timePeriod}</span>}
-                    <span>💼 {job.experience}</span>
-                    <span>📅 {new Date(job.expiryDate).toLocaleDateString('en-IN')}</span>
+                    {job.time_period && <span>{job.time_period}</span>}
+                    <span>{job.experience}</span>
+                    <span>{new Date(job.expiry_date).toLocaleDateString('en-IN')}</span>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 flex-shrink-0">
-                  <button onClick={() => fetchApplications(job.jobId, job.title)}
+                  <button onClick={() => fetchApplications(job.job_id, job.title)}
                     className="text-xs px-3 py-1.5 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 font-medium">
-                    📩 Applications
+                    Applications
                   </button>
                   <button onClick={() => handleEdit(job)} className="text-xs px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 font-medium">Edit</button>
                   <button onClick={() => handleToggle(job)} className={`text-xs px-3 py-1.5 rounded-lg font-medium ${
-                    job.isActive ? 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100' : 'bg-green-50 text-green-600 hover:bg-green-100'
-                  }`}>{job.isActive ? 'Deactivate' : 'Activate'}</button>
-                  <button onClick={() => handleShare(job.jobId)} className="text-xs px-3 py-1.5 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 font-medium">🔗 Share</button>
-                  <button onClick={() => handleDelete(job._id)} className="text-xs px-3 py-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 font-medium">Delete</button>
+                    job.is_active ? 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100' : 'bg-green-50 text-green-600 hover:bg-green-100'
+                  }`}>{job.is_active ? 'Deactivate' : 'Activate'}</button>
+                  <button onClick={() => handleShare(job.job_id)} className="text-xs px-3 py-1.5 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 font-medium">Share</button>
+                  <button onClick={() => handleDelete(job.id)} className="text-xs px-3 py-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 font-medium">Delete</button>
                 </div>
               </div>
             );

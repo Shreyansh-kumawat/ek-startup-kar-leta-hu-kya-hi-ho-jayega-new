@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../features/auth/useAuth';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { websiteBookingApi, chatApi } from '../services/apiClient';
 
 const Progress = () => {
   const { user } = useAuth();
@@ -14,7 +12,6 @@ const Progress = () => {
   const [newMessage, setNewMessage] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
 
-  // ✅ Fetch user bookings
   useEffect(() => {
     fetchBookings();
   }, []);
@@ -24,105 +21,77 @@ const Progress = () => {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `${API_URL}/api/website-booking/my-bookings`,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-
-      if (response.data.success) {
-        setBookings(response.data.data);
+      const result = await websiteBookingApi.getMyBookings();
+      if (result.success) {
+        setBookings(result.data?.bookings || result.data || []);
       }
     } catch (err) {
-      console.error('❌ Fetch bookings error:', err);
-      setError(err.response?.data?.message || 'Failed to fetch bookings');
+      setError(err.message || 'Failed to fetch bookings');
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Fetch chat messages
   const fetchChatMessages = async (bookingId) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `${API_URL}/api/chat/${bookingId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-
-      if (response.data.success) {
-        setChatMessages(response.data.data.messages || []);
+      const result = await chatApi.getMessages(bookingId);
+      if (result.success) {
+        setChatMessages(result.data.messages || []);
       }
     } catch (err) {
-      console.error('❌ Fetch chat error:', err);
+      console.error('Fetch chat error:', err);
     }
   };
 
-  // ✅ Send chat message
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedBooking) return;
 
     setSendingMessage(true);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(
-        `${API_URL}/api/chat/${selectedBooking._id}`,
-        { message: newMessage },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-
-      if (response.data.success) {
-        setChatMessages(response.data.data.messages || []);
+      const result = await chatApi.sendMessage(selectedBooking.id, newMessage);
+      if (result.success) {
+        setChatMessages(result.data.messages || []);
         setNewMessage('');
       }
     } catch (err) {
-      console.error('❌ Send message error:', err);
+      console.error('Send message error:', err);
     } finally {
       setSendingMessage(false);
     }
   };
 
-  // ✅ Open chat modal
   const openChat = (booking) => {
     setSelectedBooking(booking);
-    fetchChatMessages(booking._id);
+    fetchChatMessages(booking.id);
   };
 
-  // ✅ Close chat modal
   const closeChat = () => {
     setSelectedBooking(null);
     setChatMessages([]);
     setNewMessage('');
   };
 
-  // ✅ Get status badge
   const getStatusBadge = (status) => {
     const badges = {
       purchased: 'bg-yellow-100 text-yellow-800 border-yellow-300',
       approved: 'bg-blue-100 text-blue-800 border-blue-300',
-      in_progress: 'bg-purple-100 text-purple-800 border-purple-300',
-      ready_for_completion: 'bg-orange-100 text-orange-800 border-orange-300',
-      completed: 'bg-green-100 text-green-800 border-green-300'
+      inprogress: 'bg-purple-100 text-purple-800 border-purple-300',
+      readyforcompletion: 'bg-orange-100 text-orange-800 border-orange-300',
+      completed: 'bg-green-100 text-green-800 border-green-300',
     };
 
     const labels = {
-      purchased: '📦 Purchased',
-      approved: '✅ Approved',
-      in_progress: '⚙️ In Progress',
-      ready_for_completion: '⏳ Ready',
-      completed: '🎉 Completed'
+      purchased: 'Purchased',
+      approved: 'Approved',
+      inprogress: 'In Progress',
+      readyforcompletion: 'Ready',
+      completed: 'Completed',
     };
 
     return (
-      <span className={`px-3 py-1 rounded-full text-xs font-bold border-2 ${badges[status]}`}>
-        {labels[status]}
+      <span className={`px-3 py-1 rounded-full text-xs font-bold border-2 ${badges[status] || ''}`}>
+        {labels[status] || status}
       </span>
     );
   };
@@ -141,66 +110,60 @@ const Progress = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            📊 Your Website Progress
+            Your Website Progress
           </h1>
           <p className="text-gray-600">Track all your website bookings</p>
         </div>
 
-        {/* Error */}
         {error && (
           <div className="bg-red-100 border-2 border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
-            ⚠️ {error}
+            {error}
           </div>
         )}
 
-        {/* No Bookings */}
         {bookings.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-gray-200">
-            <div className="text-6xl mb-4">📭</div>
+            <div className="text-6xl mb-4">No bookings yet</div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">No bookings yet</h3>
             <p className="text-gray-600 mb-6">Start by booking your first website!</p>
             <a
               href="/booking"
               className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition"
             >
-              📦 Book Website
+              Book Website
             </a>
           </div>
         ) : (
           <div className="grid gap-6">
             {bookings.map((booking) => (
               <div
-                key={booking._id}
+                key={booking.id}
                 className="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-200 hover:border-blue-400 transition"
               >
                 <div className="grid md:grid-cols-4 gap-6">
-                  {/* Template Image */}
                   <div>
                     <img
-                      src={booking.templateImage}
-                      alt={booking.templateName}
+                      src={booking.template_image || booking.templateImage || booking.templates?.preview_image}
+                      alt={booking.template_name || booking.templateName}
                       className="w-full h-32 object-cover rounded-lg shadow-md"
                     />
                   </div>
 
-                  {/* Details */}
                   <div className="md:col-span-2">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      {booking.templateName}
+                      {booking.template_name || booking.templateName}
                     </h3>
                     <p className="text-sm text-gray-600 mb-2">
-                      Booking ID: <span className="font-mono font-bold">{booking.bookingId}</span>
+                      Booking ID: <span className="font-mono font-bold">{booking.template_display_id || booking.id?.slice(0, 8)}</span>
                     </p>
                     <p className="text-sm text-gray-600 mb-3">
-                      Purchased: {new Date(booking.purchasedAt).toLocaleDateString()}
+                      Purchased: {new Date(booking.created_at || booking.purchasedAt).toLocaleDateString()}
                     </p>
-                    
+
                     {getStatusBadge(booking.status)}
 
-                    {/* Progress Bar */}
                     <div className="mt-4">
                       <div className="flex justify-between text-sm mb-1">
                         <span className="font-semibold text-gray-700">Progress</span>
@@ -215,16 +178,15 @@ const Progress = () => {
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex flex-col justify-between">
-                    {booking.status === 'completed' && booking.previewLink && (
+                    {booking.status === 'completed' && booking.preview_link && (
                       <a
-                        href={booking.previewLink}
+                        href={booking.preview_link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-center font-semibold transition mb-2"
                       >
-                        🔗 View Website
+                        View Website
                       </a>
                     )}
 
@@ -232,7 +194,7 @@ const Progress = () => {
                       onClick={() => openChat(booking)}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition"
                     >
-                      💬 Chat
+                      Chat
                     </button>
                   </div>
                 </div>
@@ -241,24 +203,21 @@ const Progress = () => {
           </div>
         )}
 
-        {/* Chat Modal */}
         {selectedBooking && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
-              {/* Header */}
               <div className="border-b-2 border-gray-200 p-4 flex justify-between items-center">
                 <h3 className="text-xl font-bold text-gray-900">
-                  💬 Chat - {selectedBooking.templateName}
+                  Chat - {selectedBooking.template_name || selectedBooking.templateName}
                 </h3>
                 <button
                   onClick={closeChat}
                   className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
                 >
-                  ×
+                  x
                 </button>
               </div>
 
-              {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {chatMessages.length === 0 ? (
                   <p className="text-center text-gray-500 py-8">No messages yet. Start the conversation!</p>
@@ -266,21 +225,21 @@ const Progress = () => {
                   chatMessages.map((msg, index) => (
                     <div
                       key={index}
-                      className={`flex ${msg.senderRole === 'admin' ? 'justify-start' : 'justify-end'}`}
+                      className={`flex ${msg.sender_role === 'admin' ? 'justify-start' : 'justify-end'}`}
                     >
                       <div
                         className={`max-w-xs px-4 py-2 rounded-lg ${
-                          msg.senderRole === 'admin'
+                          msg.sender_role === 'admin'
                             ? 'bg-gray-200 text-gray-900'
                             : 'bg-blue-600 text-white'
                         }`}
                       >
                         <p className="text-sm font-semibold mb-1">
-                          {msg.senderRole === 'admin' ? '👨‍💼 Admin' : '👤 You'}
+                          {msg.sender_role === 'admin' ? 'Admin' : 'You'}
                         </p>
                         <p>{msg.message}</p>
                         <p className="text-xs mt-1 opacity-70">
-                          {new Date(msg.timestamp).toLocaleTimeString()}
+                          {new Date(msg.created_at || msg.timestamp).toLocaleTimeString()}
                         </p>
                       </div>
                     </div>
@@ -288,7 +247,6 @@ const Progress = () => {
                 )}
               </div>
 
-              {/* Input */}
               <div className="border-t-2 border-gray-200 p-4">
                 <div className="flex gap-2">
                   <input
@@ -304,7 +262,7 @@ const Progress = () => {
                     disabled={sendingMessage || !newMessage.trim()}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition disabled:bg-gray-300 disabled:cursor-not-allowed"
                   >
-                    {sendingMessage ? '...' : '📤'}
+                    {sendingMessage ? '...' : 'Send'}
                   </button>
                 </div>
               </div>

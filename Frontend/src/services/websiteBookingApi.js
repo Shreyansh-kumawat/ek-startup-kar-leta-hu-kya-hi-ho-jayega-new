@@ -1,97 +1,35 @@
-// Frontend\src\services\websiteBookingApi.js
-import apiClient from './apiClient';
+import { websiteBookingApi } from './apiClient';
 
-const BASE_URL = '/website-booking';
+export const purchaseWebsite = (templateDisplayId) =>
+  websiteBookingApi.purchase({ templateDisplayId });
 
-// ==================== USER APIS ====================
+export const getUserBookings = (params) =>
+  websiteBookingApi.getMyBookings(params);
 
-// Purchase website
-export const purchaseWebsite = async (templateDisplayId) => {
-  try {
-    const response = await apiClient.post(`${BASE_URL}/purchase`, {
-      templateDisplayId
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || { message: 'Failed to purchase website' };
-  }
-};
+export const getBookingDetails = (bookingId) =>
+  websiteBookingApi.getBookingDetails(bookingId);
 
-// Get user's bookings
-export const getUserBookings = async () => {
-  try {
-    const response = await apiClient.get(`${BASE_URL}/my-bookings`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || { message: 'Failed to fetch bookings' };
-  }
-};
+export const getAllBookings = (params) =>
+  websiteBookingApi.getAllBookings(params);
 
-// Get booking details
-export const getBookingDetails = async (bookingId) => {
-  try {
-    const response = await apiClient.get(`${BASE_URL}/${bookingId}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || { message: 'Failed to fetch booking details' };
-  }
-};
+export const approveBooking = (bookingId) =>
+  websiteBookingApi.approveBooking(bookingId);
 
-// ==================== ADMIN APIS ====================
+export const completeBooking = (bookingId, previewLink) =>
+  websiteBookingApi.completeBooking(bookingId, previewLink);
 
-// Get all bookings (Admin)
-export const getAllBookings = async (params = {}) => {
-  try {
-    const response = await apiClient.get(`${BASE_URL}/admin/all`, { params });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || { message: 'Failed to fetch bookings' };
-  }
-};
+export const getAdminStats = () =>
+  websiteBookingApi.getDashboardStats();
 
-// Approve booking (Admin)
-export const approveBooking = async (bookingId) => {
-  try {
-    const response = await apiClient.patch(`${BASE_URL}/admin/${bookingId}/approve`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || { message: 'Failed to approve booking' };
-  }
-};
-
-// Complete booking (Admin)
-export const completeBooking = async (bookingId, previewLink) => {
-  try {
-    const response = await apiClient.patch(`${BASE_URL}/admin/${bookingId}/complete`, {
-      previewLink
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || { message: 'Failed to complete booking' };
-  }
-};
-
-// Get admin stats
-export const getAdminStats = async () => {
-  try {
-    const response = await apiClient.get(`${BASE_URL}/admin/stats`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || { message: 'Failed to fetch stats' };
-  }
-};
-
-// Helper functions
-export const formatCurrency = (amount) => {
-  return `₹${amount?.toLocaleString('en-IN') || 0}`;
-};
+export const formatCurrency = (amount) =>
+  `₹${amount?.toLocaleString('en-IN') || 0}`;
 
 export const formatDate = (date) => {
   if (!date) return 'N/A';
   return new Date(date).toLocaleDateString('en-IN', {
     day: '2-digit',
     month: 'short',
-    year: 'numeric'
+    year: 'numeric',
   });
 };
 
@@ -102,7 +40,7 @@ export const formatDateTime = (date) => {
     month: 'short',
     year: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   });
 };
 
@@ -116,5 +54,5 @@ export default {
   getAdminStats,
   formatCurrency,
   formatDate,
-  formatDateTime
+  formatDateTime,
 };

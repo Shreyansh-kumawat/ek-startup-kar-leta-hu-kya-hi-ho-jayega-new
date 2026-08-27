@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import apiClient from '../services/apiClient';
+import { careerApi } from '../services/apiClient';
 
 const emptyForm = { name: '', age: '', gender: '', email: '', phone: '', message: '' };
 
@@ -16,8 +16,8 @@ const CareerJobDetail = () => {
   const [formError, setFormError] = useState('');
 
   useEffect(() => {
-    apiClient.get(`/careers/${jobId}`)
-      .then(res => setJob(res.data.data))
+    careerApi.getJobByJobId(jobId)
+      .then(res => setJob(res.data))
       .catch(() => setJob(null))
       .finally(() => setLoading(false));
   }, [jobId]);
@@ -41,15 +41,15 @@ const CareerJobDetail = () => {
     }
     setSubmitting(true);
     try {
-      await apiClient.post('/careers/apply', {
-        jobId: job.jobId,
+      await careerApi.submitApplication({
+        jobId: job.job_id,
         jobTitle: job.title,
         ...form,
       });
       setSubmitted(true);
       setForm(emptyForm);
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Something went wrong. Please try again.');
+      setFormError(err.message || 'Something went wrong. Please try again.');
     }
     setSubmitting(false);
   };
@@ -63,24 +63,22 @@ const CareerJobDetail = () => {
   if (!job) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center">
-        <div className="text-6xl mb-4">🔍</div>
         <h2 className="text-2xl font-bold text-gray-700 mb-4">Job Not Found</h2>
-        <Link to="/careers" className="text-blue-600 hover:underline">← Back to Careers</Link>
+        <Link to="/careers" className="text-blue-600 hover:underline">Back to Careers</Link>
       </div>
     </div>
   );
 
-  const isExpired = new Date(job.expiryDate) < new Date();
+  const isExpired = new Date(job.expiry_date) < new Date();
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-3xl mx-auto">
         <Link to="/careers" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 text-sm font-medium">
-          ← Back to all openings
+          Back to all openings
         </Link>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* Image — job.image is already a full Cloudinary https:// URL */}
           {job.image && (
             <div className="h-64 md:h-80 overflow-hidden">
               <img src={job.image} alt={job.title} className="w-full h-full object-cover" />
@@ -90,19 +88,19 @@ const CareerJobDetail = () => {
           <div className="p-8">
             <div className="flex items-start justify-between gap-4 mb-2">
               <div>
-                <span className="inline-block bg-blue-50 text-blue-600 text-xs font-bold px-2 py-1 rounded-full mb-2">#{job.jobId}</span>
+                <span className="inline-block bg-blue-50 text-blue-600 text-xs font-bold px-2 py-1 rounded-full mb-2">#{job.job_id}</span>
                 <h1 className="text-3xl font-extrabold text-gray-900">{job.title}</h1>
               </div>
               {isExpired && <span className="bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full flex-shrink-0">EXPIRED</span>}
             </div>
 
             <div className="flex flex-wrap gap-2 my-5">
-              {job.timePeriod && (
-                <span className="bg-gray-100 text-gray-600 text-sm px-3 py-1.5 rounded-full">⏱️ {job.timePeriod}</span>
+              {job.time_period && (
+                <span className="bg-gray-100 text-gray-600 text-sm px-3 py-1.5 rounded-full">{job.time_period}</span>
               )}
-              <span className="bg-gray-100 text-gray-600 text-sm px-3 py-1.5 rounded-full">💼 {job.experience}</span>
+              <span className="bg-gray-100 text-gray-600 text-sm px-3 py-1.5 rounded-full">{job.experience}</span>
               <span className={`text-sm px-3 py-1.5 rounded-full ${isExpired ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-600'}`}>
-                📅 {isExpired ? 'Expired' : 'Closes'}: {new Date(job.expiryDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                {isExpired ? 'Expired' : 'Closes'}: {new Date(job.expiry_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
               </span>
             </div>
 
@@ -113,30 +111,28 @@ const CareerJobDetail = () => {
               <p className="text-gray-600 leading-relaxed whitespace-pre-line">{job.description}</p>
             </div>
 
-            {/* Action Buttons */}
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               {!isExpired && !submitted && (
                 <button
                   onClick={() => setShowApply(v => !v)}
                   className="flex-1 text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity"
                 >
-                  {showApply ? 'Hide Form' : 'Apply Now ✉️'}
+                  {showApply ? 'Hide Form' : 'Apply Now'}
                 </button>
               )}
               {submitted && (
                 <div className="flex-1 text-center bg-green-50 border border-green-200 text-green-700 font-semibold py-3 rounded-xl">
-                  ✅ Application Submitted! We'll be in touch.
+                  Application Submitted! We'll be in touch.
                 </div>
               )}
               <button
                 onClick={handleShare}
                 className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors"
               >
-                {copied ? '✅ Copied!' : '🔗 Share Job'}
+                {copied ? 'Copied!' : 'Share Job'}
               </button>
             </div>
 
-            {/* Apply Form */}
             {showApply && !submitted && !isExpired && (
               <form onSubmit={handleApplySubmit} className="mt-6 bg-gray-50 rounded-2xl p-6 border border-gray-200 space-y-4">
                 <h3 className="text-lg font-bold text-gray-900">Apply for {job.title}</h3>

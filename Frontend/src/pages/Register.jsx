@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../features/auth/useAuth';
 import { useForm } from '../hooks/useForm';
 import { validationRules } from '../utils/validators';
@@ -55,37 +54,16 @@ const Register = () => {
     }
   );
   
-  // ✅ UPDATED: Google Login with Video 11 Ticket
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (codeResponse) => {
-      try {
-        const result = await googleLogin(codeResponse.code);
-        
-        if (result.success) {
-          showSuccess(`Welcome ${result.user.name}!`);
-          
-          // ✅ NEW: Create video 11 ticket after Google register from template
-          if (returnToTemplate && from !== '/register') {
-            sessionStorage.setItem('video11Ticket', 'active');
-            console.log('🎫 Video 11 ticket created after Google register!');
-            navigate(from, { replace: true });
-          } else {
-            navigate('/dashboard', { replace: true });
-          }
-        } else {
-          showError(result.error || 'Google login failed');
-        }
-      } catch (error) {
-        console.error('Google login error:', error);
-        showError('Google login failed. Please try again.');
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await googleLogin();
+      if (!result?.success) {
+        showError(result?.error || 'Google login failed');
       }
-    },
-    onError: (error) => {
-      console.error('Google OAuth Error:', error);
-      showError('Google login failed');
-    },
-    flow: 'auth-code',
-  });
+    } catch (error) {
+      showError('Google login failed. Please try again.');
+    }
+  };
   
   useEffect(() => {
     if (isAuthenticated && !authLoading) {

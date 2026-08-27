@@ -1,273 +1,201 @@
-// Frontend/src/features/admin/api.js
-import apiClient from '../../services/apiClient';
-
+import { supabase } from '../../lib/supabase';
+import { adminApi, chatApi, websiteBookingApi, meetingApi } from '../../services/apiClient';
 
 // ==================== DASHBOARD & STATS ====================
 
-export const getDashboard = async () => {
-  try {
-    const response = await apiClient.get('/admin/dashboard');
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
-
-
-export const getSystemStats = async () => {
-  try {
-    const response = await apiClient.get('/admin/stats');
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
-
+export const getDashboard = () => adminApi.getDashboard();
+export const getSystemStats = () => adminApi.getDashboard();
 
 // ==================== USER MANAGEMENT ====================
 
-export const getAllUsers = async () => {
-  try {
-    const response = await apiClient.get('/admin/users');
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+export const getAllUsers = (params) => adminApi.getUsers(params);
+export const getUserById = (userId) => adminApi.getUserDetail(userId);
+export const createSecondaryAdmin = (userData) => adminApi.createAdmin(userData);
 
+export const updateUserStatus = (userId, isActive) =>
+  adminApi.updateStatus({ userId, isActive });
 
-export const getUserById = async (userId) => {
-  try {
-    const response = await apiClient.get(`/admin/users/${userId}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+export const deleteUser = (userId) =>
+  adminApi.deleteUser({ userId, confirmDelete: true });
 
-
-export const createSecondaryAdmin = async (userData) => {
-  try {
-    const response = await apiClient.post('/admin/secondary', userData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
-
-
-export const updateUserStatus = async (userId, isActive) => {
-  try {
-    const response = await apiClient.put(`/admin/users/${userId}/status`, { isActive });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
-
-
-export const deleteUser = async (userId) => {
-  try {
-    const response = await apiClient.delete(`/admin/users/${userId}`, {
-      data: { confirmDelete: true }
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
-
-
-// ✅ NEW: Update user credits
-export const updateUserCredits = async (userId, credits) => {
-  try {
-    const response = await apiClient.put(`/admin/users/${userId}/credits`, { credits });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
-
+export const updateUserCredits = (userId, credits) =>
+  adminApi.updateCredits({ userId, credits });
 
 // ==================== MEETING MANAGEMENT ====================
 
 export const getAllMeetings = async () => {
-  try {
-    const response = await apiClient.get('/meetings');
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+  const { data, error } = await supabase
+    .from('meetings')
+    .select('*, profiles!user_id(name, email), templates!template_id(name)')
+    .order('created_at', { ascending: false });
 
+  if (error) throw error;
+  return { success: true, data };
+};
 
 export const getMeetingRequests = async () => {
-  try {
-    const response = await apiClient.get('/meetings/requests');
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+  const { data, error } = await supabase
+    .from('meetings')
+    .select('*, profiles!user_id(name, email), templates!template_id(name)')
+    .eq('status', 'requested')
+    .order('created_at', { ascending: false });
 
+  if (error) throw error;
+  return { success: true, data };
+};
 
 export const scheduleMeeting = async (meetingId, scheduleData) => {
-  try {
-    const response = await apiClient.put(`/meetings/${meetingId}/schedule`, scheduleData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+  const { data, error } = await supabase
+    .from('meetings')
+    .update({
+      scheduled_date: scheduleData.scheduledDate,
+      scheduled_time: scheduleData.scheduledTime,
+      meeting_link: scheduleData.meetingLink,
+      status: 'scheduled',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', meetingId)
+    .select()
+    .single();
 
+  if (error) throw error;
+  return { success: true, message: 'Meeting scheduled', data };
+};
 
 export const updateMeetingStatus = async (meetingId, status) => {
-  try {
-    const response = await apiClient.put(`/meetings/${meetingId}/status`, { status });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+  const { data, error } = await supabase
+    .from('meetings')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('id', meetingId)
+    .select()
+    .single();
 
+  if (error) throw error;
+  return { success: true, data };
+};
 
 // ==================== ORDER MANAGEMENT ====================
 
 export const getAllOrders = async () => {
-  try {
-    const response = await apiClient.get('/orders');
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+  const { data, error } = await supabase
+    .from('plan_purchases')
+    .select('*, profiles!user_id(name, email)')
+    .order('created_at', { ascending: false });
 
+  if (error) throw error;
+  return { success: true, data };
+};
 
 export const updateOrderStatus = async (orderId, status) => {
-  try {
-    const response = await apiClient.put(`/orders/${orderId}/status`, { status });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+  const { data, error } = await supabase
+    .from('plan_purchases')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('id', orderId)
+    .select()
+    .single();
 
+  if (error) throw error;
+  return { success: true, data };
+};
 
 // ==================== PROJECT MANAGEMENT ====================
 
 export const getAllProjects = async () => {
-  try {
-    const response = await apiClient.get('/projects');
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+  const { data, error } = await supabase
+    .from('website_bookings')
+    .select('*, profiles!user_id(name, email), templates!template_id(name, preview_image)')
+    .order('created_at', { ascending: false });
 
+  if (error) throw error;
+  return { success: true, data };
+};
 
 export const updateProjectStatus = async (projectId, status, notes = '') => {
-  try {
-    const response = await apiClient.put(`/projects/${projectId}/status`, { status, notes });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+  const { data, error } = await supabase
+    .from('website_bookings')
+    .update({ status, admin_notes: notes, updated_at: new Date().toISOString() })
+    .eq('id', projectId)
+    .select()
+    .single();
 
+  if (error) throw error;
+  return { success: true, data };
+};
 
 export const updateProjectLinks = async (projectId, previewLink, liveLink) => {
-  try {
-    const response = await apiClient.put(`/projects/${projectId}/links`, { 
-      previewLink, 
-      liveLink 
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+  const { data, error } = await supabase
+    .from('website_bookings')
+    .update({ preview_link: previewLink, updated_at: new Date().toISOString() })
+    .eq('id', projectId)
+    .select()
+    .single();
 
+  if (error) throw error;
+  return { success: true, data };
+};
 
 export const activateWebsite = async (projectId, websiteUrl) => {
-  try {
-    const response = await apiClient.post(`/projects/${projectId}/activate`, { websiteUrl });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+  const { data, error } = await supabase
+    .from('website_bookings')
+    .update({
+      preview_link: websiteUrl,
+      status: 'completed',
+      progress: 100,
+      completed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', projectId)
+    .select()
+    .single();
 
+  if (error) throw error;
+  return { success: true, data };
+};
 
 export const addNotification = async (projectId, message, type = 'info') => {
-  try {
-    const response = await apiClient.post(`/projects/${projectId}/notification`, { 
-      message, 
-      type 
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
+  const { data: booking } = await supabase
+    .from('website_bookings')
+    .select('user_id')
+    .eq('id', projectId)
+    .single();
+
+  if (!booking) throw new Error('Booking not found');
+
+  const { data, error } = await supabase
+    .from('notifications')
+    .insert({ user_id: booking.user_id, message, type })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return { success: true, data };
 };
 
-
-// ==================== WEBSITE BOOKING MANAGEMENT (B2B) ====================
+// ==================== WEBSITE BOOKING MANAGEMENT ====================
 
 export const getAllWebsiteBookings = async (params = {}) => {
-  try {
-    const response = await apiClient.get('/website-booking/admin/all', { params });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
+  let query = supabase
+    .from('website_bookings')
+    .select('*, profiles!user_id(name, email), templates!template_id(name, preview_image)', { count: 'exact' })
+    .order('created_at', { ascending: false });
+
+  if (params.status) query = query.eq('status', params.status);
+
+  const { data, count, error } = await query;
+  if (error) throw error;
+  return { success: true, data, count: count || 0 };
 };
 
-export const approveWebsiteBooking = async (bookingId) => {
-  try {
-    const response = await apiClient.patch(`/website-booking/admin/${bookingId}/approve`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+export const approveWebsiteBooking = (bookingId) =>
+  websiteBookingApi.approveBooking(bookingId);
 
-export const completeWebsiteBooking = async (bookingId, previewLink) => {
-  try {
-    const response = await apiClient.patch(`/website-booking/admin/${bookingId}/complete`, {
-      previewLink
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+export const completeWebsiteBooking = (bookingId, previewLink) =>
+  websiteBookingApi.completeBooking(bookingId, previewLink);
 
-export const getWebsiteBookingStats = async () => {
-  try {
-    const response = await apiClient.get('/website-booking/admin/stats');
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
-
+export const getWebsiteBookingStats = () =>
+  websiteBookingApi.getDashboardStats();
 
 // ==================== CHAT MANAGEMENT ====================
 
-export const getChatMessages = async (bookingId) => {
-  try {
-    const response = await apiClient.get(`/chat/${bookingId}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
-
-export const sendChatMessage = async (bookingId, message) => {
-  try {
-    const response = await apiClient.post(`/chat/${bookingId}`, { message });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+export const getChatMessages = (bookingId) => chatApi.getMessages(bookingId);
+export const sendChatMessage = (bookingId, message) => chatApi.sendMessage(bookingId, message);

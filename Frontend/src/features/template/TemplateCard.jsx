@@ -45,7 +45,7 @@ const TemplateCard = ({
     }
 
     // If relative path, construct full URL
-    return `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${template.previewImage}`;
+    return template.previewImage;
   }, [template?.previewImage, imageError]);
 
   const priceDisplay = useMemo(() => {

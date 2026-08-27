@@ -193,8 +193,8 @@ export default function AdminMailManager() {
         subject,
         body,
       };
-      const res = await apiClient.post('/admin/mail/send', payload);
-      const data = res.data;
+      const { adminApi } = await import('../../services/apiClient');
+      const data = await adminApi.sendBulkEmail(payload);
       if (data?.success) {
         setResult(data.data);
         addNotification({

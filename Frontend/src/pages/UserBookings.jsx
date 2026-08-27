@@ -24,19 +24,12 @@ const UserBookings = () => {
   const loadBookings = async () => {
     try {
       if (bookings.length === 0) setLoading(true);
-      const response = await fetch('https://ek-startup-kar-leta-hu-kya-hi-ho-jayega.onrender.com/api/website-booking/user', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to load bookings');
-      const data = await response.json();
-      if (data.success) {
-        setBookings(data.data || []);
+      const { websiteBookingApi } = await import('../services/apiClient');
+      const result = await websiteBookingApi.getMyBookings();
+      if (result.success) {
+        setBookings(result.data?.bookings || result.data || []);
       } else {
-        throw new Error(data.message || 'Failed to load bookings');
+        throw new Error(result.message || 'Failed to load bookings');
       }
     } catch (error) {
       console.error('Error loading bookings:', error);
@@ -187,9 +180,7 @@ const UserBookings = () => {
                   <div className="w-36 h-24 sm:w-40 sm:h-28 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
                     {booking.templateImage ? (
                       <img
-                        src={booking.templateImage.startsWith('http')
-                          ? booking.templateImage
-                          : `http://localhost:5000${booking.templateImage}`}
+                        src={booking.templateImage || booking.template_image || '/placeholder-template.jpg'}
                         alt={booking.templateName}
                         className="w-full h-full object-cover"
                         onError={(e) => e.target.src = '/placeholder-template.jpg'}
