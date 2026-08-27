@@ -33,52 +33,38 @@ const TemplateCard = ({
   const [imageError, setImageError] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // ✅ FIXED: Image URL logic
+  // Field aliases — support snake_case (Supabase) and camelCase (legacy)
+  const previewImage = template?.preview_image || template?.previewImage;
+  const liveDemo = template?.live_demo || template?.liveDemo;
+  const templateLink = template?.template_link || template?.templateLink;
+  const isActive = template?.is_active !== undefined ? template?.is_active : template?.isActive;
+  const withBackend = template?.with_backend !== undefined ? template?.with_backend : template?.withBackend;
+  const creditsRequiredValue = template?.credits_required || template?.creditsRequired || 1;
+  const storedDisplayId = template?.display_id || template?.displayId;
+
   const imageSrc = useMemo(() => {
-    if (!template?.previewImage || imageError) {
-      return FALLBACK_IMAGE;
-    }
-
-    // If already full URL (Cloudinary), use directly
-    if (template.previewImage.startsWith('http')) {
-      return template.previewImage;
-    }
-
-    // If relative path, construct full URL
-    return template.previewImage;
-  }, [template?.previewImage, imageError]);
+    if (!previewImage || imageError) return FALLBACK_IMAGE;
+    return previewImage;
+  }, [previewImage, imageError]);
 
   const priceDisplay = useMemo(() => {
     if (!template) return '₹0';
     return template.price === 0 ? 'Free' : `₹${formatCurrency(template.price)}`;
   }, [template]);
 
-  const statusColor = useMemo(() => 
-    template?.isActive !== false ? 'green' : 'red',
-    [template?.isActive]
-  );
-
-  const statusText = useMemo(() => 
-    template?.isActive !== false ? 'Available' : 'Unavailable',
-    [template?.isActive]
-  );
+  const statusColor = useMemo(() => (isActive !== false ? 'green' : 'red'), [isActive]);
+  const statusText = useMemo(() => (isActive !== false ? 'Available' : 'Unavailable'), [isActive]);
 
   const displayId = useMemo(() => {
-    if (!template?._id) return null;
-    const last6 = template._id.toString().slice(-6);
+    if (storedDisplayId) return storedDisplayId;
+    const idField = template?.id || template?._id;
+    if (!idField) return null;
+    const last6 = idField.toString().replace(/-/g, '').slice(-6);
     return `#3di-${last6}`;
-  }, [template?._id]);
+  }, [storedDisplayId, template?.id, template?._id]);
 
-  // ✅ FIXED: Backend badge logic (checks both fields)
-  const hasBackend = useMemo(() => 
-    Boolean(template?.withBackend === true || template?.backend === true),
-    [template?.withBackend, template?.backend]
-  );
-
-  const creditsRequired = useMemo(() => 
-    template?.creditsRequired || 1,
-    [template?.creditsRequired]
-  );
+  const hasBackend = useMemo(() => Boolean(withBackend === true), [withBackend]);
+  const creditsRequired = useMemo(() => creditsRequiredValue, [creditsRequiredValue]);
 
   const creditsColor = useMemo(() => 
     creditsRequired > 1 ? 'orange' : 'blue',
@@ -98,10 +84,9 @@ const TemplateCard = ({
   // ✅ Live Preview Handler
   const handleLivePreview = useCallback((e) => {
     e.stopPropagation();
-    if (template?.liveDemo || template?.templateLink) {
-      window.open(template.liveDemo || template.templateLink, '_blank', 'noopener,noreferrer');
-    }
-  }, [template?.liveDemo, template?.templateLink]);
+    const link = liveDemo || templateLink;
+    if (link) window.open(link, '_blank', 'noopener,noreferrer');
+  }, [liveDemo, templateLink]);
 
   // ✅ Book Handler
   const handleBook = useCallback((e) => {
@@ -111,13 +96,12 @@ const TemplateCard = ({
     }
   }, [onBookTemplate, template]);
 
-  // ✅ FIXED: Better error handling
   const handleImageError = useCallback((e) => {
-    console.warn('❌ Image load failed:', template?.previewImage);
+    console.warn('Image load failed:', previewImage);
     setImageError(true);
     setImageLoaded(true);
     e.target.src = FALLBACK_IMAGE;
-  }, [template?.previewImage]);
+  }, [previewImage]);
 
   const handleImageLoad = useCallback(() => {
     setImageLoaded(true);
@@ -205,7 +189,7 @@ const TemplateCard = ({
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={handleLivePreview}
-              disabled={!template?.liveDemo && !template?.templateLink}
+              disabled={!liveDemo && !templateLink}
               className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg transform hover:scale-105 disabled:hover:scale-100 flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -304,7 +288,7 @@ const TemplateCard = ({
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={handleLivePreview}
-              disabled={!template?.liveDemo && !template?.templateLink}
+              disabled={!liveDemo && !templateLink}
               className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg transform hover:scale-105 disabled:hover:scale-100 flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
