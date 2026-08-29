@@ -5,6 +5,7 @@ import { useNotification } from '../hooks/useNotification';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import { createPlanOrder, openRazorpayCheckout } from '../services/planApi';
+import { FaAndroid, FaCode, FaArrowRight, FaCheck, FaShoppingCart } from 'react-icons/fa';
 
 // ✅ SMART CURRENCY HOOK
 const useSmartCurrency = () => {
@@ -113,7 +114,7 @@ const PricingCard = memo(({
         </h3>
 
         <div className="relative inline-block mb-4">
-          <div className={`text-4xl sm:text-5xl font-black bg-gradient-to-r ${gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`}>
+          <div className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight group-hover:scale-105 transition-transform duration-500">
             {displayPrices.main.symbol}{displayPrices.main.amount.toLocaleString('en-US')}
           </div>
           {displayPrices.secondary && (
@@ -121,7 +122,7 @@ const PricingCard = memo(({
               ≈ {displayPrices.secondary.symbol}{displayPrices.secondary.amount.toLocaleString('en-US')} {displayPrices.secondary.code}
             </div>
           )}
-          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-[#6498fe] to-purple-600 rounded-full"></div>
+          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-[3px] bg-[#6498fe] rounded-full"></div>
         </div>
 
         <p className="text-gray-700 font-semibold text-xl mb-1 mt-2">
@@ -350,7 +351,7 @@ const Pricing = () => {
                       <div className="text-sm font-medium text-gray-400 line-through mb-0.5">
                         {singleWebsiteStrikeDisplay.main.symbol}{singleWebsiteStrikeDisplay.main.amount.toLocaleString('en-US')}
                       </div>
-                      <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600">
+                      <div className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
                         {singleWebsiteDisplay.main.symbol}{singleWebsiteDisplay.main.amount.toLocaleString('en-US')}
                       </div>
                       {singleWebsiteDisplay.secondary && (
@@ -401,79 +402,124 @@ const Pricing = () => {
             </Card>
           </div>
 
-          {/* ANDROID APP DEVELOPMENT CARD */}
-          <div className="max-w-5xl mx-auto mt-10">
-            <Card className="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 border-2 border-green-200 shadow-xl p-8 sm:p-10 relative overflow-hidden hover:shadow-2xl transition-all duration-500">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-400 to-teal-500 opacity-5 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-teal-500 to-emerald-500 opacity-5 rounded-full blur-3xl"></div>
-
-              <div className="relative z-10">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-green-500 to-teal-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
-                    📱
-                  </div>
-                  <div>
-                    <h3 className="text-2xl sm:text-3xl font-black text-gray-900">
-                      Need an Android App?
-                    </h3>
-                    <p className="text-gray-600 text-base sm:text-lg font-medium mt-1">
-                      Full-stack mobile apps built on React Native
-                    </p>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-gray-200 mb-6 shadow-md hover:shadow-lg transition-all duration-300">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                    <div>
-                      <span className="text-xl sm:text-2xl font-bold text-gray-900 block mb-1">Android App Development</span>
-                      <span className="text-sm text-gray-500 font-medium">Custom quote based on your requirements</span>
-                    </div>
-                    <div className="text-left sm:text-right">
-                      <div className="text-sm font-medium text-gray-400 mb-0.5">Starting from</div>
-                      <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-teal-500">
-                        ₹9,000
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1 font-semibold">per project</div>
-                    </div>
-                  </div>
-
-                  <div className="grid sm:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
-                    {[
-                      { text: 'Works on all Android devices' },
-                      { text: 'Backend included' },
-                      { text: 'Admin panel included' },
-                      { text: 'Built on React Native' },
-                      { text: 'Full source code provided' },
-                      { text: 'Scalable architecture' },
-                    ].map((item, index) => (
-                      <div key={index} className="flex items-center gap-3 group">
-                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300">
-                          <span className="text-white font-bold text-xs">✓</span>
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-sm text-gray-700 font-semibold">{item.text}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <a
-                    href="https://wa.me/919256129813"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full sm:w-auto bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group cursor-pointer rounded-xl inline-flex items-center justify-center gap-2 hover:scale-105"
-                  >
-                    <span className="relative z-10 flex items-center gap-2">
-                      <span>Contact Now</span>
-                      <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </a>
-                </div>
+          {/* CUSTOM SERVICES — Android / Software */}
+          <div className="max-w-6xl mx-auto mt-16">
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 mb-4">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                <span className="text-xs font-semibold text-slate-600 uppercase tracking-widest">Custom Services</span>
               </div>
-            </Card>
+              <h3 className="text-3xl sm:text-4xl font-black text-slate-900 mb-2">
+                Beyond Websites
+              </h3>
+              <p className="text-slate-500">
+                Mobile apps and custom software, quoted per project.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* ANDROID APP CARD */}
+              <div className="group relative bg-white border border-slate-200 rounded-2xl p-7 sm:p-8 hover:border-slate-900 hover:shadow-2xl transition-all duration-300">
+                <div className="absolute top-6 right-6 w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.15)]"></div>
+
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-11 h-11 rounded-lg bg-slate-900 flex items-center justify-center">
+                    <FaAndroid className="text-white text-xl" />
+                  </div>
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Mobile Development
+                  </div>
+                </div>
+
+                <h4 className="text-2xl font-bold text-slate-900 mb-2">
+                  Android Apps
+                </h4>
+                <p className="text-slate-600 text-sm mb-6 leading-relaxed">
+                  Production-ready mobile apps built on React Native, with backend and admin panel.
+                </p>
+
+                <div className="flex items-baseline gap-2 mb-6 pb-6 border-b border-slate-100">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Starting</span>
+                  <span className="text-3xl font-black text-slate-900 tracking-tight">₹9,000</span>
+                  <span className="text-sm text-slate-500">/ project</span>
+                </div>
+
+                <ul className="space-y-2.5 mb-7">
+                  {[
+                    'All Android devices',
+                    'Backend & admin panel included',
+                    'Full source code delivery',
+                    'Scalable architecture',
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-slate-700">
+                      <FaCheck className="text-emerald-600 text-xs mt-1 flex-shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <a
+                  href="https://wa.me/919256129813"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-lg transition-colors group/btn"
+                >
+                  Request Quote
+                  <FaArrowRight className="text-xs group-hover/btn:translate-x-1 transition-transform" />
+                </a>
+              </div>
+
+              {/* SOFTWARE CARD */}
+              <div className="group relative bg-white border border-slate-200 rounded-2xl p-7 sm:p-8 hover:border-slate-900 hover:shadow-2xl transition-all duration-300">
+                <div className="absolute top-6 right-6 w-2 h-2 rounded-full bg-[#6498fe] shadow-[0_0_0_4px_rgba(100,152,254,0.15)]"></div>
+
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-11 h-11 rounded-lg bg-slate-900 flex items-center justify-center">
+                    <FaCode className="text-white text-xl" />
+                  </div>
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Custom Software
+                  </div>
+                </div>
+
+                <h4 className="text-2xl font-bold text-slate-900 mb-2">
+                  Custom Software
+                </h4>
+                <p className="text-slate-600 text-sm mb-6 leading-relaxed">
+                  Tailored software solutions built to your exact requirements — internal tools, dashboards, or SaaS.
+                </p>
+
+                <div className="flex items-baseline gap-2 mb-6 pb-6 border-b border-slate-100">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Starting</span>
+                  <span className="text-3xl font-black text-slate-900 tracking-tight">₹3,000</span>
+                  <span className="text-sm text-slate-500">/ project</span>
+                </div>
+
+                <ul className="space-y-2.5 mb-7">
+                  {[
+                    'Built to your specs',
+                    'Web, desktop, or SaaS',
+                    'Source code included',
+                    'Post-delivery support',
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-slate-700">
+                      <FaCheck className="text-[#6498fe] text-xs mt-1 flex-shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <a
+                  href="https://wa.me/919256129813"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-lg transition-colors group/btn"
+                >
+                  Request Quote
+                  <FaArrowRight className="text-xs group-hover/btn:translate-x-1 transition-transform" />
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>

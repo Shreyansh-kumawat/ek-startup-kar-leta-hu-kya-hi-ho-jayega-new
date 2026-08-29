@@ -1,5 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  FaPalette, FaBolt, FaLock, FaRocket,
+  FaEyeSlash, FaHandshake, FaSeedling, FaCubes,
+  FaBullseye, FaCoins, FaShieldAlt, FaGlobe,
+  FaBookOpen, FaIndustry, FaBox, FaCog,
+  FaLightbulb, FaSearch, FaExclamationTriangle,
+  FaMoneyBillWave, FaChartLine, FaCheckCircle,
+  FaMapMarkedAlt, FaQuestionCircle
+} from 'react-icons/fa';
 
 // ── FAQ ──────────────────────────────────────────────────────────────────────
 const FAQItem = ({ question, answer }) => {
@@ -25,10 +34,10 @@ const FAQItem = ({ question, answer }) => {
 };
 
 // ── STAT CARD ─────────────────────────────────────────────────────────────────
-const StatCard = ({ number, label, emoji }) => (
+const StatCard = ({ number, label, icon }) => (
   <div className="text-center group p-6 bg-white rounded-2xl border-2 border-gray-100 hover:border-[#6498fe] hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
     <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600 group-hover:scale-110 transition-transform duration-500 mb-2">{number}</div>
-    <div className="text-sm text-gray-600 font-bold flex items-center justify-center gap-1"><span>{label}</span><span>{emoji}</span></div>
+    <div className="text-sm text-gray-600 font-bold flex items-center justify-center gap-1.5"><span>{label}</span><span className="text-[#6498fe]">{icon}</span></div>
   </div>
 );
 
@@ -36,7 +45,7 @@ const StatCard = ({ number, label, emoji }) => (
 const ValueCard = ({ icon, title, desc }) => (
   <div className="relative p-8 bg-gradient-to-br from-white via-blue-50 to-purple-50 border-2 border-gray-100 hover:border-[#6498fe] rounded-2xl transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 group overflow-hidden">
     <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#6498fe] to-purple-600 opacity-0 group-hover:opacity-10 rounded-full blur-3xl transition-all duration-500 -mr-16 -mt-16"></div>
-    <div className="text-3xl mb-4 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 inline-block">{icon}</div>
+    <div className="text-3xl mb-4 text-[#6498fe] group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 inline-block">{icon}</div>
     <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-[#6498fe] transition-colors">{title}</h3>
     <p className="text-gray-600 text-sm leading-relaxed">{desc}</p>
     <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-[#6498fe] to-purple-600 group-hover:w-full transition-all duration-500"></div>
@@ -106,12 +115,12 @@ export default function About() {
   }, []);
 
   const values = [
-    { icon: '👁️', title: 'Stay Invisible', desc: 'We never compete with our partners. You own the client relationship, the brand, and the credit.' },
-    { icon: '⚡', title: 'Move Fast', desc: 'Every website delivered in 3 business days. Because slow delivery kills deals.' },
-    { icon: '🔒', title: 'Predictable Cost', desc: 'No surprise invoices. Pick a plan, know your cost, scale without stress.' },
-    { icon: '🏗️', title: 'Infrastructure Mindset', desc: 'We think of ourselves as dev infrastructure, not an agency. You plug us in, we do the work.' },
-    { icon: '🤝', title: 'Partner-First', desc: 'Freelancers and agencies are our only customers. Their success is literally our success.' },
-    { icon: '🌱', title: 'Built to Grow', desc: 'From solo freelancers to scaling agencies — our plans flex with your pipeline.' },
+    { icon: <FaEyeSlash />, title: 'Stay Invisible', desc: 'We never compete with our partners. You own the client relationship, the brand, and the credit.' },
+    { icon: <FaBolt />, title: 'Move Fast', desc: 'Every website delivered in 3 business days. Because slow delivery kills deals.' },
+    { icon: <FaLock />, title: 'Predictable Cost', desc: 'No surprise invoices. Pick a plan, know your cost, scale without stress.' },
+    { icon: <FaCubes />, title: 'Infrastructure Mindset', desc: 'We think of ourselves as dev infrastructure, not an agency. You plug us in, we do the work.' },
+    { icon: <FaHandshake />, title: 'Partner-First', desc: 'Freelancers and agencies are our only customers. Their success is literally our success.' },
+    { icon: <FaSeedling />, title: 'Built to Grow', desc: 'From solo freelancers to scaling agencies — our plans flex with your pipeline.' },
   ];
 
   const team = [
@@ -138,14 +147,14 @@ export default function About() {
   ];
 
   const vision = [
-    { icon: '⚡', text: '3-Day Delivery' },
-    { icon: '🔒', text: 'White Label Always' },
-    { icon: ' ', text: 'You Close, We Build' },
-    { icon: '🎯', text: 'Your Brand Only' },
-    { icon: '🤝', text: 'Long-Term Partner' },
-    { icon: '💰', text: 'Better Margins' },
-    { icon: '🛡️', text: 'NDA Protected' },
-    { icon: '🌐', text: 'Remote Delivery' },
+    { icon: <FaBolt className="text-[#6498fe]" />, text: '3-Day Delivery' },
+    { icon: <FaLock className="text-[#6498fe]" />, text: 'White Label Always' },
+    { icon: <FaRocket className="text-[#6498fe]" />, text: 'You Close, We Build' },
+    { icon: <FaBullseye className="text-[#6498fe]" />, text: 'Your Brand Only' },
+    { icon: <FaHandshake className="text-[#6498fe]" />, text: 'Long-Term Partner' },
+    { icon: <FaCoins className="text-[#6498fe]" />, text: 'Better Margins' },
+    { icon: <FaShieldAlt className="text-[#6498fe]" />, text: 'NDA Protected' },
+    { icon: <FaGlobe className="text-[#6498fe]" />, text: 'Remote Delivery' },
   ];
 
   const faqs = [
@@ -197,10 +206,10 @@ export default function About() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { number: '100+', label: 'Templates', emoji: '🎨' },
-              { number: '3', label: 'Day Delivery', emoji: '⚡' },
-              { number: '100%', label: 'White-label', emoji: '🔒' },
-              { number: '2025', label: 'Founded', emoji: ' ' },
+              { number: '100+', label: 'Templates', icon: <FaPalette /> },
+              { number: '3', label: 'Day Delivery', icon: <FaBolt /> },
+              { number: '100%', label: 'White-label', icon: <FaLock /> },
+              { number: '2025', label: 'Founded', icon: <FaRocket /> },
             ].map((s, i) => (
               <div key={i} style={{ opacity: statsVisible ? 1 : 0, transform: statsVisible ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.8)', transition: `all 0.6s ease ${i * 0.15}s` }}>
                 <StatCard {...s} />
@@ -216,7 +225,7 @@ export default function About() {
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
               <div className="inline-flex items-center gap-3 bg-white border-2 border-[#6498fe] rounded-full px-6 py-3 shadow-lg mb-6">
-                <span className="text-lg">📖</span>
+                <FaBookOpen className="text-lg text-[#6498fe]" />
                 <span className="text-sm font-bold text-[#6498fe]">Our Story</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
@@ -238,13 +247,13 @@ export default function About() {
               <div className="relative bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-3xl p-10 border-2 border-gray-100">
                 <div className="space-y-6">
                   {[
-                    { icon: '🎯', text: 'Partner-only model — we never sell direct to end clients' },
-                    { icon: '🏭', text: 'Delivery infrastructure, not a typical design agency' },
-                    { icon: '📦', text: '100+ ready-to-customize website templates' },
-                    { icon: '⚙️', text: 'Simple dashboard for submitting and tracking orders' },
+                    { icon: <FaBullseye />, text: 'Partner-only model — we never sell direct to end clients' },
+                    { icon: <FaIndustry />, text: 'Delivery infrastructure, not a typical design agency' },
+                    { icon: <FaBox />, text: '100+ ready-to-customize website templates' },
+                    { icon: <FaCog />, text: 'Simple dashboard for submitting and tracking orders' },
                   ].map((item, i) => (
                     <div key={i} className="flex items-start gap-4 group">
-                      <div className="flex-shrink-0 w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">{item.icon}</div>
+                      <div className="flex-shrink-0 w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center text-xl text-[#6498fe] group-hover:scale-110 transition-transform duration-300">{item.icon}</div>
                       <p className="text-gray-700 font-medium leading-relaxed pt-1.5">{item.text}</p>
                     </div>
                   ))}
@@ -277,7 +286,7 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#6498fe] to-purple-600 rounded-full px-8 py-4 shadow-xl mb-6">
-              <span className="text-2xl">💡</span>
+              <FaLightbulb className="text-2xl text-white" />
               <span className="text-sm font-bold text-white">What We Stand For</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">Our Values</h2>
@@ -320,7 +329,7 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-3 bg-white border-2 border-[#6498fe] rounded-full px-8 py-4 shadow-lg mb-6">
-              <span className="text-2xl">🔍</span>
+              <FaSearch className="text-xl text-[#6498fe]" />
               <span className="text-sm font-bold text-[#6498fe]">The Problem We Solve</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">Why 3Digree Exists</h2>
@@ -330,12 +339,12 @@ export default function About() {
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { emoji: '😓', problem: 'You win the client', solution: 'But scramble to deliver on time', color: 'from-red-50 to-orange-50', border: 'border-red-100' },
-              { emoji: '💸', problem: 'You hire freelancers', solution: 'But quality is unpredictable and costs spike', color: 'from-orange-50 to-yellow-50', border: 'border-orange-100' },
-              { emoji: '📉', problem: 'You turn down work', solution: 'Because you\'re already at capacity', color: 'from-yellow-50 to-red-50', border: 'border-yellow-100' },
+              { icon: <FaExclamationTriangle />, problem: 'You win the client', solution: 'But scramble to deliver on time', color: 'from-red-50 to-orange-50', border: 'border-red-100', iconColor: 'text-red-400' },
+              { icon: <FaMoneyBillWave />, problem: 'You hire freelancers', solution: 'But quality is unpredictable and costs spike', color: 'from-orange-50 to-yellow-50', border: 'border-orange-100', iconColor: 'text-orange-400' },
+              { icon: <FaChartLine />, problem: 'You turn down work', solution: 'Because you\'re already at capacity', color: 'from-yellow-50 to-red-50', border: 'border-yellow-100', iconColor: 'text-yellow-500' },
             ].map((item, i) => (
               <div key={i} className={`p-8 rounded-2xl bg-gradient-to-br ${item.color} border-2 ${item.border} group hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}>
-                <div className="text-4xl mb-4 group-hover:scale-125 transition-transform duration-300">{item.emoji}</div>
+                <div className={`text-4xl mb-4 ${item.iconColor} group-hover:scale-125 transition-transform duration-300`}>{item.icon}</div>
                 <h3 className="text-lg font-black text-gray-900 mb-2">{item.problem}</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">{item.solution}</p>
               </div>
@@ -343,7 +352,7 @@ export default function About() {
           </div>
           <div className="mt-12 text-center">
             <div className="inline-block p-8 bg-white rounded-3xl border-2 border-[#6498fe] shadow-xl max-w-2xl">
-              <div className="text-4xl mb-4">✅</div>
+              <div className="text-4xl mb-4 text-emerald-500"><FaCheckCircle /></div>
               <h3 className="text-2xl font-black text-gray-900 mb-3">3Digree is the fix.</h3>
               <p className="text-gray-600 leading-relaxed">Plug us in as your invisible backend team. We build under your brand in 3 days, so you can close more and deliver more — without hiring a single person.</p>
             </div>
@@ -356,7 +365,7 @@ export default function About() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#6498fe] to-purple-600 rounded-full px-8 py-4 shadow-xl mb-6">
-              <span className="text-2xl">🗺️</span>
+              <FaMapMarkedAlt className="text-xl text-white" />
               <span className="text-sm font-bold text-white">Simple Process</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">How It Works</h2>
@@ -385,7 +394,7 @@ export default function About() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-3 bg-white border-2 border-[#6498fe] rounded-full px-8 py-4 shadow-lg mb-6">
-              <span className="text-2xl">❓</span>
+              <FaQuestionCircle className="text-xl text-[#6498fe]" />
               <span className="text-sm font-bold text-[#6498fe]">Got Questions?</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">About Us &mdash; FAQ</h2>
