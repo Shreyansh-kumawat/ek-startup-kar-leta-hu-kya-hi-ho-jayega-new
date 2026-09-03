@@ -20,6 +20,13 @@ import {
   FaAndroid,
   FaArrowRight,
   FaCheck,
+  FaGem,
+  FaCog,
+  FaStar,
+  FaQuestionCircle,
+  FaComments,
+  FaLightbulb,
+  FaMobileAlt,
 } from "react-icons/fa";
 import SectionTestimonials from "../components/SectionTestimonials";
 
@@ -165,7 +172,7 @@ const StepCard = memo(({ number, title, description }) => (
       {title}
     </h3>
     <p className="text-gray-600 text-sm leading-relaxed">{description}</p>
-    <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-[#6498fe] to-purple-600 group-hover:w-full transition-all duration-500"></div>
+    <div className="absolute bottom-0 left-0 w-0 h-1 bg-[#6498fe] group-hover:w-full transition-all duration-500"></div>
   </Card>
 ));
 
@@ -209,7 +216,7 @@ const FAQItem = memo(({ question, answer }) => {
 
       <div className={`transition-all duration-500 ease-in-out ${isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"} overflow-hidden`}>
         <div className="px-5 sm:px-7 pb-5 sm:pb-7 pt-2">
-          <div className="pl-4 sm:pl-5 border-l-4 border-[#6498fe] bg-gradient-to-r from-blue-50 to-purple-50 p-4 sm:p-5 rounded-r-xl shadow-inner">
+          <div className="bg-gray-50 p-4 sm:p-5 rounded-xl">
             <p className="text-gray-700 leading-relaxed font-medium">{answer}</p>
           </div>
         </div>
@@ -334,7 +341,6 @@ const PricingCard = memo(
                 <span className="group-hover/btn:translate-x-1 transition-transform duration-300">→</span>
               </span>
             )}
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
           </Button>
         </div>
       </Card>
@@ -556,7 +562,7 @@ const Home = () => {
         strikePrice: 45000,
         websites: 9,
         pricePerWebsite: 3333,
-        gradient: "from-purple-600 to-pink-600",
+        gradient: "from-[#6498fe] to-blue-600",
         bestFor: "High-volume agencies",
         features: [
           "9 website credits",
@@ -728,13 +734,12 @@ const Home = () => {
               <button
                 type="button"
                 onClick={scrollToPricing}
-                className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-8 sm:px-12 py-4 sm:py-6 shadow-2xl hover:scale-105 transition-all duration-300 text-base sm:text-lg relative overflow-hidden group inline-flex items-center justify-center rounded-2xl"
+                className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-8 sm:px-12 py-4 sm:py-6 shadow-2xl hover:scale-105 active:scale-[0.97] transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] text-base sm:text-lg relative overflow-hidden group inline-flex items-center justify-center rounded-2xl"
               >
                 <span className="relative z-10 flex items-center gap-3">
                   <span>View Pricing Plans</span>
-                  <span className="group-hover:rotate-90 transition-transform duration-300">💎</span>
+                  <FaArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </button>
             </div>
 
@@ -745,10 +750,10 @@ const Home = () => {
                   <div className="relative bg-white border-2 border-gray-200 rounded-2xl px-6 sm:px-10 py-4 sm:py-5 shadow-xl">
                     <p className="text-gray-700 font-medium text-base sm:text-lg">
                       Welcome back,{" "}
-                      <span className="font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600 text-lg sm:text-xl">
+                      <span className="font-black text-[#6498fe] text-lg sm:text-xl">
                         {displayName}
                       </span>
-                      ! 👋
+                      !
                     </p>
                   </div>
                 </div>
@@ -770,7 +775,7 @@ const Home = () => {
                 >
                   <div className="relative inline-block mb-3">
                     <div className="absolute inset-0 bg-gradient-to-r from-[#6498fe] to-purple-600 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
-                    <div className="relative text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600 group-hover:scale-110 transition-transform duration-500">
+                    <div className="relative text-4xl sm:text-5xl font-black text-[#6498fe] group-hover:scale-110 transition-transform duration-500">
                       {stat.number}
                     </div>
                   </div>
@@ -786,18 +791,6 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <button
-            type="button"
-            onClick={scrollToPricing}
-            className="flex flex-col items-center gap-2 text-gray-400 hover:text-[#6498fe] transition-colors duration-300"
-          >
-            <span className="text-xs font-semibold">See Pricing</span>
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </button>
-        </div>
       </section>
 
       <section id="pricing" className="py-20 sm:py-28 bg-white relative overflow-hidden">
@@ -810,7 +803,7 @@ const Home = () => {
           <div className="text-center mb-16 sm:mb-20">
             <div className="inline-block mb-6">
               <div className="flex items-center gap-3 bg-gradient-to-r from-blue-600 via-blue-700 to-purple-600 rounded-full px-6 sm:px-8 py-4 shadow-xl">
-                <span className="text-2xl">💎</span>
+                <FaGem className="text-xl text-white" />
                 <span className="text-sm font-bold text-white">Transparent Pricing</span>
               </div>
             </div>
@@ -845,12 +838,12 @@ const Home = () => {
           <div className="max-w-5xl mx-auto">
             <Card className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-2 border-blue-200 shadow-xl p-6 sm:p-8 md:p-10 relative overflow-hidden hover:shadow-2xl transition-all duration-500">
               <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#6498fe] to-purple-600 opacity-5 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-purple-600 to-pink-600 opacity-5 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-[#6498fe] to-blue-600 opacity-5 rounded-full blur-3xl"></div>
 
               <div className="relative z-10">
                 <div className="flex items-start sm:items-center gap-3 sm:gap-4 mb-6">
-                  <div className="flex-shrink-0 w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-[#6498fe] to-purple-600 rounded-xl flex items-center justify-center text-xl sm:text-2xl shadow-lg">
-                    💡
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-[#6498fe] to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <FaLightbulb className="text-white text-lg sm:text-2xl" />
                   </div>
                   <div>
                     <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900">Not ready for a Bulk Plan?</h3>
@@ -910,7 +903,7 @@ const Home = () => {
                     type="button"
                     onClick={() => handleGetPlan("Single Website")}
                     disabled={loading && selectedPlan === "Single Website"}
-                    className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group rounded-xl inline-flex items-center justify-center hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] text-base sm:text-lg relative overflow-hidden group rounded-xl inline-flex items-center justify-center hover:scale-105 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading && selectedPlan === "Single Website" ? (
                       <span className="flex items-center gap-2">
@@ -920,8 +913,7 @@ const Home = () => {
                     ) : (
                       <span className="relative z-10">Get Plan</span>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </button>
+                      </button>
                 </div>
               </div>
             </Card>
@@ -943,13 +935,13 @@ const Home = () => {
             </div>
 
             <div className="grid md:grid-cols-2 gap-5 sm:gap-6">
-              {/* ANDROID APP CARD */}
+              {/* MOBILE APP CARD */}
               <div className="group relative bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 hover:border-slate-900 hover:shadow-2xl transition-all duration-300">
                 <div className="absolute top-6 right-6 w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.15)]"></div>
 
                 <div className="flex items-center gap-3 mb-5">
                   <div className="w-11 h-11 rounded-lg bg-slate-900 flex items-center justify-center">
-                    <FaAndroid className="text-white text-xl" />
+                    <FaMobileAlt className="text-white text-xl" />
                   </div>
                   <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     Mobile Development
@@ -957,10 +949,10 @@ const Home = () => {
                 </div>
 
                 <h4 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
-                  Android Apps
+                  Mobile Apps
                 </h4>
                 <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-                  Production-ready mobile apps built on React Native, with backend and admin panel.
+                  Production-ready Android and iOS apps built on React Native, with backend and admin panel.
                 </p>
 
                 <div className="flex items-baseline flex-wrap gap-2 mb-6 pb-6 border-b border-slate-100">
@@ -971,7 +963,7 @@ const Home = () => {
 
                 <ul className="space-y-2.5 mb-7">
                   {[
-                    "All Android devices",
+                    "Android and iOS support",
                     "Backend & admin panel included",
                     "Full source code delivery",
                     "Scalable architecture",
@@ -987,7 +979,7 @@ const Home = () => {
                   href="https://wa.me/919256129813"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-lg transition-colors group/btn"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 active:scale-[0.97] text-white font-semibold py-3.5 rounded-lg transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group/btn"
                 >
                   Request Quote
                   <FaArrowRight className="text-xs group-hover/btn:translate-x-1 transition-transform" />
@@ -1038,7 +1030,7 @@ const Home = () => {
                   href="https://wa.me/919256129813"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-lg transition-colors group/btn"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 active:scale-[0.97] text-white font-semibold py-3.5 rounded-lg transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group/btn"
                 >
                   Request Quote
                   <FaArrowRight className="text-xs group-hover/btn:translate-x-1 transition-transform" />
@@ -1059,7 +1051,7 @@ const Home = () => {
           <div className="text-center mb-16 sm:mb-20">
             <div className="inline-block mb-6">
               <div className="flex items-center gap-3 bg-white border-2 border-[#6498fe] rounded-full px-6 sm:px-8 py-4 shadow-lg">
-                <span className="text-2xl">⚙️</span>
+                <FaCog className="text-xl text-[#6498fe]" />
                 <span className="text-sm font-bold text-[#6498fe]">Simple Process</span>
               </div>
             </div>
@@ -1080,16 +1072,11 @@ const Home = () => {
       </section>
 
       <section className="py-20 sm:py-28 bg-white relative overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-5">
-          <div className="absolute top-1/4 left-1/4 text-9xl animate-pulse">💼</div>
-          <div className="absolute bottom-1/4 right-1/4 text-8xl animate-pulse"> </div>
-        </div>
-
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 sm:mb-20">
             <div className="inline-block mb-6">
               <div className="flex items-center gap-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full px-6 sm:px-8 py-4 shadow-xl">
-                <span className="text-2xl">✨</span>
+                <FaStar className="text-xl text-white" />
                 <span className="text-sm font-bold text-white">Why Choose 3Digree</span>
               </div>
             </div>
@@ -1114,7 +1101,7 @@ const Home = () => {
           <div className="text-center mb-16 sm:mb-20">
             <div className="inline-block mb-6">
               <div className="flex items-center gap-3 bg-white border-2 border-orange-300 rounded-full px-6 sm:px-8 py-4 shadow-lg">
-                <span className="text-2xl">❓</span>
+                <FaQuestionCircle className="text-xl text-orange-600" />
                 <span className="text-sm font-bold text-orange-600">Got Questions?</span>
               </div>
             </div>
@@ -1137,7 +1124,7 @@ const Home = () => {
           <div className="text-center mb-16">
             <div className="inline-block mb-6">
               <div className="flex items-center gap-3 bg-gradient-to-r from-pink-500 to-rose-600 rounded-full px-6 sm:px-8 py-4 shadow-xl">
-                <span className="text-2xl">💬</span>
+                <FaComments className="text-xl text-white" />
                 <span className="text-sm font-bold text-white">Client Stories</span>
               </div>
             </div>
@@ -1152,7 +1139,7 @@ const Home = () => {
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-block mb-6">
             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-full px-6 sm:px-8 py-4 border border-white/20">
-              <span className="text-2xl"> </span>
+              <FaRocket className="text-xl text-white" />
               <span className="text-sm font-bold text-white">Ready to Scale?</span>
             </div>
           </div>
@@ -1165,7 +1152,7 @@ const Home = () => {
           <button
             type="button"
             onClick={scrollToPricing}
-            className="bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300 text-base sm:text-lg inline-flex items-center justify-center"
+            className="bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 rounded-2xl shadow-2xl hover:scale-105 active:scale-[0.97] transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] text-base sm:text-lg inline-flex items-center justify-center"
           >
             View Plans
           </button>

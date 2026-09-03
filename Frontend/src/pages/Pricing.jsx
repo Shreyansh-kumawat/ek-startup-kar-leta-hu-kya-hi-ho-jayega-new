@@ -5,7 +5,7 @@ import { useNotification } from '../hooks/useNotification';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import { createPlanOrder, openRazorpayCheckout } from '../services/planApi';
-import { FaAndroid, FaCode, FaArrowRight, FaCheck, FaShoppingCart } from 'react-icons/fa';
+import { FaAndroid, FaCode, FaArrowRight, FaCheck, FaShoppingCart, FaMobileAlt } from 'react-icons/fa';
 
 // ✅ SMART CURRENCY HOOK
 const useSmartCurrency = () => {
@@ -177,7 +177,6 @@ const PricingCard = memo(({
               <span className="group-hover/btn:translate-x-1 transition-transform duration-300">→</span>
             </span>
           )}
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
         </Button>
       </div>
     </Card>
@@ -220,7 +219,7 @@ const Pricing = () => {
       title: 'Growth',
       price: 29999,
       credits: 9,
-      gradient: 'from-purple-600 to-pink-600',
+      gradient: 'from-[#6498fe] to-blue-600',
       bestFor: 'High-volume agencies',
       features: [
         '9 website credits',
@@ -324,7 +323,7 @@ const Pricing = () => {
           <div className="max-w-5xl mx-auto">
             <Card className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-2 border-blue-200 shadow-xl p-8 sm:p-10 relative overflow-hidden hover:shadow-2xl transition-all duration-500">
               <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#6498fe] to-purple-600 opacity-5 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-purple-600 to-pink-600 opacity-5 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-[#6498fe] to-blue-600 opacity-5 rounded-full blur-3xl"></div>
 
               <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-6">
@@ -395,7 +394,6 @@ const Pricing = () => {
                     ) : (
                       <span className="relative z-10">Get Plan</span>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </button>
                 </div>
               </div>
@@ -418,13 +416,13 @@ const Pricing = () => {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {/* ANDROID APP CARD */}
+              {/* MOBILE APP CARD */}
               <div className="group relative bg-white border border-slate-200 rounded-2xl p-7 sm:p-8 hover:border-slate-900 hover:shadow-2xl transition-all duration-300">
                 <div className="absolute top-6 right-6 w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.15)]"></div>
 
                 <div className="flex items-center gap-3 mb-5">
                   <div className="w-11 h-11 rounded-lg bg-slate-900 flex items-center justify-center">
-                    <FaAndroid className="text-white text-xl" />
+                    <FaMobileAlt className="text-white text-xl" />
                   </div>
                   <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     Mobile Development
@@ -432,10 +430,10 @@ const Pricing = () => {
                 </div>
 
                 <h4 className="text-2xl font-bold text-slate-900 mb-2">
-                  Android Apps
+                  Mobile Apps
                 </h4>
                 <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-                  Production-ready mobile apps built on React Native, with backend and admin panel.
+                  Production-ready Android and iOS apps built on React Native, with backend and admin panel.
                 </p>
 
                 <div className="flex items-baseline gap-2 mb-6 pb-6 border-b border-slate-100">
@@ -446,7 +444,7 @@ const Pricing = () => {
 
                 <ul className="space-y-2.5 mb-7">
                   {[
-                    'All Android devices',
+                    'Android and iOS support',
                     'Backend & admin panel included',
                     'Full source code delivery',
                     'Scalable architecture',
