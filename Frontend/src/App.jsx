@@ -36,6 +36,7 @@ const BookingDetails = lazy(() => import('./pages/BookingDetails'));
 
 // ✅ Games
 const Games = lazy(() => import('./pages/games/Games'));
+const SpeedoPitchPrivacy = lazy(() => import('./pages/SpeedoPitchPrivacy'));
 
 // Protected User Pages
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -127,6 +128,9 @@ function App() {
 
               {/* ✅ Games Route */}
               <Route path="games" element={<PublicRoute><Games /></PublicRoute>} />
+
+              {/* ✅ Speed o Pitch Privacy Policy */}
+              <Route path="speedopitch/privacy-policy" element={<PublicRoute><SpeedoPitchPrivacy /></PublicRoute>} />
             </Route>
 
             {/* ========== B2B BOOKING ROUTES ========== */}
