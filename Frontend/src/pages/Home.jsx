@@ -165,7 +165,7 @@ TypewriterEffect.displayName = "TypewriterEffect";
 
 const StepCard = memo(({ number, title, description }) => (
   <Card className="relative p-6 sm:p-7 bg-white border-2 border-gray-100 hover:border-[#6498fe] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 group backdrop-blur-sm h-full">
-    <div className="absolute -top-5 sm:-top-6 left-5 sm:left-6 bg-gradient-to-br from-[#6498fe] via-blue-600 to-purple-600 text-white w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center font-bold text-lg sm:text-xl shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+    <div className="absolute -top-5 sm:-top-6 left-5 sm:left-6 bg-gradient-to-br from-white to-blue-50 border-2 border-blue-100 text-gray-900 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center font-bold text-lg sm:text-xl shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
       {number}
     </div>
     <h3 className="text-lg font-bold text-gray-900 mb-3 mt-4 group-hover:text-[#6498fe] transition-colors duration-300">
@@ -179,8 +179,8 @@ const StepCard = memo(({ number, title, description }) => (
 StepCard.displayName = "StepCard";
 
 const FeatureCard = memo(({ title, description, icon }) => (
-  <Card className="relative p-6 sm:p-8 bg-gradient-to-br from-white via-blue-50 to-purple-50 border-2 border-gray-100 hover:border-[#6498fe] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 group overflow-hidden h-full">
-    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#6498fe] to-purple-600 opacity-0 group-hover:opacity-10 rounded-full blur-3xl transition-all duration-500 -mr-16 -mt-16"></div>
+  <Card className="relative p-6 sm:p-8 bg-gradient-to-br from-white to-blue-50 border-2 border-gray-100 hover:border-[#6498fe] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 group overflow-hidden h-full">
+    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100 opacity-0 group-hover:opacity-30 rounded-full blur-3xl transition-all duration-500 -mr-16 -mt-16"></div>
     <div className="relative z-10">
       <div className="text-5xl mb-5 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 inline-block">
         <img src={icon} alt={title} className="w-16 sm:w-20" />
@@ -201,14 +201,14 @@ const FAQItem = memo(({ question, answer }) => {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-5 sm:p-7 flex items-center justify-between text-left hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 group"
+        className="w-full p-5 sm:p-7 flex items-center justify-between text-left hover:bg-blue-50 transition-all duration-300 group"
         aria-expanded={isOpen}
       >
         <h3 className="text-base sm:text-lg font-bold text-gray-900 pr-4 sm:pr-8 group-hover:text-[#6498fe] transition-colors duration-300">
           {question}
         </h3>
         <div
-          className={`flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#6498fe] to-blue-600 flex items-center justify-center text-white font-bold text-2xl transition-all duration-500 shadow-lg group-hover:shadow-xl ${isOpen ? "rotate-45 scale-110" : "group-hover:scale-110"}`}
+          className={`flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-white to-blue-50 border-2 border-blue-100 flex items-center justify-center text-gray-900 font-bold text-2xl transition-all duration-500 shadow-md group-hover:shadow-lg ${isOpen ? "rotate-45 scale-110" : "group-hover:scale-110"}`}
         >
           +
         </div>
@@ -250,14 +250,14 @@ const PricingCard = memo(
     const strikeDisplay = getDisplayPrices(strikePrice);
 
     return (
-      <Card
-        className={`relative p-5 sm:p-7 md:p-10 border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 group overflow-hidden ${
+      <div
+        className={`relative p-5 sm:p-7 md:p-10 rounded-2xl border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 group overflow-hidden ${
           popular
-            ? "border-[#6498fe] shadow-2xl scale-100 md:scale-105 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
-            : "border-gray-200 hover:border-[#6498fe] bg-white"
+            ? "border-[#6498fe] shadow-2xl scale-100 md:scale-105 bg-white"
+            : "border-gray-200 shadow-lg hover:border-[#6498fe] bg-white"
         }`}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-[#6498fe] via-purple-600 to-pink-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
+        <div className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
 
         <div className="relative z-10 text-center mb-5 sm:mb-8">
           <h3 className="text-lg sm:text-xl md:text-3xl font-extrabold text-gray-900 mb-3 sm:mb-4 group-hover:text-[#6498fe] transition-colors duration-300">
@@ -321,18 +321,19 @@ const PricingCard = memo(
         </div>
 
         <div className="block relative z-10">
-          <Button
+          <button
+            type="button"
             onClick={() => onGetPlan(title, price)}
             disabled={loading && selectedPlan === title}
             className={`w-full font-bold py-3 sm:py-4 md:py-5 rounded-xl transition-all duration-300 text-sm sm:text-base md:text-lg relative overflow-hidden group/btn cursor-pointer ${
               popular
-                ? "bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white shadow-xl hover:shadow-2xl"
-                : "bg-black text-white border-2 border-gray-300 hover:bg-gradient-to-r hover:from-[#6498fe] hover:to-purple-600 hover:border-[#6498fe]"
+                ? "bg-[#6498fe] border-2 border-[#6498fe] text-white shadow-lg hover:shadow-xl"
+                : "bg-white text-gray-900 border-2 border-gray-300 hover:border-[#6498fe] hover:bg-blue-50"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {loading && selectedPlan === title ? (
               <span className="flex items-center justify-center gap-2">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <div className={`animate-spin rounded-full h-5 w-5 border-b-2 ${popular ? "border-white" : "border-gray-900"}`}></div>
                 Processing...
               </span>
             ) : (
@@ -341,11 +342,11 @@ const PricingCard = memo(
                 <span className="group-hover/btn:translate-x-1 transition-transform duration-300">→</span>
               </span>
             )}
-          </Button>
+          </button>
         </div>
-      </Card>
+      </div>
     );
-  }
+}
 );
 
 PricingCard.displayName = "PricingCard";
@@ -544,7 +545,7 @@ const Home = () => {
         strikePrice: 15000,
         websites: 3,
         pricePerWebsite: 3666,
-        gradient: "from-[#6498fe] to-purple-600",
+        gradient: "from-white to-blue-50",
         bestFor: "Small teams and boutique agencies",
         features: [
           "3 website credits",
@@ -562,7 +563,7 @@ const Home = () => {
         strikePrice: 45000,
         websites: 9,
         pricePerWebsite: 3333,
-        gradient: "from-[#6498fe] to-blue-600",
+        gradient: "from-white to-blue-50",
         bestFor: "High-volume agencies",
         features: [
           "9 website credits",
@@ -695,14 +696,14 @@ const Home = () => {
         }
       `}</style>
 
-      <div className="h-1.5 bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600" aria-hidden="true"></div>
+      <div className="h-1.5 bg-[#6498fe]" aria-hidden="true"></div>
 
       <section id="hero-section" className="relative bg-white pt-24 sm:pt-28 pb-20 overflow-hidden min-h-screen flex items-center">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="text-center max-w-5xl mx-auto">
             <div className="inline-block mb-6">
-              <div className="flex items-center gap-3 bg-gradient-to-r from-[#6498fe] to-[#96b1e8] rounded-full px-6 sm:px-8 py-3 shadow-xl">
-                <span className="text-white font-bold text-xl sm:text-2xl tracking-wide">3Digree</span>
+              <div className="flex items-center gap-3 bg-white border-2 border-blue-100 rounded-full px-6 sm:px-8 py-3 shadow-lg">
+                <span className="text-gray-900 font-bold text-xl sm:text-2xl tracking-wide">3Digree</span>
               </div>
             </div>
 
@@ -734,7 +735,7 @@ const Home = () => {
               <button
                 type="button"
                 onClick={scrollToPricing}
-                className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-8 sm:px-12 py-4 sm:py-6 shadow-2xl hover:scale-105 active:scale-[0.97] transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] text-base sm:text-lg relative overflow-hidden group inline-flex items-center justify-center rounded-2xl"
+                className="w-full sm:w-auto bg-gradient-to-r from-white to-blue-50 border-2 border-blue-100 text-gray-900 font-bold px-8 sm:px-12 py-4 sm:py-6 shadow-lg hover:shadow-xl hover:scale-105 active:scale-[0.97] transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] text-base sm:text-lg relative overflow-hidden group inline-flex items-center justify-center rounded-2xl"
               >
                 <span className="relative z-10 flex items-center gap-3">
                   <span>View Pricing Plans</span>
@@ -746,7 +747,7 @@ const Home = () => {
             {isAuthenticated && displayName && (
               <div className="mb-12 inline-block px-2">
                 <div className="relative group">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-[#6498fe] via-purple-600 to-pink-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                  <div className="absolute -inset-1 bg-blue-100 rounded-2xl blur opacity-50 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
                   <div className="relative bg-white border-2 border-gray-200 rounded-2xl px-6 sm:px-10 py-4 sm:py-5 shadow-xl">
                     <p className="text-gray-700 font-medium text-base sm:text-lg">
                       Welcome back,{" "}
@@ -774,7 +775,7 @@ const Home = () => {
                   }}
                 >
                   <div className="relative inline-block mb-3">
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#6498fe] to-purple-600 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
+                    <div className="absolute inset-0 bg-blue-100 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
                     <div className="relative text-4xl sm:text-5xl font-black text-[#6498fe] group-hover:scale-110 transition-transform duration-500">
                       {stat.number}
                     </div>
@@ -793,18 +794,18 @@ const Home = () => {
 
       </section>
 
-      <section id="pricing" className="py-20 sm:py-28 bg-white relative overflow-hidden">
+      <section id="pricing" className="py-20 sm:py-28 bg-gray-50 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-          <div className="absolute bottom-20 left-0 w-72 sm:w-96 h-72 sm:h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+          <div className="absolute top-20 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+          <div className="absolute bottom-20 left-0 w-72 sm:w-96 h-72 sm:h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 sm:mb-20">
             <div className="inline-block mb-6">
-              <div className="flex items-center gap-3 bg-gradient-to-r from-blue-600 via-blue-700 to-purple-600 rounded-full px-6 sm:px-8 py-4 shadow-xl">
-                <FaGem className="text-xl text-white" />
-                <span className="text-sm font-bold text-white">Transparent Pricing</span>
+              <div className="flex items-center gap-3 bg-white border-2 border-blue-100 rounded-full px-6 sm:px-8 py-4 shadow-lg">
+                <FaGem className="text-xl text-[#6498fe]" />
+                <span className="text-sm font-bold text-gray-900">Transparent Pricing</span>
               </div>
             </div>
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 text-gray-900">Choose Your Plan</h2>
@@ -836,14 +837,14 @@ const Home = () => {
           </div>
 
           <div className="max-w-5xl mx-auto">
-            <Card className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-2 border-blue-200 shadow-xl p-6 sm:p-8 md:p-10 relative overflow-hidden hover:shadow-2xl transition-all duration-500">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#6498fe] to-purple-600 opacity-5 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-[#6498fe] to-blue-600 opacity-5 rounded-full blur-3xl"></div>
+            <div className="bg-gradient-to-br from-white to-blue-50 border-2 border-gray-300 rounded-2xl shadow-xl p-6 sm:p-8 md:p-10 relative overflow-hidden hover:shadow-2xl transition-all duration-500">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-blue-100 opacity-30 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-blue-50 opacity-30 rounded-full blur-3xl"></div>
 
               <div className="relative z-10">
                 <div className="flex items-start sm:items-center gap-3 sm:gap-4 mb-6">
-                  <div className="flex-shrink-0 w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-[#6498fe] to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <FaLightbulb className="text-white text-lg sm:text-2xl" />
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-white to-blue-50 border-2 border-blue-100 rounded-xl flex items-center justify-center shadow-lg">
+                    <FaLightbulb className="text-gray-900 text-lg sm:text-2xl" />
                   </div>
                   <div>
                     <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900">Not ready for a Bulk Plan?</h3>
@@ -903,11 +904,11 @@ const Home = () => {
                     type="button"
                     onClick={() => handleGetPlan("Single Website")}
                     disabled={loading && selectedPlan === "Single Website"}
-                    className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] text-base sm:text-lg relative overflow-hidden group rounded-xl inline-flex items-center justify-center hover:scale-105 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto bg-gradient-to-r from-white to-blue-50 border-2 border-blue-100 text-gray-900 font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-lg hover:shadow-xl transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] text-base sm:text-lg relative overflow-hidden group rounded-xl inline-flex items-center justify-center hover:scale-105 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading && selectedPlan === "Single Website" ? (
                       <span className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
                         Processing...
                       </span>
                     ) : (
@@ -916,7 +917,7 @@ const Home = () => {
                       </button>
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
 
           {/* CUSTOM SERVICES — Android / Software */}
@@ -1041,10 +1042,10 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="py-20 sm:py-28 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 relative overflow-hidden">
+      <section className="py-20 sm:py-28 bg-gradient-to-br from-gray-50 to-blue-50 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+          <div className="absolute top-0 left-1/4 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1134,7 +1135,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="py-20 sm:py-24 bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
+      <section className="py-20 sm:py-24 bg-gray-900 relative overflow-hidden">
         <div className="absolute inset-0 bg-black opacity-20"></div>
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-block mb-6">
@@ -1152,7 +1153,7 @@ const Home = () => {
           <button
             type="button"
             onClick={scrollToPricing}
-            className="bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 rounded-2xl shadow-2xl hover:scale-105 active:scale-[0.97] transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] text-base sm:text-lg inline-flex items-center justify-center"
+            className="bg-white text-gray-900 font-bold px-10 sm:px-14 py-4 sm:py-5 rounded-2xl shadow-2xl hover:scale-105 active:scale-[0.97] transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] text-base sm:text-lg inline-flex items-center justify-center"
           >
             View Plans
           </button>
