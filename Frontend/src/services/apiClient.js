@@ -733,17 +733,39 @@ export const tutorialApi = {
 // ADMIN API (calls Edge Functions)
 // ============================================================
 
+const toQueryString = (params = {}) => {
+  const qs = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') qs.append(key, value);
+  });
+  const str = qs.toString();
+  return str ? `?${str}` : '';
+};
+
 export const adminApi = {
-  getDashboard: () => supabase.functions.invoke('admin/dashboard').then(r => r.data),
-  getUsers: (params) => supabase.functions.invoke('admin/users', { body: params }).then(r => r.data),
-  getUserDetail: (id) => supabase.functions.invoke('admin/user-detail', { body: { id } }).then(r => r.data),
-  updateStatus: (data) => supabase.functions.invoke('admin/update-status', { body: data }).then(r => r.data),
-  updateCredits: (data) => supabase.functions.invoke('admin/update-credits', { body: data }).then(r => r.data),
-  addCredits: (data) => supabase.functions.invoke('admin/add-credits', { body: data }).then(r => r.data),
-  deductCredits: (data) => supabase.functions.invoke('admin/deduct-credits', { body: data }).then(r => r.data),
-  deleteUser: (data) => supabase.functions.invoke('admin/delete-user', { body: data }).then(r => r.data),
-  createAdmin: (data) => supabase.functions.invoke('admin/create-admin', { body: data }).then(r => r.data),
-  sendBulkEmail: (data) => supabase.functions.invoke('admin/bulk-email', { body: data }).then(r => r.data),
+  // GET actions — the edge function reads query params, not the body
+  getDashboard: () =>
+    supabase.functions.invoke('admin/dashboard', { method: 'GET' }).then(r => r.data),
+  getUsers: (params) =>
+    supabase.functions.invoke(`admin/users${toQueryString(params)}`, { method: 'GET' }).then(r => r.data),
+  getUserDetail: (id) =>
+    supabase.functions.invoke(`admin/user-detail${toQueryString({ id })}`, { method: 'GET' }).then(r => r.data),
+
+  // Mutations — method must match the edge function's checks
+  updateStatus: (data) =>
+    supabase.functions.invoke('admin/update-status', { method: 'PATCH', body: data }).then(r => r.data),
+  updateCredits: (data) =>
+    supabase.functions.invoke('admin/update-credits', { method: 'PATCH', body: data }).then(r => r.data),
+  addCredits: (data) =>
+    supabase.functions.invoke('admin/add-credits', { method: 'POST', body: data }).then(r => r.data),
+  deductCredits: (data) =>
+    supabase.functions.invoke('admin/deduct-credits', { method: 'POST', body: data }).then(r => r.data),
+  deleteUser: (data) =>
+    supabase.functions.invoke('admin/delete-user', { method: 'DELETE', body: data }).then(r => r.data),
+  createAdmin: (data) =>
+    supabase.functions.invoke('admin/create-admin', { method: 'POST', body: data }).then(r => r.data),
+  sendBulkEmail: (data) =>
+    supabase.functions.invoke('admin/bulk-email', { method: 'POST', body: data }).then(r => r.data),
 };
 
 // ============================================================

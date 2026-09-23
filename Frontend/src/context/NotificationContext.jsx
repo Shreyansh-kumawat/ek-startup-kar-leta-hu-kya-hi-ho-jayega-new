@@ -5,13 +5,23 @@ const NotificationContext = createContext({});
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
-  const addNotification = useCallback((notification) => {
+  const addNotification = useCallback((notification, maybeType) => {
+    // Support both signatures:
+    //   addNotification({ type, message, ... })
+    //   addNotification('message', 'error')  or  addNotification('message', { ...options })
+    const normalized = typeof notification === 'string'
+      ? {
+          message: notification,
+          ...(typeof maybeType === 'string' ? { type: maybeType } : (maybeType || {})),
+        }
+      : (notification || {});
+
     const id = Date.now() + Math.random();
     const newNotification = {
       id,
       type: 'info',
       duration: 5000,
-      ...notification,
+      ...normalized,
     };
 
     setNotifications(prev => [...prev, newNotification]);

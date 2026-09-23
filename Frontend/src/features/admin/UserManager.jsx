@@ -54,7 +54,7 @@ const UserManager = () => {
     if (!deleteTarget) return;
     try {
       setDeleteLoading(true);
-      await deleteUser(deleteTarget._id);
+      await deleteUser(deleteTarget.id || deleteTarget._id);
       addNotification('User deleted successfully', 'success');
       setShowDeleteModal(false);
       setDeleteTarget(null);
@@ -76,9 +76,10 @@ const UserManager = () => {
     if (!selectedUser?.user) return;
     const currentCredits = selectedUser.user.credits || 0;
     const newTotal = Math.max(0, currentCredits + creditsChange);
+    const targetId = selectedUser.user.id || selectedUser.user._id;
     try {
       setCreditsLoading(true);
-      await updateUserCredits(selectedUser.user._id, newTotal);
+      await updateUserCredits(targetId, newTotal);
       const diff = newTotal - currentCredits;
       setCreditsApplied({ amount: Math.abs(diff), type: diff >= 0 ? 'add' : 'remove' });
       // update local selectedUser credits
@@ -87,7 +88,7 @@ const UserManager = () => {
         user: { ...prev.user, credits: newTotal }
       }));
       // update users list
-      setUsers(prev => prev.map(u => u._id === selectedUser.user._id ? { ...u, credits: newTotal } : u));
+      setUsers(prev => prev.map(u => (u.id || u._id) === targetId ? { ...u, credits: newTotal } : u));
       addNotification('Credits updated successfully', 'success');
       setShowCreditsModal(false);
       setCreditsChange(0);
@@ -123,7 +124,7 @@ const UserManager = () => {
         )}
         {users.map((user) => (
           <div
-            key={user._id}
+            key={user.id || user._id}
             className="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-5 py-4 shadow-sm hover:shadow-md transition-shadow"
           >
             {/* Left: Avatar + Info */}
@@ -142,7 +143,7 @@ const UserManager = () => {
             <div className="flex items-center gap-2">
               {/* Info Button */}
               <button
-                onClick={() => handleInfoClick(user._id)}
+                onClick={() => handleInfoClick(user.id || user._id)}
                 title="User Info"
                 className="w-8 h-8 rounded-full border border-blue-400 text-blue-500 flex items-center justify-center text-xs font-bold hover:bg-blue-50 transition-colors"
               >
@@ -247,14 +248,14 @@ const UserManager = () => {
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3">
                   <div className="text-gray-400 text-xs mb-0.5">Status</div>
-                  <div className={`font-medium ${selectedUser.user?.isActive ? 'text-green-600' : 'text-red-500'}`}>
-                    {selectedUser.user?.isActive ? 'Active' : 'Inactive'}
+                  <div className={`font-medium ${(selectedUser.user?.is_active ?? selectedUser.user?.isActive) ? 'text-green-600' : 'text-red-500'}`}>
+                    {(selectedUser.user?.is_active ?? selectedUser.user?.isActive) ? 'Active' : 'Inactive'}
                   </div>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3">
                   <div className="text-gray-400 text-xs mb-0.5">Joined</div>
                   <div className="font-medium text-gray-800">
-                    {selectedUser.user?.createdAt ? new Date(selectedUser.user.createdAt).toLocaleDateString('en-IN') : 'N/A'}
+                    {(selectedUser.user?.created_at || selectedUser.user?.createdAt) ? new Date(selectedUser.user.created_at || selectedUser.user.createdAt).toLocaleDateString('en-IN') : 'N/A'}
                   </div>
                 </div>
                 <div className="bg-blue-50 rounded-xl p-3">

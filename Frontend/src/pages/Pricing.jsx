@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/useAuth';
 import { useNotification } from '../hooks/useNotification';
 import Card from '../components/Card';
-import Button from '../components/Button';
 import { createPlanOrder, openRazorpayCheckout } from '../services/planApi';
 import { FaAndroid, FaCode, FaArrowRight, FaCheck, FaShoppingCart, FaMobileAlt } from 'react-icons/fa';
 
@@ -96,15 +95,13 @@ const PricingCard = memo(({
   return (
     <Card className={`relative p-8 sm:p-10 border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 group overflow-hidden ${
       popular
-        ? 'border-[#6498fe] shadow-2xl scale-105 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
+        ? 'border-[#6498fe] shadow-2xl scale-105 bg-blue-50'
         : 'border-gray-200 hover:border-[#6498fe] bg-white'
     }`}>
-      <div className="absolute inset-0 bg-gradient-to-br from-[#6498fe] via-purple-600 to-pink-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
-
       <div className="relative z-10 text-center mb-8">
         {popular && (
           <div className="inline-block mb-3">
-            <span className="bg-gradient-to-r from-[#6498fe] to-purple-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
+            <span className="bg-[#6498fe] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
               ⭐ Most Popular
             </span>
           </div>
@@ -157,18 +154,19 @@ const PricingCard = memo(({
       </div>
 
       <div className="block relative z-10">
-        <Button
+        <button
+          type="button"
           onClick={() => onGetPlan(title, price)}
           disabled={loading && selectedPlan === title}
-          className={`w-full font-bold py-5 rounded-xl transition-all duration-300 text-lg relative overflow-hidden group/btn cursor-pointer ${
+          className={`w-full inline-flex items-center justify-center font-bold py-5 rounded-xl transition-all duration-300 text-lg relative overflow-hidden group/btn cursor-pointer ${
             popular
-              ? 'bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white shadow-xl hover:shadow-2xl'
-              : 'bg-black text-white border-2 border-gray-300 hover:bg-gradient-to-r hover:from-[#6498fe] hover:to-purple-600 hover:text-white hover:border-[#6498fe]'
+              ? 'bg-[#6498fe] text-white shadow-xl hover:bg-blue-600 hover:shadow-2xl'
+              : 'bg-white text-gray-900 border-2 border-blue-100 hover:border-[#6498fe] hover:bg-blue-50'
           } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           {loading && selectedPlan === title ? (
             <span className="flex items-center justify-center gap-2">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <div className={`animate-spin rounded-full h-5 w-5 border-b-2 ${popular ? 'border-white' : 'border-[#6498fe]'}`}></div>
               Processing...
             </span>
           ) : (
@@ -177,7 +175,7 @@ const PricingCard = memo(({
               <span className="group-hover/btn:translate-x-1 transition-transform duration-300">→</span>
             </span>
           )}
-        </Button>
+        </button>
       </div>
     </Card>
   );
@@ -274,18 +272,18 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
-      <div className="h-1.5 bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600" aria-hidden="true"></div>
+      <div className="h-1.5 bg-[#6498fe]" aria-hidden="true"></div>
 
       <section id="pricing" className="py-28 bg-white relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 right-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-          <div className="absolute bottom-20 left-0 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse animation-delay-2000"></div>
+          <div className="absolute top-20 right-0 w-96 h-96 bg-blue-100 rounded-full filter blur-3xl opacity-20"></div>
+          <div className="absolute bottom-20 left-0 w-96 h-96 bg-blue-100 rounded-full filter blur-3xl opacity-20"></div>
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <div className="inline-block mb-6">
-              <div className="flex items-center gap-3 bg-gradient-to-r from-blue-600 via-blue-700 to-purple-600 rounded-full px-8 py-4 shadow-xl">
+              <div className="flex items-center gap-3 bg-[#6498fe] rounded-full px-8 py-4 shadow-xl">
                 <span className="text-2xl">💎</span>
                 <span className="text-sm font-bold text-white">Transparent Pricing</span>
               </div>
@@ -321,13 +319,13 @@ const Pricing = () => {
 
           {/* SINGLE WEBSITE CARD */}
           <div className="max-w-5xl mx-auto">
-            <Card className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-2 border-blue-200 shadow-xl p-8 sm:p-10 relative overflow-hidden hover:shadow-2xl transition-all duration-500">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#6498fe] to-purple-600 opacity-5 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-[#6498fe] to-blue-600 opacity-5 rounded-full blur-3xl"></div>
+            <Card className="bg-blue-50 border-2 border-blue-200 shadow-xl p-8 sm:p-10 relative overflow-hidden hover:shadow-2xl transition-all duration-500">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-blue-100 opacity-30 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-blue-100 opacity-30 rounded-full blur-3xl"></div>
 
               <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-[#6498fe] to-purple-600 rounded-xl flex items-center justify-center text-2xl shadow-lg">
+                  <div className="flex-shrink-0 w-14 h-14 bg-[#6498fe] rounded-xl flex items-center justify-center text-2xl shadow-lg">
                     💡
                   </div>
                   <div>
@@ -384,7 +382,7 @@ const Pricing = () => {
                   <button
                     onClick={() => handleGetPlan('Single Website', 3999)}
                     disabled={loading && selectedPlan === 'Single Website'}
-                    className="w-full sm:w-auto bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group cursor-pointer rounded-xl inline-flex items-center justify-center hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto bg-[#6498fe] hover:bg-blue-600 text-white font-bold px-10 sm:px-14 py-4 sm:py-5 shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg relative overflow-hidden group cursor-pointer rounded-xl inline-flex items-center justify-center hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading && selectedPlan === 'Single Website' ? (
                       <span className="flex items-center gap-2">
