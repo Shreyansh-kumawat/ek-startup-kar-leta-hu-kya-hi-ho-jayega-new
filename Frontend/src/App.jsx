@@ -38,6 +38,8 @@ const BookingDetails = lazy(() => import('./pages/BookingDetails'));
 const Games = lazy(() => import('./pages/games/Games'));
 const SpeedoPitchPrivacy = lazy(() => import('./pages/SpeedoPitchPrivacy'));
 const SpeedoPitchDeleteAccount = lazy(() => import('./pages/SpeedoPitchDeleteAccount'));
+const WhatAMarkPrivacy = lazy(() => import('./pages/WhatAMarkPrivacy'));
+const WhatAMarkDeleteAccount = lazy(() => import('./pages/WhatAMarkDeleteAccount'));
 
 // Protected User Pages
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -133,6 +135,8 @@ function App() {
               {/* ✅ Speed o Pitch Privacy Policy */}
               <Route path="speedopitch/privacy-policy" element={<PublicRoute><SpeedoPitchPrivacy /></PublicRoute>} />
               <Route path="speedopitch/delete-account" element={<PublicRoute><SpeedoPitchDeleteAccount /></PublicRoute>} />
+              <Route path="whatamark/privacy-policy" element={<PublicRoute><WhatAMarkPrivacy /></PublicRoute>} />
+              <Route path="whatamark/delete-account" element={<PublicRoute><WhatAMarkDeleteAccount /></PublicRoute>} />
             </Route>
 
             {/* ========== B2B BOOKING ROUTES ========== */}

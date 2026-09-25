@@ -9,6 +9,7 @@ import {
   FaMoneyBillWave, FaChartLine, FaCheckCircle,
   FaMapMarkedAlt, FaQuestionCircle
 } from 'react-icons/fa';
+import OurWorkSection from '../components/OurWorkSection';
 
 // ── FAQ ──────────────────────────────────────────────────────────────────────
 const FAQItem = ({ question, answer }) => {
@@ -218,6 +219,9 @@ export default function About() {
           </div>
         </div>
       </section>
+
+      {/* ── OUR WORK ── */}
+      <OurWorkSection />
 
       {/* ── OUR STORY ── */}
       <section className="py-24 bg-white">
