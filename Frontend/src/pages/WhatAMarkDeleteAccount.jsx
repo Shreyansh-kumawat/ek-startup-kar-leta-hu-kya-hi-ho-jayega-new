@@ -21,7 +21,7 @@ const WhatAMarkDeleteAccount = () => {
                 href="mailto:shreyanshraj.kumawat@gmail.com?subject=Delete%20My%20What-a-Mark%20Account"
                 className="text-blue-600 hover:underline"
               >
-                shreyanshraj.kumawat@gmail.com
+                info.3digree@gmail.com
               </a>
             </p>
             <p className="text-gray-800 mt-2">
