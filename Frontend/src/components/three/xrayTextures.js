@@ -230,7 +230,7 @@ export const STAGE_COUNT = STAGES.length;
 function finish(canvas) {
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 4;
+  tex.anisotropy = 8;
   return tex;
 }
 

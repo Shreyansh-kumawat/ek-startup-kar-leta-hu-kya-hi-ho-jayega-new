@@ -36,7 +36,7 @@ const fragmentShader = /* glsl */ `
     vec4 front = texture2D(uFront, vUv);
     vec2 lensUv = uMouse + (vUv - uMouse) * 0.93;
     vec4 back = mix(texture2D(uBackA, lensUv), texture2D(uBackB, lensUv), uMix);
-    back.rgb += 0.03 * sin(vUv.y * 900.0 - uTime * 6.0);
+    back.rgb += 0.025 * sin(gl_FragCoord.y * 1.3 - uTime * 6.0);
 
     vec4 col = mix(front, back, mask);
     float ring = (1.0 - smoothstep(0.0, 0.011, abs(dist - uRadius))) * step(0.01, uRadius);
@@ -135,7 +135,8 @@ const XRayScene = ({ progress, stage, lite = false }) => {
     const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
     fontsReady.then(() => {
       if (!alive) return;
-      made = makeXRayTextures(lite ? 0.6 : 1);
+      // A single textured quad is cheap, so even phones get crisp textures.
+      made = makeXRayTextures(lite ? 1 : 1.5);
       setTextures(made);
     });
     return () => {
@@ -163,7 +164,7 @@ const XRayScene = ({ progress, stage, lite = false }) => {
       {textures && (
         <Canvas
           flat
-          dpr={lite ? 1 : [1, 1.75]}
+          dpr={lite ? [1, 2] : [1, 1.75]}
           camera={{ position: [0, 0, lite ? 5.7 : 6.6], fov: 35 }}
           gl={{ antialias: !lite, alpha: true, powerPreference: lite ? 'low-power' : 'high-performance' }}
           frameloop={inView ? 'always' : 'never'}
