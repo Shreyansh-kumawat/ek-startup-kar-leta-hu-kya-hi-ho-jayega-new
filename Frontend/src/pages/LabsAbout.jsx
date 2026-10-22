@@ -12,7 +12,7 @@ import SectionFounders from '../components/SectionFounders';
 import SectionContact from '../components/SectionContact';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// LOADING SCREEN — Simple, like Home.jsx but black bg + blue spinner
+// LOADING SCREEN - Simple, like Home.jsx but black bg + blue spinner
 // ─────────────────────────────────────────────────────────────────────────────
 const LoadingScreen = ({ onComplete }) => {
   const [done, setDone] = useState(false);
@@ -44,7 +44,7 @@ const LoadingScreen = ({ onComplete }) => {
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-            {/* Blue rotating spinner — same style as Home.jsx */}
+            {/* Blue rotating spinner - same style as Home.jsx */}
             <div
               style={{
                 width: 48,
@@ -182,7 +182,7 @@ export default function LabsAbout() {
               overflowX: 'hidden',
             }}
           >
-            {/* Hero — collapses to height:0 after unlock */}
+            {/* Hero - collapses to height:0 after unlock */}
             <div style={{
               height: heroUnlocked ? 0 : '100vh',
               overflow: 'hidden',
@@ -193,7 +193,7 @@ export default function LabsAbout() {
               </section>
             </div>
 
-            {/* Sections — mount after hero unlocks, zero gap */}
+            {/* Sections - mount after hero unlocks, zero gap */}
             <AnimatePresence>
               {heroUnlocked && (
                 <motion.div

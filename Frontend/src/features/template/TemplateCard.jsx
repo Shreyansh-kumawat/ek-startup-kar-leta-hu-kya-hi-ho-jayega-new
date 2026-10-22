@@ -33,7 +33,7 @@ const TemplateCard = ({
   const [imageError, setImageError] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Field aliases — support snake_case (Supabase) and camelCase (legacy)
+  // Field aliases - support snake_case (Supabase) and camelCase (legacy)
   const previewImage = template?.preview_image || template?.previewImage;
   const liveDemo = template?.live_demo || template?.liveDemo;
   const templateLink = template?.template_link || template?.templateLink;

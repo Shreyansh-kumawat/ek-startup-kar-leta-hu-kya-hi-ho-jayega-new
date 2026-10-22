@@ -194,7 +194,7 @@ const Navbar = () => {
         <div className="mx-3 rounded-2xl overflow-hidden backdrop-blur-xl bg-white shadow-2xl border border-gray-100">
           <div className="px-3 py-4 space-y-1">
 
-            {/* ── NAV LINKS — Mobile ── */}
+            {/* ── NAV LINKS - Mobile ── */}
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -267,7 +267,7 @@ const Navbar = () => {
                   )}
                 </div>
               ) : (
-                /* ── Login/Register Mobile — Side by side, compact ── */
+                /* ── Login/Register Mobile - Side by side, compact ── */
                 <div className="flex gap-2 pt-1">
                   <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex-1">
                     <button className="w-full border-2 border-[#6498fe] text-[#6498fe] hover:bg-[#6498fe] hover:text-white rounded-xl font-bold transition-all duration-300 py-2 px-3 text-sm">

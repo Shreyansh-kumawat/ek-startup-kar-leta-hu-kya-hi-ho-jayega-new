@@ -22,7 +22,7 @@ const FadeIn = ({ children, delay = 0, direction = 'up', className = '' }) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CONNECTOR LINE — animated dashed line between steps on desktop
+// CONNECTOR LINE - animated dashed line between steps on desktop
 // ─────────────────────────────────────────────────────────────────────────────
 const ConnectorLine = ({ delay }) => {
   const ref      = useRef(null);
@@ -333,7 +333,7 @@ const steps = [
     step:        1,
     icon:        '🤝',
     title:       'You Close the Deal',
-    description: 'Your client, your price, your relationship. We are completely invisible — we never reach out to your clients, never brand anything with our name.',
+    description: 'Your client, your price, your relationship. We are completely invisible - we never reach out to your clients, never brand anything with our name.',
     accentColor: '#00ffab',
     bulletPoints: [
       'You set your own pricing and margins',
@@ -346,7 +346,7 @@ const steps = [
     step:        2,
     icon:        '⚡',
     title:       'We Build in 3 Days',
-    description: 'Send us the brief. Our tested delivery system spins up the website fast — built, reviewed, and deployed within 3 business days. Consistent quality, every time.',
+    description: 'Send us the brief. Our tested delivery system spins up the website fast - built, reviewed, and deployed within 3 business days. Consistent quality, every time.',
     accentColor: '#06b6d4',
     bulletPoints: [
       'Send brief via WhatsApp or email',
@@ -371,7 +371,7 @@ const steps = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SECTION HOW IT WORKS — main export
+// SECTION HOW IT WORKS - main export
 // ─────────────────────────────────────────────────────────────────────────────
 export default function SectionHowItWorks() {
   return (
@@ -490,7 +490,7 @@ export default function SectionHowItWorks() {
           </p>
         </FadeIn>
 
-        {/* Steps row — cards + connectors */}
+        {/* Steps row - cards + connectors */}
         <div style={{
           display:        'flex',
           flexWrap:       'wrap',

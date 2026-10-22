@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FADE-IN WRAPPER — reusable scroll-triggered entrance animation
+// FADE-IN WRAPPER - reusable scroll-triggered entrance animation
 // ─────────────────────────────────────────────────────────────────────────────
 const FadeIn = ({ children, delay = 0, direction = 'up', className = '' }) => {
   const ref = useRef(null);
@@ -38,7 +38,7 @@ const FadeIn = ({ children, delay = 0, direction = 'up', className = '' }) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PROBLEM CARD — individual pain point
+// PROBLEM CARD - individual pain point
 // ─────────────────────────────────────────────────────────────────────────────
 const ProblemCard = ({ icon, title, description, accentColor, delay }) => {
   return (
@@ -159,13 +159,13 @@ const problems = [
   {
     icon:        '📉',
     title:       'Shrinking Margins',
-    description: 'High delivery costs eat your profits before you can reinvest them. Scaling feels impossible without sacrificing quality — or your own sanity. Growth hits a wall.',
+    description: 'High delivery costs eat your profits before you can reinvest them. Scaling feels impossible without sacrificing quality - or your own sanity. Growth hits a wall.',
     accentColor: '#fbbf24',
   },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SECTION PROBLEM — main export
+// SECTION PROBLEM - main export
 // ─────────────────────────────────────────────────────────────────────────────
 export default function SectionProblem() {
   const sectionRef = useRef(null);
@@ -290,7 +290,7 @@ export default function SectionProblem() {
             maxWidth:    560,
             margin:     '0 auto 64px',
           }}>
-            If you're a freelancer or running a small agency — you know this pain all too well.
+            If you're a freelancer or running a small agency - you know this pain all too well.
           </p>
         </FadeIn>
 
@@ -338,7 +338,7 @@ export default function SectionProblem() {
               fontFamily:    "'Inter', system-ui, sans-serif",
               letterSpacing: '-0.015em',
             }}>
-              Clients keep coming — delivery still can't scale.
+              Clients keep coming - delivery still can't scale.
             </p>
             <p style={{
               margin:     0,

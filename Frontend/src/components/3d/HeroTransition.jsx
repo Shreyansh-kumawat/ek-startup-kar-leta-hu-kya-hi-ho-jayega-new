@@ -308,7 +308,7 @@ function Tagline() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// HERO TRANSITION — main export
+// HERO TRANSITION - main export
 // ─────────────────────────────────────────────────────────────────────────────
 export default function HeroTransition() {
   return (

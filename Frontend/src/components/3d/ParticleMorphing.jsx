@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// UTILITY — Sample N points uniformly on a mesh surface
+// UTILITY - Sample N points uniformly on a mesh surface
 // ─────────────────────────────────────────────────────────────────────────────
 const sampleSurface = (geometry, count) => {
   const mesh    = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial());
@@ -23,7 +23,7 @@ const sampleSurface = (geometry, count) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// UTILITY — Rasterise text onto a canvas, extract white pixel positions,
+// UTILITY - Rasterise text onto a canvas, extract white pixel positions,
 //           then randomly sample `count` of them as 3D particle positions.
 // ─────────────────────────────────────────────────────────────────────────────
 const sampleTextParticles = (text, count) => {
@@ -69,7 +69,7 @@ const sampleTextParticles = (text, count) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// UTILITY — Build per-particle colour array, lerping between two hex colours
+// UTILITY - Build per-particle colour array, lerping between two hex colours
 // ─────────────────────────────────────────────────────────────────────────────
 const buildColorArray = (count, hexA, hexB) => {
   const arr = new Float32Array(count * 3);
@@ -133,7 +133,7 @@ export default function ParticleMorphing({ scrollProgress }) {
     const sphereGeo = new THREE.IcosahedronGeometry(3.2, 9);
     const sphere    = sampleSurface(sphereGeo, PARTICLE_COUNT);
 
-    // Saturn — planet body + flat ring merged into one buffer
+    // Saturn - planet body + flat ring merged into one buffer
     const planetGeo = new THREE.IcosahedronGeometry(2.4, 9);
     const ringGeo   = new THREE.TorusGeometry(4.8, 0.25, 2, 140);
     ringGeo.rotateX(Math.PI / 2.2);                           // slight tilt
@@ -151,7 +151,7 @@ export default function ParticleMorphing({ scrollProgress }) {
       scattered[i * 3 + 2] = (Math.random() - 0.5) * 28;
     }
 
-    // Text — scattered + formed
+    // Text - scattered + formed
     const textScattered = new Float32Array(TEXT_COUNT * 3);
     for (let i = 0; i < TEXT_COUNT; i++) {
       textScattered[i * 3]     = (Math.random() - 0.5) * 32;
@@ -191,7 +191,7 @@ export default function ParticleMorphing({ scrollProgress }) {
     let morphSpeed = 0.065;
 
     if (r < SCROLL.DORMANT_END) {
-      // Dormant — sit as scattered cloud, rotate gently
+      // Dormant - sit as scattered cloud, rotate gently
       targetMain = shapes.scattered;
       morphSpeed = 0.02;
     } else if (r < SCROLL.DONUT_END) {
@@ -227,13 +227,13 @@ export default function ParticleMorphing({ scrollProgress }) {
     // ── Shape group rotation ─────────────────────────────────────────────────
     if (groupRef.current) {
       if (r >= SCROLL.SATURN_START && r < SCROLL.TEXT_START) {
-        // Saturn — dramatic slow spin
+        // Saturn - dramatic slow spin
         groupRef.current.rotation.y += delta * 0.35;
         groupRef.current.rotation.x  = THREE.MathUtils.lerp(
           groupRef.current.rotation.x, 0.25, 0.02
         );
       } else if (r >= SCROLL.TEXT_START) {
-        // Text phase — flatten rotation so text is readable
+        // Text phase - flatten rotation so text is readable
         groupRef.current.rotation.y += delta * 0.06;
         groupRef.current.rotation.x  = THREE.MathUtils.lerp(
           groupRef.current.rotation.x, 0, 0.04
@@ -250,7 +250,7 @@ export default function ParticleMorphing({ scrollProgress }) {
     let tZ = 18, tX = 0, tY = 0;
 
     if (r < SCROLL.DORMANT_END) {
-      // Back far — meteor is the star
+      // Back far - meteor is the star
       tZ = 22;
       tX = 0;
       tY = 0;
@@ -263,13 +263,13 @@ export default function ParticleMorphing({ scrollProgress }) {
       tX = Math.sin(state.clock.elapsedTime * 0.4) * 1.5;
       tY = Math.cos(state.clock.elapsedTime * 0.3) * 0.8;
     } else if (r < SCROLL.SATURN_END) {
-      // Zoom into Saturn's rings — cinematic low angle
+      // Zoom into Saturn's rings - cinematic low angle
       const p = (r - SCROLL.SATURN_START) / (SCROLL.SATURN_END - SCROLL.SATURN_START);
       tZ = THREE.MathUtils.lerp(13, 7, p);
       tY = THREE.MathUtils.lerp(0, -2.5, p);
       tX = Math.sin(state.clock.elapsedTime * 0.55) * 2;
     } else {
-      // Text reveal — pull way back so full name is visible
+      // Text reveal - pull way back so full name is visible
       tZ = 22;
       tY = 10;
       tX = 0;

@@ -4,7 +4,7 @@ import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// METEOR TRAIL — Particle trail that follows the meteor head
+// METEOR TRAIL - Particle trail that follows the meteor head
 // ─────────────────────────────────────────────────────────────────────────────
 function MeteorTrail({ headPosition, scrollProgress }) {
   const trailRef = useRef();
@@ -41,7 +41,7 @@ function MeteorTrail({ headPosition, scrollProgress }) {
 
     trailRef.current.geometry.attributes.position.needsUpdate = true;
 
-    // Trail visibility — only show while meteor is falling
+    // Trail visibility - only show while meteor is falling
     const r = scrollProgress.current;
     trailRef.current.material.opacity = r < 0.38
       ? Math.min(r / 0.05, 1) * 0.75
@@ -73,7 +73,7 @@ function MeteorTrail({ headPosition, scrollProgress }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// IMPACT BURST — Particle explosion when meteor hits "ground"
+// IMPACT BURST - Particle explosion when meteor hits "ground"
 // ─────────────────────────────────────────────────────────────────────────────
 function ImpactBurst({ triggered, impactPosition }) {
   const ref = useRef();
@@ -90,7 +90,7 @@ function ImpactBurst({ triggered, impactPosition }) {
       positions[i * 3 + 1] = 0;
       positions[i * 3 + 2] = 0;
 
-      // Random burst directions — mostly outward and upward
+      // Random burst directions - mostly outward and upward
       const theta = Math.random() * Math.PI * 2;
       const phi   = Math.random() * Math.PI * 0.6;
       const speed = 0.08 + Math.random() * 0.18;
@@ -166,7 +166,7 @@ function ImpactBurst({ triggered, impactPosition }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// METEOR CORE — The main rock mesh with glow layers
+// METEOR CORE - The main rock mesh with glow layers
 // ─────────────────────────────────────────────────────────────────────────────
 function MeteorCore({ headPosition, scrollProgress }) {
   const coreRef  = useRef();
@@ -203,7 +203,7 @@ function MeteorCore({ headPosition, scrollProgress }) {
 
     coreRef.current.position.set(x, y, z);
 
-    // ── Rotation — tumbles as it falls ──────────────────────────────────────
+    // ── Rotation - tumbles as it falls ──────────────────────────────────────
     coreRef.current.rotation.x += 0.025 * (1 + easedProgress);
     coreRef.current.rotation.y += 0.018 * (1 + easedProgress);
     coreRef.current.rotation.z  = -0.6 + easedProgress * 0.3;
@@ -251,7 +251,7 @@ function MeteorCore({ headPosition, scrollProgress }) {
 
   return (
     <>
-      {/* Point light — rides the meteor */}
+      {/* Point light - rides the meteor */}
       <pointLight
         ref={lightRef}
         color="#ff5500"
@@ -328,7 +328,7 @@ function MeteorCore({ headPosition, scrollProgress }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// METEOR FALL — Main export, composes core + trail
+// METEOR FALL - Main export, composes core + trail
 // ─────────────────────────────────────────────────────────────────────────────
 export default function MeteorFall({ scrollProgress }) {
   // Shared ref so trail can read meteor head position each frame

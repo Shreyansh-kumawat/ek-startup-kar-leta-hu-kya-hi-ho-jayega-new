@@ -319,7 +319,7 @@ const FooterStrip = () => (
   </div>
 );
 
-// ─── SECTION CONTACT — main export ─────────────────────────────────────────
+// ─── SECTION CONTACT - main export ─────────────────────────────────────────
 export default function SectionContact() {
   const sectionRef = useRef(null);
 
@@ -433,7 +433,7 @@ export default function SectionContact() {
             margin: '0 auto 44px',
           }}>
             Let's talk about how 3Digree becomes your silent backend
-            infrastructure — so you can focus on closing deals.
+            infrastructure - so you can focus on closing deals.
           </p>
         </FadeIn>
 

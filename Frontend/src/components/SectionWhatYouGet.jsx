@@ -25,7 +25,7 @@ const FadeIn = ({ children, delay = 0, direction = 'up' }) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ANIMATED COUNTER — counts up to a number when it enters the viewport
+// ANIMATED COUNTER - counts up to a number when it enters the viewport
 // ─────────────────────────────────────────────────────────────────────────────
 const AnimatedCounter = ({ target, suffix = '', prefix = '', duration = 1.8, color }) => {
   const ref        = useRef(null);
@@ -75,7 +75,7 @@ const AnimatedCounter = ({ target, suffix = '', prefix = '', duration = 1.8, col
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FEATURE PILL — compact tag chip for features list
+// FEATURE PILL - compact tag chip for features list
 // ─────────────────────────────────────────────────────────────────────────────
 const FeaturePill = ({ icon, label, accentColor, delay }) => {
   const ref      = useRef(null);
@@ -127,7 +127,7 @@ const FeaturePill = ({ icon, label, accentColor, delay }) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// STAT CARD — large number + label
+// STAT CARD - large number + label
 // ─────────────────────────────────────────────────────────────────────────────
 const StatCard = ({ prefix, target, suffix, label, sublabel, accentColor, delay }) => {
   const ref      = useRef(null);
@@ -217,7 +217,7 @@ const StatCard = ({ prefix, target, suffix, label, sublabel, accentColor, delay 
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// BENEFIT ROW — icon + title + description in a horizontal layout
+// BENEFIT ROW - icon + title + description in a horizontal layout
 // ─────────────────────────────────────────────────────────────────────────────
 const BenefitRow = ({ icon, title, description, accentColor, delay }) => {
   const ref      = useRef(null);
@@ -369,7 +369,7 @@ const benefits = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SECTION WHAT YOU GET — main export
+// SECTION WHAT YOU GET - main export
 // ─────────────────────────────────────────────────────────────────────────────
 export default function SectionWhatYouGet() {
   return (

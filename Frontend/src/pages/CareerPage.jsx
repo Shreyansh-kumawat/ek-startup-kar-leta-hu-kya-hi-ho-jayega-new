@@ -32,7 +32,7 @@ const CareerPage = () => {
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-3">Join Our Team</h1>
           <p className="text-lg text-blue-100 max-w-2xl mx-auto">
-            Be a part of 3Digree — we're building the future of web development.
+            Be a part of 3Digree - we're building the future of web development.
           </p>
         </div>
       </div>

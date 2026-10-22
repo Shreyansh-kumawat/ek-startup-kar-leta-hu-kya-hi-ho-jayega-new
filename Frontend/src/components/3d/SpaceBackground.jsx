@@ -133,7 +133,7 @@ export function ShootingStars({ count = 4 }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// AMBIENT GLOW PLANES — very subtle, no visible orbs
+// AMBIENT GLOW PLANES - very subtle, no visible orbs
 // ─────────────────────────────────────────────────────────────────────────────
 export function AmbientGlowPlanes() {
   const planeA = useRef();

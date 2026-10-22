@@ -246,7 +246,7 @@ function ProgressBar({ progressRef }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PARTICLE HERO — main export
+// PARTICLE HERO - main export
 // ─────────────────────────────────────────────────────────────────────────────
 export default function ParticleHero({ onUnlock }) {
   const progressRef  = useRef(0);

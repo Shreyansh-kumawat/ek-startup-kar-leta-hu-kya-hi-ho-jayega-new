@@ -9,7 +9,6 @@ import {
   FaMoneyBillWave, FaChartLine, FaCheckCircle,
   FaMapMarkedAlt, FaQuestionCircle
 } from 'react-icons/fa';
-import OurWorkSection from '../components/OurWorkSection';
 
 // ── FAQ ──────────────────────────────────────────────────────────────────────
 const FAQItem = ({ question, answer }) => {
@@ -97,7 +96,7 @@ const TeamCard = ({ image, name, role, tagline, skills, linkedinUrl, linkedinHan
           className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#6498fe] to-blue-600 text-white font-bold text-sm py-3 px-5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-          Connect &mdash; @{linkedinHandle}
+          Connect - @{linkedinHandle}
         </a>
       </div>
     </div>
@@ -121,7 +120,7 @@ export default function About() {
     { icon: <FaLock />, title: 'Predictable Cost', desc: 'No surprise invoices. Pick a plan, know your cost, scale without stress.' },
     { icon: <FaCubes />, title: 'Infrastructure Mindset', desc: 'We think of ourselves as dev infrastructure, not an agency. You plug us in, we do the work.' },
     { icon: <FaHandshake />, title: 'Partner-First', desc: 'Freelancers and agencies are our only customers. Their success is literally our success.' },
-    { icon: <FaSeedling />, title: 'Built to Grow', desc: 'From solo freelancers to scaling agencies — our plans flex with your pipeline.' },
+    { icon: <FaSeedling />, title: 'Built to Grow', desc: 'From solo freelancers to scaling agencies - our plans flex with your pipeline.' },
   ];
 
   const team = [
@@ -162,8 +161,8 @@ export default function About() {
     { question: 'Is 3Digree visible to my clients?', answer: 'Never. We work completely in the background. Your clients only ever see your brand.' },
     { question: 'Who are your ideal partners?', answer: 'Freelancers managing 3–20+ client websites per year, and agencies that want to scale delivery without hiring.' },
     { question: 'What does the website delivery look like?', answer: 'You pick a design from our 100+ templates, share a Design ID via your dashboard, and we deliver a customized website in 3 business days.' },
-    { question: 'How did 3Digree start?', answer: 'We started because we were freelancers ourselves — stuck between winning clients and delivering on time. So we built the infrastructure we always needed.' },
-    { question: "What if I don't use all websites in my plan?", answer: 'No problem — your credits stay safe in your account. Contact support and we\'ll recover or transfer them.' },
+    { question: 'How did 3Digree start?', answer: 'We started because we were freelancers ourselves - stuck between winning clients and delivering on time. So we built the infrastructure we always needed.' },
+    { question: "What if I don't use all websites in my plan?", answer: 'No problem - your credits stay safe in your account. Contact support and we\'ll recover or transfer them.' },
     { question: 'Can I white-label everything?', answer: 'Absolutely! Your clients will only see your brand. We stay completely invisible as your delivery infrastructure.' },
   ];
 
@@ -220,9 +219,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ── OUR WORK ── */}
-      <OurWorkSection />
-
       {/* ── OUR STORY ── */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -237,13 +233,13 @@ export default function About() {
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600">Needed It Ourselves</span>
               </h2>
               <p className="text-gray-600 text-lg leading-relaxed mb-5">
-                We were freelancers. We were winning clients and then scrambling to deliver — staying up late, cutting corners, or worse, turning down work.
+                We were freelancers. We were winning clients and then scrambling to deliver - staying up late, cutting corners, or worse, turning down work.
               </p>
               <p className="text-gray-600 text-lg leading-relaxed mb-5">
-                The problem wasn't talent. It was capacity. So we built <span className="font-bold text-gray-900">3Digree</span> — a delivery infrastructure that lets any freelancer or agency scale their output without scaling their team.
+                The problem wasn't talent. It was capacity. So we built <span className="font-bold text-gray-900">3Digree</span> - a delivery infrastructure that lets any freelancer or agency scale their output without scaling their team.
               </p>
               <p className="text-gray-600 text-lg leading-relaxed">
-                Today we power websites for clients across India and beyond — all invisibly, under our partners' brands.
+                Today we power websites for clients across India and beyond - all invisibly, under our partners' brands.
               </p>
             </div>
             <div className="relative">
@@ -251,7 +247,7 @@ export default function About() {
               <div className="relative bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-3xl p-10 border-2 border-gray-100">
                 <div className="space-y-6">
                   {[
-                    { icon: <FaBullseye />, text: 'Partner-only model — we never sell direct to end clients' },
+                    { icon: <FaBullseye />, text: 'Partner-only model - we never sell direct to end clients' },
                     { icon: <FaIndustry />, text: 'Delivery infrastructure, not a typical design agency' },
                     { icon: <FaBox />, text: '100+ ready-to-customize website templates' },
                     { icon: <FaCog />, text: 'Simple dashboard for submitting and tracking orders' },
@@ -315,7 +311,7 @@ export default function About() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600">Founders</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto font-medium">
-              Two freelancers who solved their own delivery problem — and now help you solve yours.
+              Two freelancers who solved their own delivery problem - and now help you solve yours.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 gap-8">
@@ -323,7 +319,7 @@ export default function About() {
           </div>
           <div className="mt-12 p-8 rounded-3xl bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-2 border-gray-100 text-center">
             <p className="text-lg font-bold text-gray-900 mb-2">We've been in your shoes.</p>
-            <p className="text-gray-600">Now we're building the infrastructure <span className="text-[#6498fe] font-bold">we wish we had</span> — so you can grow without limits.</p>
+            <p className="text-gray-600">Now we're building the infrastructure <span className="text-[#6498fe] font-bold">we wish we had</span> - so you can grow without limits.</p>
           </div>
         </div>
       </section>
@@ -338,7 +334,7 @@ export default function About() {
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">Why 3Digree Exists</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto font-medium">
-              Freelancers and agencies hit the same wall. Great at selling — but delivery becomes the bottleneck.
+              Freelancers and agencies hit the same wall. Great at selling - but delivery becomes the bottleneck.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -358,7 +354,7 @@ export default function About() {
             <div className="inline-block p-8 bg-white rounded-3xl border-2 border-[#6498fe] shadow-xl max-w-2xl">
               <div className="text-4xl mb-4 text-emerald-500"><FaCheckCircle /></div>
               <h3 className="text-2xl font-black text-gray-900 mb-3">3Digree is the fix.</h3>
-              <p className="text-gray-600 leading-relaxed">Plug us in as your invisible backend team. We build under your brand in 3 days, so you can close more and deliver more — without hiring a single person.</p>
+              <p className="text-gray-600 leading-relaxed">Plug us in as your invisible backend team. We build under your brand in 3 days, so you can close more and deliver more - without hiring a single person.</p>
             </div>
           </div>
         </div>
@@ -401,7 +397,7 @@ export default function About() {
               <FaQuestionCircle className="text-xl text-[#6498fe]" />
               <span className="text-sm font-bold text-[#6498fe]">Got Questions?</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">About Us &mdash; FAQ</h2>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">About Us - FAQ</h2>
           </div>
           {faqs.map((f) => <FAQItem key={f.question} {...f} />)}
         </div>
@@ -417,7 +413,7 @@ export default function About() {
                 Ready to Scale Your{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6498fe] to-purple-600">Delivery?</span>
               </h2>
-              <p className="text-xl text-gray-600 mb-8 font-medium">Join freelancers and agencies who deliver more — invisibly backed by 3Digree.</p>
+              <p className="text-xl text-gray-600 mb-8 font-medium">Join freelancers and agencies who deliver more - invisibly backed by 3Digree.</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/pricing" className="inline-flex items-center gap-2 bg-gradient-to-r from-[#6498fe] via-blue-600 to-purple-600 text-white font-bold px-10 py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 text-lg group">
                   Get Started <span className="group-hover:translate-x-1 transition-transform duration-300">&rarr;</span>

@@ -743,7 +743,7 @@ const toQueryString = (params = {}) => {
 };
 
 export const adminApi = {
-  // GET actions — the edge function reads query params, not the body
+  // GET actions - the edge function reads query params, not the body
   getDashboard: () =>
     supabase.functions.invoke('admin/dashboard', { method: 'GET' }).then(r => r.data),
   getUsers: (params) =>
@@ -751,7 +751,7 @@ export const adminApi = {
   getUserDetail: (id) =>
     supabase.functions.invoke(`admin/user-detail${toQueryString({ id })}`, { method: 'GET' }).then(r => r.data),
 
-  // Mutations — method must match the edge function's checks
+  // Mutations - method must match the edge function's checks
   updateStatus: (data) =>
     supabase.functions.invoke('admin/update-status', { method: 'PATCH', body: data }).then(r => r.data),
   updateCredits: (data) =>

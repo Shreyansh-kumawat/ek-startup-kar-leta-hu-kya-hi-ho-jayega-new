@@ -89,7 +89,7 @@ const Footer = () => {
               <span className="text-xs font-semibold bg-purple-600 text-white px-2 py-0.5 rounded-full tracking-wider">Experimental</span>
             </h3>
             <p className="text-gray-400 text-sm leading-relaxed mb-1">
-              Experimental pages and 3D experiences — not part of the main product.
+              Experimental pages and 3D experiences - not part of the main product.
             </p>
             <div className="flex flex-col gap-3">
               <Link

@@ -57,7 +57,7 @@ const IdleAnimation = () => {
       // Reset idle countdown on every activity
       startIdleCountdownRef.current();
     }
-    // If 'retreating', ignore — already going back
+    // If 'retreating', ignore - already going back
   };
 
   useEffect(() => {

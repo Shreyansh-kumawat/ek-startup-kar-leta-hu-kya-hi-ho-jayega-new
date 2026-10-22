@@ -26,7 +26,7 @@ const FadeIn = ({ children, delay = 0, direction = 'up' }) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// AUDIENCE CARD — hoverable tile with expand-on-click detail
+// AUDIENCE CARD - hoverable tile with expand-on-click detail
 // ─────────────────────────────────────────────────────────────────────────────
 const AudienceCard = ({ icon, title, subtitle, detail, accentColor, delay }) => {
   const ref        = useRef(null);
@@ -72,7 +72,7 @@ const AudienceCard = ({ icon, title, subtitle, detail, accentColor, delay }) => 
         pointerEvents: 'none',
       }} />
 
-      {/* Top accent line — animates in */}
+      {/* Top accent line - animates in */}
       <motion.div
         initial={{ scaleX: 0 }}
         animate={isInView ? { scaleX: 1 } : {}}
@@ -164,7 +164,7 @@ const AudienceCard = ({ icon, title, subtitle, detail, accentColor, delay }) => 
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MARQUEE ROW — scrolling ticker of use cases
+// MARQUEE ROW - scrolling ticker of use cases
 // ─────────────────────────────────────────────────────────────────────────────
 const MarqueeRow = ({ items, direction = 1 }) => {
   const doubled = [...items, ...items]; // seamless loop
@@ -227,14 +227,14 @@ const audience = [
     icon:        '🏢',
     title:       'Small IT Companies',
     subtitle:    '2–10 person teams that want to scale output without scaling headcount.',
-    detail:      "Your team sells well but can't keep up with delivery. We become your silent production floor — predictable, fast, invisible.",
+    detail:      "Your team sells well but can't keep up with delivery. We become your silent production floor - predictable, fast, invisible.",
     accentColor: '#06b6d4',
   },
   {
     icon:        '📣',
     title:       'Digital Marketing Agencies',
     subtitle:    'Agencies that sell websites as part of a bigger package.',
-    detail:      "You're great at marketing — not necessarily at web builds. Hand off the development, keep the margin, impress your clients every time.",
+    detail:      "You're great at marketing - not necessarily at web builds. Hand off the development, keep the margin, impress your clients every time.",
     accentColor: '#a78bfa',
   },
   {
@@ -255,7 +255,7 @@ const audience = [
     icon:        ' ',
     title:       'Solopreneurs Scaling Up',
     subtitle:    'Solo operators building an agency without a team.',
-    detail:      "You've outgrown solo freelancing but aren't ready to hire. 3Digree is your first silent team member — the one who actually builds everything.",
+    detail:      "You've outgrown solo freelancing but aren't ready to hire. 3Digree is your first silent team member - the one who actually builds everything.",
     accentColor: '#34d399',
   },
   {
@@ -269,7 +269,7 @@ const audience = [
     icon:        '🌐',
     title:       'Service Providers',
     subtitle:    'Any service business adding websites to their portfolio.',
-    detail:      'Accountants, lawyers, marketers — anyone who serves businesses and wants to add websites as a revenue stream without the technical complexity.',
+    detail:      'Accountants, lawyers, marketers - anyone who serves businesses and wants to add websites as a revenue stream without the technical complexity.',
     accentColor: '#60a5fa',
   },
 ];
@@ -297,7 +297,7 @@ const marqueeRow2 = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SECTION WHO FOR — main export
+// SECTION WHO FOR - main export
 // ─────────────────────────────────────────────────────────────────────────────
 export default function SectionWhoFor() {
   return (
@@ -397,7 +397,7 @@ export default function SectionWhoFor() {
             maxWidth:    520,
             margin:     '0 auto 18px',
           }}>
-            If you're one of these — we're your perfect silent backend partner.
+            If you're one of these - we're your perfect silent backend partner.
             Tap any card to learn more.
           </p>
         </FadeIn>

@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { Html, useScroll } from '@react-three/drei';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCROLL RANGES — must mirror ParticleMorphing.jsx exactly
+// SCROLL RANGES - must mirror ParticleMorphing.jsx exactly
 // ─────────────────────────────────────────────────────────────────────────────
 const S = {
   HERO_IN:        0.00,
@@ -21,13 +21,13 @@ const S = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// UTILITY — map a value from [inMin,inMax] → [0,1], clamped
+// UTILITY - map a value from [inMin,inMax] → [0,1], clamped
 // ─────────────────────────────────────────────────────────────────────────────
 const norm = (val, inMin, inMax) =>
   Math.max(0, Math.min(1, (val - inMin) / (inMax - inMin)));
 
 // ─────────────────────────────────────────────────────────────────────────────
-// UTILITY — fade-in then fade-out within a scroll window
+// UTILITY - fade-in then fade-out within a scroll window
 // ─────────────────────────────────────────────────────────────────────────────
 const windowAlpha = (r, inStart, inEnd, outStart, outEnd) => {
   const fadeIn  = norm(r, inStart, inEnd);
@@ -189,7 +189,7 @@ function HeroPanel({ r }) {
         margin:         0,
       }}>
         3Digree is the backend infrastructure for freelancers and small IT companies.
-        We handle building &amp; deployment — you focus on clients and growth.
+        We handle building &amp; deployment - you focus on clients and growth.
       </p>
     </div>
   );
@@ -255,7 +255,7 @@ function ProblemPanel({ r }) {
         margin:      0,
         textAlign:  'center',
       }}>
-        If you're a freelancer or small agency — you know this pain
+        If you're a freelancer or small agency - you know this pain
       </p>
 
       <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -299,7 +299,7 @@ function ProblemPanel({ r }) {
           fontSize:   'clamp(13px, 1.8vw, 17px)',
           margin:     '0 0 4px',
         }}>
-          Clients keep coming — delivery can't scale.
+          Clients keep coming - delivery can't scale.
         </p>
         <p style={{
           color:      '#00ffab',
@@ -443,7 +443,7 @@ function HowPanel({ r }) {
           margin:      0,
           textShadow: '0 0 15px #00ffab66',
         }}>
-          🔒 Your client never knows we exist — that's the promise.
+          🔒 Your client never knows we exist - that's the promise.
         </p>
       </div>
     </div>
@@ -512,7 +512,7 @@ function WhoPanel({ r }) {
         margin:      0,
         textAlign:  'center',
       }}>
-        If you're one of these — we're your perfect backend partner
+        If you're one of these - we're your perfect backend partner
       </p>
 
       <div style={{
@@ -563,7 +563,7 @@ function WhoPanel({ r }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TEXT REVEAL LABEL — appears below the "3Digree" particle text formation
+// TEXT REVEAL LABEL - appears below the "3Digree" particle text formation
 // ─────────────────────────────────────────────────────────────────────────────
 function TextRevealLabel({ r }) {
   const ref = useRef();
@@ -616,7 +616,7 @@ function TextRevealLabel({ r }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCROLL HINT — fixed at bottom, fades out after first 10% scroll
+// SCROLL HINT - fixed at bottom, fades out after first 10% scroll
 // ─────────────────────────────────────────────────────────────────────────────
 function ScrollHint({ r }) {
   const ref = useRef();
@@ -669,7 +669,7 @@ function ScrollHint({ r }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// HTML OVERLAY — root export, renders all panels via a single <Html fullscreen>
+// HTML OVERLAY - root export, renders all panels via a single <Html fullscreen>
 // ─────────────────────────────────────────────────────────────────────────────
 export default function HtmlOverlay({ scrollProgress }) {
   // scrollProgress is a ref passed from ParticleHero

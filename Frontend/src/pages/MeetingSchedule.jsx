@@ -112,7 +112,7 @@ const About = () => {
             </div>
 
             <p className="text-lg md:text-xl text-[#cefcf7]/90 leading-relaxed max-w-4xl mx-auto mb-8">
-              Recognized for speed, innovation, and delivery — 3Digree is your partner in AI, Development, Marketing, and beyond.
+              Recognized for speed, innovation, and delivery - 3Digree is your partner in AI, Development, Marketing, and beyond.
             </p>
           </div>
 
@@ -284,7 +284,7 @@ const About = () => {
               <FaCode className="text-5xl text-blue-500 mb-4" />
               <h3 className="text-xl font-bold text-black mb-3">AI-Powered Full-Stack Delivery</h3>
               <p className="text-gray-700 leading-relaxed">
-                From wireframes to launch — we design, develop, and deploy full-stack solutions powered by AI, automation & smart architecture.
+                From wireframes to launch - we design, develop, and deploy full-stack solutions powered by AI, automation & smart architecture.
               </p>
             </div>
 
@@ -292,7 +292,7 @@ const About = () => {
               <FaRocket className="text-5xl text-[#00ffab] mb-4" />
               <h3 className="text-xl font-bold text-black mb-3">Smarter. Faster. Safer.</h3>
               <p className="text-gray-700 leading-relaxed">
-                AI-assisted dev sprints. Automated testing. Lightning-fast deployments. We ship smarter, not just faster — without breaking a thing.
+                AI-assisted dev sprints. Automated testing. Lightning-fast deployments. We ship smarter, not just faster - without breaking a thing.
               </p>
             </div>
 
@@ -300,7 +300,7 @@ const About = () => {
               <FaShieldAlt className="text-5xl text-blue-500 mb-4" />
               <h3 className="text-xl font-bold text-black mb-3">Secure & Scalable by Design</h3>
               <p className="text-gray-700 leading-relaxed">
-                AI-monitored systems. Bulletproof code. Cloud-native, auto-scaling infrastructure that just works — no matter the traffic.
+                AI-monitored systems. Bulletproof code. Cloud-native, auto-scaling infrastructure that just works - no matter the traffic.
               </p>
             </div>
           </div>

@@ -192,7 +192,7 @@ const AdminDashboard = () => {
                       {(u.name || u.email || '?').charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-gray-900">{u.name || u.username || '—'}</div>
+                      <div className="text-sm font-semibold text-gray-900">{u.name || u.username || '-'}</div>
                       <div className="text-xs text-gray-400">{u.email}</div>
                     </div>
                   </div>
@@ -229,7 +229,7 @@ const AdminDashboard = () => {
                   </div>
                   <div className="text-right">
                     <div className="text-sm font-bold text-gray-900">
-                      {order.templatePrice ? `₹${order.templatePrice.toLocaleString('en-IN')}` : '—'}
+                      {order.templatePrice ? `₹${order.templatePrice.toLocaleString('en-IN')}` : '-'}
                     </div>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[order.status] || 'bg-gray-100 text-gray-600'}`}>
                       {order.status?.replace(/_/g, ' ')}

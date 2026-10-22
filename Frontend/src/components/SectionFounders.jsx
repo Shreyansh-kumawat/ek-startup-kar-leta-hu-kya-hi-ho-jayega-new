@@ -99,11 +99,11 @@ const FounderCard = ({
         zIndex: 0,
       }} />
 
-      {/* ── Photo — square aspect ratio, full face visible ── */}
+      {/* ── Photo - square aspect ratio, full face visible ── */}
       <div style={{
         position: 'relative',
         width: '100%',
-        paddingBottom: '75%', // 4:3 ratio — square-ish, face fits well
+        paddingBottom: '75%', // 4:3 ratio - square-ish, face fits well
         overflow: 'hidden',
         background: `linear-gradient(135deg, ${accentColor}10, rgba(10,15,30,0.8))`,
         flexShrink: 0,
@@ -228,7 +228,7 @@ const FounderCard = ({
           </p>
         </div>
 
-        {/* Skill tags — plain divs, no motion */}
+        {/* Skill tags - plain divs, no motion */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
           {skills.map((skill) => (
             <span
@@ -366,7 +366,7 @@ const ClosingLine = () => {
         overflow: 'hidden',
       }}
     >
-      {/* Static glow blob — no animate loop */}
+      {/* Static glow blob - no animate loop */}
       <div style={{
         position: 'absolute',
         top: '50%',
@@ -405,7 +405,7 @@ const ClosingLine = () => {
         <span style={{ color: '#00ffab', fontWeight: 700 }}>
           we wish we had
         </span>{' '}
-        — so you can grow without limits.
+        - so you can grow without limits.
       </p>
     </motion.div>
   );
@@ -439,7 +439,7 @@ const founders = [
   },
 ];
 
-// ─── SECTION FOUNDERS — main export ──────────────────────────────────────────
+// ─── SECTION FOUNDERS - main export ──────────────────────────────────────────
 export default function SectionFounders() {
   return (
     <section style={{
@@ -448,7 +448,7 @@ export default function SectionFounders() {
       background: '#0a0f1e',
       overflow: 'hidden',
     }}>
-      {/* Background blobs — static, no animation */}
+      {/* Background blobs - static, no animation */}
       <div style={{
         position: 'absolute', top: '0%', left: '50%',
         transform: 'translateX(-50%)',
@@ -510,7 +510,7 @@ export default function SectionFounders() {
             lineHeight: 1.7, maxWidth: 480,
             margin: '0 auto 18px',
           }}>
-            Two freelancers who solved their own delivery problem —
+            Two freelancers who solved their own delivery problem -
             and now help you solve yours.
           </p>
         </FadeIn>

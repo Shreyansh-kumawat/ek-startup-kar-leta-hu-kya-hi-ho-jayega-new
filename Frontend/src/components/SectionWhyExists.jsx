@@ -93,7 +93,7 @@ const OriginCard = ({ Icon, title, body, accentColor, index, delay }) => {
         pointerEvents: 'none',
       }} />
 
-      {/* Icon — no motion on hover */}
+      {/* Icon - no motion on hover */}
       <div style={{
         width: 56,
         height: 56,
@@ -168,7 +168,7 @@ const TimelineItem = ({ year, event, detail, accentColor, isLast, delay }) => {
         flexShrink: 0,
         width: 22,
       }}>
-        {/* Node — plain div, no spring */}
+        {/* Node - plain div, no spring */}
         <div style={{
           width: 18,
           height: 18,
@@ -250,7 +250,7 @@ const MissionStatement = () => {
         border: '1px solid rgba(0,255,171,0.13)',
       }}
     >
-      {/* Static glow — no animate loop */}
+      {/* Static glow - no animate loop */}
       <div style={{
         position: 'absolute',
         top: '50%', left: '50%',
@@ -332,7 +332,7 @@ const cards = [
     title: 'A Universal Problem',
     accentColor: '#00ffab',
     body: [
-      'Once we solved it for ourselves, we looked around and realized every freelancer and small agency was facing the exact same wall. Delivery is the ceiling for growth — everywhere.',
+      'Once we solved it for ourselves, we looked around and realized every freelancer and small agency was facing the exact same wall. Delivery is the ceiling for growth - everywhere.',
       'That realization turned a personal fix into a platform built for an entire industry.',
     ],
   },
@@ -341,7 +341,7 @@ const cards = [
     title: 'Your Infrastructure Partner',
     accentColor: '#a78bfa',
     body: [
-      "We're not a marketplace. We're not a gig platform. We're a dedicated backend partner — the silent engine behind your client-facing business.",
+      "We're not a marketplace. We're not a gig platform. We're a dedicated backend partner - the silent engine behind your client-facing business.",
       "The longer we work together, the more seamlessly we integrate into your workflow and the faster everything moves.",
     ],
   },
@@ -357,13 +357,13 @@ const timeline = [
   {
     year: 'The Insight',
     event: 'Delivery Is the Real Product',
-    detail: "The realization: clients don't pay for code — they pay for confidence. Fast, reliable, on-brand delivery IS the product. Everything else is noise.",
+    detail: "The realization: clients don't pay for code - they pay for confidence. Fast, reliable, on-brand delivery IS the product. Everything else is noise.",
     accentColor: '#fb923c',
   },
   {
     year: 'The Build',
     event: '3Digree Is Born',
-    detail: 'We systematized the entire delivery process — templates, QA, handoff protocols — into a repeatable machine. Then we opened it to other freelancers.',
+    detail: 'We systematized the entire delivery process - templates, QA, handoff protocols - into a repeatable machine. Then we opened it to other freelancers.',
     accentColor: '#00ffab',
   },
   {
@@ -374,7 +374,7 @@ const timeline = [
   },
 ];
 
-// ─── SECTION WHY EXISTS — main export ────────────────────────────────────────
+// ─── SECTION WHY EXISTS - main export ────────────────────────────────────────
 export default function SectionWhyExists() {
   return (
     <section style={{
@@ -383,7 +383,7 @@ export default function SectionWhyExists() {
       background: '#080c18',
       overflow: 'hidden',
     }}>
-      {/* Static bg blobs — no grid overlay */}
+      {/* Static bg blobs - no grid overlay */}
       <div style={{
         position: 'absolute', top: '5%', left: '-5%',
         width: 420, height: 420, borderRadius: '50%',
@@ -445,7 +445,7 @@ export default function SectionWhyExists() {
             lineHeight: 1.7, maxWidth: 500,
             margin: '0 auto 56px',
           }}>
-            Not a pitch. Not a product story. The real reason we built this — because we needed it ourselves.
+            Not a pitch. Not a product story. The real reason we built this - because we needed it ourselves.
           </p>
         </FadeIn>
 
@@ -500,7 +500,7 @@ export default function SectionWhyExists() {
             </div>
           </div>
 
-          {/* Stats column — Parallax removed, plain div */}
+          {/* Stats column - Parallax removed, plain div */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <FadeIn delay={0.18}>
               <h3 style={{

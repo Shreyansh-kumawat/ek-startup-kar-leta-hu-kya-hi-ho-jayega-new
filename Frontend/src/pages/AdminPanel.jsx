@@ -51,7 +51,7 @@ const AdminPanel = () => {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">🌐 Admin Panel — 3Digree</h1>
+        <h1 className="text-3xl font-bold text-gray-900">🌐 Admin Panel - 3Digree</h1>
         <p className="text-gray-500 mt-1 text-sm">
           Welcome, <span className="font-semibold text-gray-700">{user?.name || user?.username}</span>
           <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">{user?.role}</span>

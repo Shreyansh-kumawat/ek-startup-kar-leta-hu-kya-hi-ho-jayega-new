@@ -59,9 +59,9 @@ const WhatAMarkPrivacy = () => {
             The app requests the following permissions:
           </p>
           <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
-            <li><strong>Storage / Media access</strong> — to read images you select and save watermarked files to your device</li>
-            <li><strong>Camera</strong> — to capture photos directly for watermarking (only when you choose this option)</li>
-            <li><strong>Internet</strong> — to display advertisements</li>
+            <li><strong>Storage / Media access</strong> - to read images you select and save watermarked files to your device</li>
+            <li><strong>Camera</strong> - to capture photos directly for watermarking (only when you choose this option)</li>
+            <li><strong>Internet</strong> - to display advertisements</li>
           </ul>
         </section>
 

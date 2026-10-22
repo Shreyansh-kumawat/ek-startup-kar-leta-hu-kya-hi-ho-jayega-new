@@ -1,5 +1,5 @@
 // Frontend/src/features/admin/AdminMailManager.jsx
-// /admin/mail — Send bulk or targeted follow-up emails to users
+// /admin/mail - Send bulk or targeted follow-up emails to users
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/useAuth';
 import { useNotification } from '../../hooks/useNotification';
@@ -16,7 +16,7 @@ const TEMPLATES = [
 
 Hope you're doing great! We just wanted to check in and see how things are going with your 3Digree experience.
 
-If you have any questions, need help choosing a template, or want to discuss a project — we're just one reply away!
+If you have any questions, need help choosing a template, or want to discuss a project - we're just one reply away!
 
 Let's build something great together.  
 
@@ -32,7 +32,7 @@ https://3digree.in`,
 
 You've been a valued part of the 3Digree community and we want to say THANK YOU! 🙏
 
-We're giving you bonus credits — use them to book any premium website template on 3Digree.
+We're giving you bonus credits - use them to book any premium website template on 3Digree.
 
 👉 Visit: https://3digree.in/templates
 
@@ -44,10 +44,10 @@ The 3Digree Team`,
   {
     id: 'booking_nudge',
     label: '📦 Booking Reminder',
-    subject: 'Your Website is Waiting — Book Now on 3Digree 🌐',
+    subject: 'Your Website is Waiting - Book Now on 3Digree 🌐',
     body: `Hi {{name}},
 
-We noticed you haven't placed a booking yet on 3Digree — and we'd love to help you get started!
+We noticed you haven't placed a booking yet on 3Digree - and we'd love to help you get started!
 
 With 100+ battle-tested website designs and a dedicated dev team, your dream website is just a few clicks away.
 
@@ -313,7 +313,7 @@ export default function AdminMailManager() {
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-5">
               <p className="text-xs font-bold text-blue-700 mb-2">👁️ Preview (first recipient)</p>
               <div className="bg-white rounded-xl p-4 border border-blue-100 text-sm text-gray-700 space-y-1">
-                <p><strong>To:</strong> {recipients[0]?.email || '—'}</p>
+                <p><strong>To:</strong> {recipients[0]?.email || '-'}</p>
                 <p><strong>Subject:</strong> {subject}</p>
                 <hr className="my-2" />
                 <pre className="whitespace-pre-wrap text-xs font-sans leading-relaxed">
@@ -360,7 +360,7 @@ export default function AdminMailManager() {
             </div>
           </div>
 
-          {/* User picker — specific mode */}
+          {/* User picker - specific mode */}
           {mode === 'specific' && (
             <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
               <div className="flex items-center justify-between mb-3">
@@ -408,7 +408,7 @@ export default function AdminMailManager() {
                       <p className="text-sm font-semibold text-gray-800 truncate">
                         {u.name || u.username || 'Unnamed'}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">{u.email || '—'}</p>
+                      <p className="text-xs text-gray-500 truncate">{u.email || '-'}</p>
                     </div>
                     <span className={`flex-shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
                       u.role === 'admin' ? 'bg-red-100 text-red-700' :
@@ -460,15 +460,15 @@ export default function AdminMailManager() {
                 <p className="text-sm font-bold text-gray-800 mb-2">📊 Send Report</p>
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="bg-white rounded-lg p-2 border">
-                    <p className="text-lg font-black text-gray-700">{result.total ?? '—'}</p>
+                    <p className="text-lg font-black text-gray-700">{result.total ?? '-'}</p>
                     <p className="text-xs text-gray-500">Total</p>
                   </div>
                   <div className="bg-white rounded-lg p-2 border">
-                    <p className="text-lg font-black text-green-600">{result.sent ?? '—'}</p>
+                    <p className="text-lg font-black text-green-600">{result.sent ?? '-'}</p>
                     <p className="text-xs text-gray-500">Sent ✅</p>
                   </div>
                   <div className="bg-white rounded-lg p-2 border">
-                    <p className="text-lg font-black text-red-500">{result.failed ?? '—'}</p>
+                    <p className="text-lg font-black text-red-500">{result.failed ?? '-'}</p>
                     <p className="text-xs text-gray-500">Failed ❌</p>
                   </div>
                 </div>

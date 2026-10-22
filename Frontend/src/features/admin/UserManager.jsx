@@ -133,7 +133,7 @@ const UserManager = () => {
                 {(user.name || user.email || '?').charAt(0).toUpperCase()}
               </div>
               <div>
-                <div className="font-semibold text-gray-900 text-sm">{user.name || '—'}</div>
+                <div className="font-semibold text-gray-900 text-sm">{user.name || '-'}</div>
                 <div className="text-gray-500 text-xs">{user.phone || 'No phone'}</div>
                 <div className="text-gray-400 text-xs">{user.email}</div>
               </div>
@@ -230,7 +230,7 @@ const UserManager = () => {
                   {(selectedUser.user?.name || selectedUser.user?.email || '?').charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <div className="font-bold text-gray-900 text-base">{selectedUser.user?.name || '—'}</div>
+                  <div className="font-bold text-gray-900 text-base">{selectedUser.user?.name || '-'}</div>
                   <div className="text-gray-500 text-sm">{selectedUser.user?.email}</div>
                   <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${
                     selectedUser.user?.role === 'admin' ? 'bg-red-100 text-red-700' :

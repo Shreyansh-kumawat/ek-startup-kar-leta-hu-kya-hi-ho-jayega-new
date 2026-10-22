@@ -72,7 +72,7 @@ const useSmartCurrency = () => {
   return { getDisplayPrices, userRegion, loading };
 };
 
-// ✅ PRICING CARD — NaN FIXED (using credits number directly)
+// ✅ PRICING CARD - NaN FIXED (using credits number directly)
 const PricingCard = memo(({
   title,
   price,
@@ -398,7 +398,7 @@ const Pricing = () => {
             </Card>
           </div>
 
-          {/* CUSTOM SERVICES — Android / Software */}
+          {/* CUSTOM SERVICES - Android / Software */}
           <div className="max-w-6xl mx-auto mt-16">
             <div className="text-center mb-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 mb-4">
@@ -482,7 +482,7 @@ const Pricing = () => {
                   Custom Software
                 </h4>
                 <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-                  Tailored software solutions built to your exact requirements — internal tools, dashboards, or SaaS.
+                  Tailored software solutions built to your exact requirements - internal tools, dashboards, or SaaS.
                 </p>
 
                 <div className="flex items-baseline gap-2 mb-6 pb-6 border-b border-slate-100">

@@ -1,5 +1,5 @@
 // Frontend/src/features/admin/AdminTemplateBookingManager.jsx
-// Standalone /admin/bookings page — same power as WebsiteBookingsManager tab
+// Standalone /admin/bookings page - same power as WebsiteBookingsManager tab
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../auth/useAuth';
 import { useNotification } from '../../hooks/useNotification';
@@ -476,7 +476,7 @@ export default function AdminTemplateBookingManager() {
         <Modal
           isOpen={chatOpen}
           onClose={() => { setChatOpen(false); setSelected(null); setMessages([]); setNewMsg(''); }}
-          title={`💬 Chat — ${selected.templateName}`}
+          title={`💬 Chat - ${selected.templateName}`}
         >
           <div className="flex flex-col" style={{ height: 480 }}>
             {/* Messages */}
