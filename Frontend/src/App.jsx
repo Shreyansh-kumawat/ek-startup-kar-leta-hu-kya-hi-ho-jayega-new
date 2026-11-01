@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './features/auth/useAuth';
 import Loader from './components/Loader';
 import ScrollToTop from './components/ScrollToTop';
+import CanonicalTags from './components/CanonicalTags';
 import IdleAnimation from './components/IdleAnimation';
 import { ReactLenis } from 'lenis/react';
 import 'lenis/dist/lenis.css';
@@ -100,6 +101,7 @@ function App() {
     <ReactLenis root options={{ lerp: 0.1, duration: 1.4, smoothTouch: false, prevent: (node) => node.classList.contains('scrollable-element') }}>
       <div className="min-h-screen bg-gray-50">
         <ScrollToTop />
+        <CanonicalTags />
         <IdleAnimation />
         <Suspense fallback={
           <div className="flex justify-center items-center h-screen bg-gray-50">

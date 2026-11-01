@@ -3,35 +3,35 @@
 
   <!-- Core Pages -->
   <url>
-    <loc>https://3digree.in/</loc>
+    <loc>https://3digree.com/</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://3digree.in/templates</loc>
+    <loc>https://3digree.com/templates</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://3digree.in/pricing</loc>
+    <loc>https://3digree.com/pricing</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://3digree.in/contact</loc>
+    <loc>https://3digree.com/contact</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://3digree.in/about</loc>
+    <loc>https://3digree.com/about</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -39,7 +39,7 @@
 
   <!-- Careers -->
   <url>
-    <loc>https://3digree.in/careers</loc>
+    <loc>https://3digree.com/careers</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -47,7 +47,7 @@
 
   <!-- Labs -->
   <url>
-    <loc>https://3digree.in/labs/about</loc>
+    <loc>https://3digree.com/labs/about</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -55,7 +55,7 @@
 
   <!-- Static / Legal -->
   <url>
-    <loc>https://3digree.in/privacypolocy</loc>
+    <loc>https://3digree.com/privacypolocy</loc>
     <lastmod>2026-04-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>

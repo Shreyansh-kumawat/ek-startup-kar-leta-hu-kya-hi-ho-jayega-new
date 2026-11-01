@@ -6,7 +6,7 @@ Disallow: /admin/
 Disallow: /api/
 
 # Sitemap
-Sitemap: https://3digree.in/sitemap.xml
+Sitemap: https://3digree.com/sitemap.xml
 
 # Crawl delay
 Crawl-delay: 10
