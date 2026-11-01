@@ -76,7 +76,7 @@ const WhatAMarkPrivacy = () => {
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Account Deletion</h2>
           <p className="text-gray-700 leading-relaxed">
             What-a-Mark does not require user accounts. If account-based features are added in the future, you can request deletion at{' '}
-            <a href="https://3digree.in/whatamark/delete-account" className="text-blue-600 hover:underline">
+            <a href="/whatamark/delete-account" className="text-blue-600 hover:underline">
               https://3digree.in/whatamark/delete-account
             </a>.
           </p>
@@ -110,7 +110,7 @@ const WhatAMarkPrivacy = () => {
             </p>
             <p className="text-gray-700 mt-2">
               <strong>Website:</strong>{' '}
-              <a href="https://3digree.in" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
+              <a href="/" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://3digree.in
               </a>
             </p>

@@ -22,7 +22,7 @@ Let's build something great together.
 
 Warm regards,
 The 3Digree Team
-https://3digree.in`,
+https://3digree.com`,
   },
   {
     id: 'offer_credits',
@@ -34,7 +34,7 @@ You've been a valued part of the 3Digree community and we want to say THANK YOU!
 
 We're giving you bonus credits - use them to book any premium website template on 3Digree.
 
-👉 Visit: https://3digree.in/templates
+👉 Visit: https://3digree.com/templates
 
 Offer is valid for a limited time only. Don't miss out!
 
@@ -51,8 +51,8 @@ We noticed you haven't placed a booking yet on 3Digree - and we'd love to help y
 
 With 100+ battle-tested website designs and a dedicated dev team, your dream website is just a few clicks away.
 
-👉 Browse Templates: https://3digree.in/templates
-👉 View Pricing: https://3digree.in/pricing
+👉 Browse Templates: https://3digree.com/templates
+👉 View Pricing: https://3digree.com/pricing
 
 Let's make it happen!
 

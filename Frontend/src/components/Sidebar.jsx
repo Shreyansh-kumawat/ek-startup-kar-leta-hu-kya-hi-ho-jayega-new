@@ -69,7 +69,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       >
         {/* LOGO */}
         <div className="px-5 py-4 border-b border-gray-100 flex-shrink-0">
-          <a href="https://3digree.in" title="Go to 3Digree Home" className="flex items-center gap-3 w-fit group">
+          <a href="/" title="Go to 3Digree Home" className="flex items-center gap-3 w-fit group">
             <img
               src="/icon5.png"
               alt="3Digree"

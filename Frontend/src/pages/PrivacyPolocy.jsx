@@ -19,7 +19,7 @@ const PrivacyPolicy = () => {
         <section className="mb-8">
           <p className="text-gray-700 leading-relaxed">
             Welcome to <strong>3Digree</strong> ("we," "our," or "us"). We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our white-label web development services through our website{' '}
-            <a href="https://3digree.in" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
+            <a href="/" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
               3digree.in
             </a>{' '}
             (the "Service").
@@ -257,7 +257,7 @@ const PrivacyPolicy = () => {
             </p>
             <p className="text-gray-700">
               <strong>Website:</strong>{' '}
-              <a href="https://3digree.in" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
+              <a href="/" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://3digree.in
               </a>
             </p>

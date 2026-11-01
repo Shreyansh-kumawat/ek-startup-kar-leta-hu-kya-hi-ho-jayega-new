@@ -123,7 +123,7 @@ const SpeedoPitchPrivacy = () => {
             </p>
             <p className="text-gray-700 mt-2">
               <strong>Website:</strong>{' '}
-              <a href="https://3digree.in" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
+              <a href="/" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://3digree.in
               </a>
             </p>
