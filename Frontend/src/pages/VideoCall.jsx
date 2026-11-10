@@ -162,8 +162,11 @@ const VideoCall = () => {
           video: { width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: { echoCancellation: true, noiseSuppression: true },
         });
-      } catch {
-        if (!cancelled) setStatus('denied');
+      } catch (err) {
+        if (!cancelled) {
+          const name = err?.name;
+          setStatus(name === 'NotFoundError' ? 'nodevice' : name === 'NotReadableError' || name === 'AbortError' ? 'busy' : 'denied');
+        }
         return;
       }
       if (cancelled) {
@@ -235,9 +238,11 @@ const VideoCall = () => {
   const count = 1 + remoteList.length;
   const grid = count === 1 ? 'grid-cols-1' : count === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-2';
 
-  if (status === 'denied' || status === 'full' || status === 'error') {
+  if (['denied', 'nodevice', 'busy', 'full', 'error'].includes(status)) {
     const msg = {
-      denied: 'Camera / microphone access was blocked. Allow it in your browser settings and reload.',
+      denied: 'Camera / microphone access was blocked. Click the lock icon next to the address bar, allow Camera and Microphone, then reload.',
+      nodevice: 'No camera or microphone was found on this device.',
+      busy: 'Your camera is being used by another app (Zoom, Meet, WhatsApp...). Close it and try again.',
       full: `This room is full (${MAX_PEOPLE} people max).`,
       error: 'Could not connect to the room. Check your internet and reload.',
     }[status];
