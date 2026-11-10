@@ -41,6 +41,7 @@ const SpeedoPitchPrivacy = lazy(() => import('./pages/SpeedoPitchPrivacy'));
 const SpeedoPitchDeleteAccount = lazy(() => import('./pages/SpeedoPitchDeleteAccount'));
 const WhatAMarkPrivacy = lazy(() => import('./pages/WhatAMarkPrivacy'));
 const WhatAMarkDeleteAccount = lazy(() => import('./pages/WhatAMarkDeleteAccount'));
+const VideoCall = lazy(() => import('./pages/VideoCall'));
 
 // Protected User Pages
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -140,6 +141,9 @@ function App() {
               <Route path="whatamark/privacy-policy" element={<PublicRoute><WhatAMarkPrivacy /></PublicRoute>} />
               <Route path="whatamark/delete-account" element={<PublicRoute><WhatAMarkDeleteAccount /></PublicRoute>} />
             </Route>
+
+            {/* ========== VIDEO CALL (full screen, no layout) ========== */}
+            <Route path="/videocall" element={<VideoCall />} />
 
             {/* ========== B2B BOOKING ROUTES ========== */}
             <Route path="/templates/:templateId/book" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
